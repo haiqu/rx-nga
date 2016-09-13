@@ -81,7 +81,7 @@ Additional functions from Retro:
 String comparisons
 
 ````
-:a$ 'word'
+:a$ 'bye'
 
 :count @+ 0; drop ^count
 :getLength dup count #1 - swap - ;
@@ -110,23 +110,28 @@ String comparisons
   &flag @
   ;
 
-:xtest #-1 eq? [ #5 ] _ccall #6 ;
+:xtest #-1 eq? [ bye ] _ccall ;
+
+:startup
+  'rx-2016.09'
+
+:okmsg
+  'ok'
+
+:ok &okmsg puts space ;
 
 :main
-  getToken
-  &TIB puts
-  &a$ &TIB compare
-  xtest
-$a
- words
-$b
-  _end
+  &startup puts cr cr words cr cr
+:main_loop
+  ok getToken
+  &a$ &TIB compare xtest cr
+  ^main_loop
 
 :words
   &dictionary @
 :w1
   0;
-  dup #3 + puts
+  dup #3 + puts space
   @
 ^w1
 
@@ -186,9 +191,12 @@ Rx does not attempt to become a complete Forth. As with Nga, I/O is generally le
 :fs.delete `125 ;
 ````
 
-With this, we can build in some interactivity.
+With this, we can build in some interactivity around a terminal I/O model.
 
 ````
+:cr #10 putc ;
+:space #32 putc ;
+
 :getToken #32 #2048 &TIB gets ;
 :TIB `2049
 ````
