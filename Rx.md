@@ -1,8 +1,12 @@
-The core Nga instruction set consists of 27 instructions. Rx begins by 
+# Rx Core
 
-assigning each to a separate function. These are not intended for direct 
+The *Rx Core* is the *retro experimental core*, a proto-Forth environment. Past incarnations of this have proved very successful, serving as both a basis for Retro and testbed for interesting concepts. *Rx* (as it will be called from this point on) is *not* intended to be used widely. Expect frequent breakages and bugs as new things are added, tested, and removed. It is my hope that this will prove beneficial in building the next generations of Retro and Parable.
 
-use.
+As with all of my recent work, I'm attempting to develop this in  more literate style, intermixing commentary and keeping related things together. The sources are extracted with the *unu* tool, preprocessed by *nuance*, and then assembled using *naje*. On my Linode, this normally takes less than 0.01s.
+
+## Nga Instruction Set
+
+The core Nga instruction set consists of 27 instructions. Rx begins by assigning each to a separate function. These are not intended for direct use.
 
 ````
 :_nop     `0 ;
@@ -34,9 +38,9 @@ use.
 :_end     `26 ;
 ````
 
-Wrap the instructions into actual functions intended for use. Naming here is 
+## Essentials
 
-a blend of Forth, Retro, and Parable.
+Wrap the instructions into actual functions intended for use. Naming here is a blend of Forth, Retro, and Parable.
 
 ````
 :+     "nn-n"   _add ;
@@ -63,6 +67,7 @@ Additional functions from Retro:
 
 ````
 :@+ dup #1 + swap @ ;
+:!+ dup #1 + push ! pop ;
 :over push dup pop swap ;
 :not #-1 xor ;
 :on #-1 swap ! ;
@@ -70,8 +75,7 @@ Additional functions from Retro:
 :/ /mod swap drop ;
 :mod /mod drop ;
 :negate #-1 * ;
-:do #-1 - push ;
-:!+ dup #1 + push ! pop ;
+:do _call ;
 ````
 
 String comparisons
@@ -109,7 +113,7 @@ String comparisons
 :xtest #-1 eq? [ #5 ] _ccall #6 ;
 
 :main
-  token
+  getToken
   &TIB puts
   &a$ &TIB compare
   xtest
@@ -128,29 +132,7 @@ $b
 
 ````
 
-----
-
-````
-:putc `100 ;
-:putn `101 ;
-:puts `102 ;
-:putsc `103 ;
-:cls `104 ;
-:getc `110 ;
-:getn `111 ;
-:gets `112 ;
-:fs.open `118 ;
-:fs.close `119 ;
-:fs.read `120 ;
-:fs.write `121 ;
-:fs.tell `122 ;
-:fs.seek `123 ;
-:fs.size `124 ;
-:fs.delete `125 ;
-
-:TIB `3000
-:token #32 #3 &TIB gets ;
-````
+## Dictionary
 
 The dictionary is a linked list.
 
@@ -181,3 +163,32 @@ The dictionary is a linked list.
 :dictionary |0012
 ````
 
+## Ngura I/O
+
+Rx does not attempt to become a complete Forth. As with Nga, I/O is generally left undefined. For testing purposes it is helpful though, so the following wraps the reference *Ngura* I/O instructions into functions.
+
+````
+:putc `100 ;
+:putn `101 ;
+:puts `102 ;
+:putsc `103 ;
+:cls `104 ;
+:getc `110 ;
+:getn `111 ;
+:gets `112 ;
+:fs.open `118 ;
+:fs.close `119 ;
+:fs.read `120 ;
+:fs.write `121 ;
+:fs.tell `122 ;
+:fs.seek `123 ;
+:fs.size `124 ;
+:fs.delete `125 ;
+````
+
+With this, we can build in some interactivity.
+
+````
+:getToken #32 #2048 &TIB gets ;
+:TIB `2049
+````
