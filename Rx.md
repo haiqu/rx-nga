@@ -102,8 +102,6 @@ String comparisons
   compare_loop drop drop
   &compare::flag @
   ;
-
-:xtest dup #-1 eq? [ drop bye ] _ccall #0 eq? [ $? putc ] _ccall ;
 ````
 
 ## Conditionals
@@ -198,7 +196,15 @@ The dictionary is a linked list.
 :0010  |0009 |xor   |.word 'xor'
 :0011  |0010 |shift |.word 'shift'
 :0012  |0011 |bye   |.word 'bye'
-:9999  |0012 |words |.word 'words'
+
+:0900  |0012 |putc  |.word 'putc'
+:0901  |0900 |putn  |.word 'putn'
+:0902  |0901 |puts  |.word 'puts'
+:0903  |0902 |cls   |.word 'cls'
+:0904  |0903 |getc  |.word 'getc'
+:0905  |0904 |getn  |.word 'getn'
+
+:9999  |0905 |words |.word 'words'
 
 :dictionary |9999
 ````
@@ -225,7 +231,7 @@ Rx does not attempt to become a complete Forth. As with Nga, I/O is generally le
 :putsc `103 ;
 :cls `104 ;
 :getc `110 ;
-:getn `111 ;
+:getn #32 `111 ;
 :gets `112 ;
 :fs.open `118 ;
 :fs.close `119 ;
