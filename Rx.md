@@ -156,7 +156,7 @@ Next two additional forms:
   &startup puts cr cr words cr cr
 :main_loop
   ok getToken find
-  &which @ #0 -eq? [ &which @ #1 + @ _call ] [ $? putc ] cond cr
+  &which @ #0 -eq? [ &which @ dup #1 + @ swap #2 + @ _call ] [ $? putc ] cond cr
   ^main_loop
 
 :words
@@ -199,7 +199,9 @@ The dictionary is a linked list.
 :0011  |0010 |shift |.word 'shift'
 :0012  |0011 |bye   |.word 'bye'
 
-:0900  |0012 |putc  |.word 'putc'
+:0100  |0012 |heap  |.data 'heap'
+
+:0900  |0100 |putc  |.word 'putc'
 :0901  |0900 |putn  |.word 'putn'
 :0902  |0901 |puts  |.word 'puts'
 :0903  |0902 |cls   |.word 'cls'
