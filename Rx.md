@@ -126,14 +126,23 @@ String comparisons
 
 :ok &okmsg puts space ;
 
+:which `0
+
+:find
+  #0 &which !
+  &dictionary @
+:f1
+  0;
+  dup #3 + &TIB compare [ dup push #1 + @ _call pop dup &which ! ] [ ] if
+  @
+^f1
+
+
 :main
   &startup puts cr cr words cr cr
 :main_loop
-  $1
-  ok getToken
-  &a$ &TIB compare dup ytest cr
-  $2
-  bye
+  ok getToken find
+  &which @ #0 -eq? [ ] [ $? putc ] if cr
   ^main_loop
 
 :words
@@ -173,8 +182,9 @@ The dictionary is a linked list.
 :0010  |0009 |xor   |.word 'xor'
 :0011  |0010 |shift |.word 'shift'
 :0012  |0011 |bye   |.word 'bye'
+:9999  |0012 |words |.word 'words'
 
-:dictionary |0012
+:dictionary |9999
 ````
 
 ## Compiler
