@@ -66,16 +66,16 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 Additional functions from Retro:
 
 ````
-:@+ dup #1 + swap @ ;
-:!+ dup #1 + push ! pop ;
-:over push dup pop swap ;
-:not #-1 xor ;
-:on #-1 swap ! ;
-:off #0 swap ! ;
-:/ /mod swap drop ;
-:mod /mod drop ;
+:@+     dup #1 + swap @ ;
+:!+     dup #1 + push ! pop ;
+:over   push dup pop swap ;
+:not    #-1 xor ;
+:on     #-1 swap ! ;
+:off    #0 swap ! ;
+:/      /mod swap drop ;
+:mod    /mod drop ;
 :negate #-1 * ;
-:do _call ;
+:do     _call ;
 ````
 
 String comparisons
@@ -112,6 +112,12 @@ String comparisons
 
 :xtest dup #-1 eq? [ drop bye ] _ccall #0 eq? [ $? putc ] _ccall ;
 
+:if::true  `0
+:if::false `0
+:if  "ftf-"  &if::false ! &if::true ! &if::false + @ _call ;
+
+:ytest [ bye ] [ $? putc ] if ;
+
 :startup
   'rx-2016.09'
 
@@ -123,8 +129,11 @@ String comparisons
 :main
   &startup puts cr cr words cr cr
 :main_loop
+  $1
   ok getToken
-  &a$ &TIB compare xtest cr
+  &a$ &TIB compare dup ytest cr
+  $2
+  bye
   ^main_loop
 
 :words
@@ -174,7 +183,7 @@ The dictionary is a linked list.
 :heap `0
 :compiler `0
 :here &heap @ ;
-:,    here !+ &heap # ! ;
+:,    here !+ &heap ! ;
 :;;   &_ret @ , ;
 :t-;  ;; &compiler off ;
 ````
