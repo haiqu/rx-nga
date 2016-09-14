@@ -47,10 +47,6 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 :-     "nn-n"   _sub ;
 :*     "nn-n"   _mul ;
 :/mod  "nn-mq"  _divmod ;
-:eq?   "nn-f"   _eq ;
-:-eq?  "nn-f"   _neq ;
-:lt?   "nn-f"   _lt ;
-:gt?   "nn-f"   _gt ;
 :and   "nn-n"   _and ;
 :or    "nn-n"   _or ;
 :xor   "nn-n"   _xor ;
@@ -108,13 +104,36 @@ String comparisons
   ;
 
 :xtest dup #-1 eq? [ drop bye ] _ccall #0 eq? [ $? putc ] _ccall ;
+````
 
+## Conditionals
+
+First up, wrap the Nga conditional instructions into callable names. These follow Parable conventions.
+
+````
+:eq?   "nn-f"   _eq ;
+:-eq?  "nn-f"   _neq ;
+:lt?   "nn-f"   _lt ;
+:gt?   "nn-f"   _gt ;
+````
+
+Next, implement **cond**, a conditional combinator which will execute one of two functions, depending on the state of a flag. We take advantage of a little hack here. Store the pointers into a jump table with two fields, and use the flag as the index. Default to the *false* entry, since a *true* flag is -1.
+
+````
 :if::true  `0
 :if::false `0
-:if  "ftf-"  &if::false ! &if::true ! &if::false + @ _call ;
+:cond  "bpp-" &if::false ! &if::true ! &if::false + @ _call ;
+````
 
-:ytest [ bye ] [ $? putc ] if ;
+Next two additional forms:
 
+````
+:if   _ccall ;
+:-if  push #0 eq? pop _ccall ;
+````
+
+
+````
 :startup
   'rx-2016.09'
 
@@ -130,7 +149,7 @@ String comparisons
   &dictionary @
 :f1
   0;
-  dup #3 + &TIB compare [ dup push #1 + @ _call pop dup &which ! ] [ ] if
+  dup #3 + &TIB compare [ dup push #1 + @ _call pop dup &which ! ] if
   @
 ^f1
 
@@ -139,7 +158,7 @@ String comparisons
   &startup puts cr cr words cr cr
 :main_loop
   ok getToken find
-  &which @ #0 -eq? [ ] [ $? putc ] if cr
+  &which @ #0 eq? [ $? putc ] if cr
   ^main_loop
 
 :words
