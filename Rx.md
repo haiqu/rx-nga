@@ -147,7 +147,7 @@ Next two additional forms:
   &dictionary @
 :f1
   0;
-  dup #3 + &TIB compare [ dup push #1 + @ _call pop dup &which ! ] if
+  dup #3 + &TIB compare [ dup &which ! ] if
   @
 ^f1
 
@@ -156,7 +156,7 @@ Next two additional forms:
   &startup puts cr cr words cr cr
 :main_loop
   ok getToken find
-  &which @ #0 eq? [ $? putc ] if cr
+  &which @ #0 -eq? [ &which @ #1 + @ _call ] [ $? putc ] cond cr
   ^main_loop
 
 :words
@@ -182,6 +182,8 @@ The dictionary is a linked list.
 
 ````
 :.word _call ;
+:.macro _call ;
+:.data ;
 
 :0000  `0    |+     |.word '+'
 :0001  |0000 |-     |.word '-'
