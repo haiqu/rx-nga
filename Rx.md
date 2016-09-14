@@ -199,9 +199,12 @@ The dictionary is a linked list.
 :0011  |0010 |shift |.word 'shift'
 :0012  |0011 |bye   |.word 'bye'
 
-:0100  |0012 |heap  |.data 'heap'
-
-:0900  |0100 |putc  |.word 'putc'
+:0100  |0012 |heap  |.data  'heap'
+:0101  |0100 |comma |.word  ','
+:0103  |0101 |]]    |.word  ']]'
+:0104  |0103 |[[    |.macro '[['
+:0105  |0104 |@     |.word 'fetch'
+:0900  |0105 |putc  |.word 'putc'
 :0901  |0900 |putn  |.word 'putn'
 :0902  |0901 |puts  |.word 'puts'
 :0903  |0902 |cls   |.word 'cls'
@@ -216,12 +219,13 @@ The dictionary is a linked list.
 ## Compiler
 
 ````
-:heap `0
+:heap `8192
 :compiler `0
 :here &heap @ ;
-:,    here !+ &heap ! ;
-:;;   &_ret @ , ;
-:t-;  ;; &compiler off ;
+:comma here !+ &heap ! ;
+:fin   &_ret @ comma &compiler off ;
+:]]   &compiler on ;
+:[[   &compiler off ;
 ````
 
 ## Ngura I/O
@@ -254,5 +258,5 @@ With this, we can build in some interactivity around a terminal I/O model.
 :space #32 putc ;
 
 :getToken #32 #2048 &TIB gets ;
-:TIB `2049
+:TIB `4096
 ````
