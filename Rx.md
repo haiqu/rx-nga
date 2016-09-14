@@ -168,6 +168,17 @@ The dictionary is a linked list.
 :dictionary |0012
 ````
 
+## Compiler
+
+````
+:heap `0
+:compiler `0
+:here &heap @ ;
+:,    here !+ &heap # ! ;
+:;;   &_ret @ , ;
+:t-;  ;; &compiler off ;
+````
+
 ## Ngura I/O
 
 Rx does not attempt to become a complete Forth. As with Nga, I/O is generally left undefined. For testing purposes it is helpful though, so the following wraps the reference *Ngura* I/O instructions into functions.
