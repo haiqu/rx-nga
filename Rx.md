@@ -81,33 +81,30 @@ Additional functions from Retro:
 String comparisons
 
 ````
-:a$ 'bye'
-
 :count @+ 0; drop ^count
 :getLength dup count #1 - swap - ;
+
+:compare::flag `0
+:compare::maxlength `0
 
 :getSet @ swap @ ;
 :nextSet #1 + swap #1 + ;
 
-:flag      `0
-:maxlength `0
-
 :compare_loop
   over over
-  getSet eq? &flag !
+  getSet eq? &compare::flag !
   nextSet
-  &maxlength @ #1 - &maxlength !
+  &compare::maxlength @ #1 - &compare::maxlength !
 
   "Exit conditions"
-  &maxlength @ 0; drop
-  &flag @ 0; drop
+  &compare::maxlength @ &compare::flag @ and 0; drop
   ^compare_loop
 
 :compare
-  #0 &flag !
-  dup getLength &maxlength !
+  #0 &compare::flag !
+  dup getLength &compare::maxlength !
   compare_loop drop drop
-  &flag @
+  &compare::flag @
   ;
 
 :xtest dup #-1 eq? [ drop bye ] _ccall #0 eq? [ $? putc ] _ccall ;
