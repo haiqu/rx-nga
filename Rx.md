@@ -110,7 +110,7 @@ String comparisons
   &flag @
   ;
 
-:xtest #-1 eq? [ bye ] _ccall ;
+:xtest dup #-1 eq? [ drop bye ] _ccall #0 eq? [ $? putc ] _ccall ;
 
 :startup
   'rx-2016.09'
