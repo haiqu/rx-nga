@@ -83,10 +83,6 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 
 Additional functions from Retro:
 
-````
-:do     _call ;
-````
-
 String comparisons
 
 ````
@@ -123,7 +119,7 @@ Implement **cond**, a conditional combinator which will execute one of two funct
 ````
 :if::true  `0
 :if::false `0
-:cond  "bpp-" &if::false ! &if::true ! &if::false + @ _call ;
+:cond  "bpp-" &if::false ! &if::true ! &if::false + @ call ;
 ````
 
 Next two additional forms:
@@ -137,10 +133,12 @@ Next two additional forms:
 
 ### Word Classes
 
+Rx handles functions via handlers called *word classes*. Each of these is a function responsible for handling specific groupings of functions. The class handlers will either invoke the code in a function or compile the code needed to call them.
+
 ````
 :.data &compiler @ 0; drop &_lit opcode comma ;
-:.word &compiler @ [ &_lit opcode comma &_call opcode ] [ _call ] cond ;
-:.macro _call ;
+:.word &compiler @ [ .data &_call opcode ] [ call ] cond ;
+:.macro call ;
 ````
 
 ### Dictionary
@@ -196,7 +194,7 @@ Rx provides accessor functions for each field. Since the number of fields (or th
 ````
 :notfound $? putc ;
 
-lookup #0 -eq? [ &which @ dup d:xt @ swap d:class @ _call ] [ notfound ] cond
+lookup #0 -eq? [ &which @ dup d:xt @ swap d:class @ call ] [ notfound ] cond
 ````
 
 ## Compiler
@@ -227,7 +225,7 @@ lookup #0 -eq? [ &which @ dup d:xt @ swap d:class @ _call ] [ notfound ] cond
 :main_loop
   ok getToken
   find
-  &which @ #0 -eq? [ &which @ dup #1 + @ swap #2 + @ _call ] [ $? putc ] cond
+  &which @ #0 -eq? [ &which @ dup #1 + @ swap #2 + @ call ] [ $? putc ] cond
   &compiler @ [ cr ] -if
   ^main_loop
 
@@ -247,35 +245,51 @@ The dictionary is a linked list.
 
 
 ````
-:0000  `0    |+     |.word '+'
-:0001  |0000 |-     |.word '-'
-:0002  |0001 |*     |.word '*'
-:0003  |0002 |/mod  |.word '/mod'
-:0004  |0003 |eq?   |.word 'eq?'
-:0005  |0004 |-eq?  |.word '-eq?'
-:0006  |0005 |lt?   |.word 'lt?'
-:0007  |0006 |gt?   |.word 'gt?'
-:0008  |0007 |and   |.word 'and'
-:0009  |0008 |or    |.word 'or'
-:0010  |0009 |xor   |.word 'xor'
-:0011  |0010 |shift |.word 'shift'
-:0012  |0011 |bye   |.word 'bye'
+:0000 `0    |dup   |.word 'dup'
+:0001 |0000 |drop  |.word 'drop'
+:0002 |0001 |swap  |.word 'swap'
+:0003 |0002 |call  |.word 'call'
+:0004 |0003 |eq?   |.word 'eq?'
+:0005 |0004 |-eq?  |.word '-eq?'
+:0006 |0005 |lt?   |.word 'lt?'
+:0007 |0006 |gt?   |.word 'gt?'
+:0008 |0007 |fetch |.word 'fetch'
+:0009 |0008 |store |.word 'store'
+:0010 |0009 |+     |.word '+'
+:0011 |0010 |-     |.word '-'
+:0012 |0011 |*     |.word '*'
+:0013 |0012 |/mod  |.word '/mod'
+:0014 |0013 |and   |.word 'and'
+:0015 |0014 |or    |.word 'or'
+:0016 |0015 |xor   |.word 'xor'
+:0017 |0016 |shift |.word 'shift'
+:0018 |0017 |bye   |.word 'bye'
+:0019 |0018 |rot   |.word 'rot'
+:0020 |0019 |-rot  |.word '-rot'
+:0021 |0020 |tuck  |.word 'tuck'
+:0022 |0021 |over  |.word 'over'
+:0023 |0022 |nip   |.word 'nip'
+:0024 |0023 |dup-pair  |.word 'dup-pair'
+:0025 |0024 |drop-pair |.word 'drop-pair'
+:0026 |0025 |/      |.word '/'
+:0027 |0026 |mod    |.word 'mod'
+:0028 |0027 |negate |.word 'negate'
+:0029 |0028 |not    |.word 'not'
+:0030 |0029 |@+     |.word '@+'
+:0031 |0030 |!+     |.word '!+'
+:0032 |0031 |on     |.word 'on'
+:0033 |0032 |off     |.word 'off'
 
-:0100  |0012 |heap  |.data  'heap'
+:0100  |0033 |heap  |.data  'heap'
 :0101  |0100 |comma |.word  ','
 :0103  |0101 |]]    |.word  ']]'
 :0104  |0103 |[[    |.macro '[['
 :0105  |0104 |@     |.word 'fetch'
 :0106  |0105 |here  |.word 'here'
-:0107  |0106 |do    |.word 'do'
+:0107  |0106 |call  |.word 'call'
 :0108  |0107 |fin   |.macro ';'
 
-:0200  |0108 |dup   |.word 'dup'
-:0201  |0200 |drop  |.word 'drop'
-:0202  |0201 |swap  |.word 'swap'
-:0203  |0202 |over  |.word 'over'
-
-:0900  |0203 |putc  |.word 'putc'
+:0900  |0108 |putc  |.word 'putc'
 :0901  |0900 |putn  |.word 'putn'
 :0902  |0901 |puts  |.word 'puts'
 :0903  |0902 |cls   |.word 'cls'
