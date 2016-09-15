@@ -6,7 +6,7 @@ As with all of my recent work, I'm attempting to develop this in  more literate 
 
 ## Nga Instruction Set
 
-The core Nga instruction set consists of 27 instructions. Rx begins by assigning each to a separate function. These are not intended for direct use.
+The core Nga instruction set consists of 27 instructions. Rx begins by assigning each to a separate function. These are not intended for direct use; in Rx the compiler will fetch the opcode values to use from these functions when compiling. Some of them will also be wrapped in normal functions later.
 
 ````
 :_nop     `0 ;
@@ -183,9 +183,9 @@ The dictionary is a linked list.
 | name  | zero terminated string                      |
 
 ````
-:.word &compiler @ [ &_lit @ comma comma &_call @ comma ] [ _call ] cond ;
+:.data &compiler @ 0; drop &_lit opcode comma ;
+:.word &compiler @ [ &_lit opcode comma &_call opcode ] [ _call ] cond ;
 :.macro _call ;
-:.data ;
 
 :0000  `0    |+     |.word '+'
 :0001  |0000 |-     |.word '-'
@@ -230,11 +230,12 @@ The dictionary is a linked list.
 ## Compiler
 
 ````
+:opcode fetch copmma ;
 :heap `8192
 :compiler `0
 :here &heap @ ;
 :comma here !+ &heap ! ;
-:fin   &_ret @ comma &compiler off ;
+:fin   &_ret opcode &compiler off ;
 :]]   &compiler on ;
 :[[   &compiler off ;
 ````
