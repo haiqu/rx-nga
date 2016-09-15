@@ -89,6 +89,9 @@ String comparisons
 :count @+ 0; drop ^count
 :getLength dup count #1 - swap - ;
 
+:($)  "a-a"  dup fetch 0; comma #1 + ^($)
+:$    "a-"  ($) drop #0 comma ;
+
 :compare::flag `0
 :compare::maxlength `0
 
@@ -220,6 +223,7 @@ Rx provides accessor functions for each field. Since the number of fields (or th
 
 :main
   &startup puts cr cr words cr cr
+  &test (convert) &value fetch putn cr cr
 :main_loop
   &compiler @ [ ok ] -if getToken
   lookup #0 -eq? [ &which @ dup d:xt @ swap d:class @ call ] [ notfound ] cond
@@ -331,4 +335,17 @@ With this, we can build in some interactivity around a terminal I/O model.
 
 :getToken #32 #2048 &TIB gets ;
 :TIB `4096
+````
+
+````
+:value `0
+:char>digit $0 - ;
+
+:(convert)
+    dup fetch 0; char>digit &value fetch #10 * +
+    &value store #1 +
+  ^(convert)
+
+:test '9804'
+
 ````
