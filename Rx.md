@@ -72,6 +72,8 @@ Additional functions from Retro:
 :mod    /mod drop ;
 :negate #-1 * ;
 :do     _call ;
+:dup-pair over over ;
+:drop-pair drop drop ;
 ````
 
 String comparisons
@@ -87,9 +89,8 @@ String comparisons
 :nextSet #1 + swap #1 + ;
 
 :compare_loop
-  over over
-  getSet eq? &compare::flag !
-  nextSet
+  dup-pair
+  getSet eq? &compare::flag ! nextSet
   &compare::maxlength @ #1 - &compare::maxlength !
 
   "Exit conditions"
@@ -156,7 +157,8 @@ Next two additional forms:
   &startup puts cr cr words cr cr
 :main_loop
   ok getToken find
-  &which @ #0 -eq? [ &which @ dup #1 + @ swap #2 + @ _call ] [ $? putc ] cond cr
+  &which @ #0 -eq? [ &which @ dup #1 + @ swap #2 + @ _call ] [ $? putc ] cond
+  &compiler @ [ cr ] -if
   ^main_loop
 
 :words
@@ -181,7 +183,7 @@ The dictionary is a linked list.
 | name  | zero terminated string                      |
 
 ````
-:.word _call ;
+:.word &compiler @ [ &_lit @ comma comma &_call @ comma ] [ _call ] cond ;
 :.macro _call ;
 :.data ;
 
@@ -204,7 +206,16 @@ The dictionary is a linked list.
 :0103  |0101 |]]    |.word  ']]'
 :0104  |0103 |[[    |.macro '[['
 :0105  |0104 |@     |.word 'fetch'
-:0900  |0105 |putc  |.word 'putc'
+:0106  |0105 |here  |.word 'here'
+:0107  |0106 |do    |.word 'do'
+:0108  |0107 |fin   |.macro ';'
+
+:0200  |0108 |dup   |.word 'dup'
+:0201  |0200 |drop  |.word 'drop'
+:0202  |0201 |swap  |.word 'swap'
+:0203  |0202 |over  |.word 'over'
+
+:0900  |0203 |putc  |.word 'putc'
 :0901  |0900 |putn  |.word 'putn'
 :0902  |0901 |puts  |.word 'puts'
 :0903  |0902 |cls   |.word 'cls'
