@@ -9,40 +9,32 @@ As with all of my recent work, I'm attempting to develop this in  more literate 
 The core Nga instruction set consists of 27 instructions. Rx begins by assigning each to a separate function. These are not intended for direct use; in Rx the compiler will fetch the opcode values to use from these functions when compiling. Some of them will also be wrapped in normal functions later.
 
 ````
-:_nop     `0 ;
-:_lit     `1 ;
-:_dup     `2 ;
-:_drop    `3 ;
-:_swap    `4 ;
-:_push    `5 ;
-:_pop     `6 ;
-:_jump    `7 ;
-:_call    `8 ;
-:_ccall   `9 ;
-:_ret     `10 ;
-:_eq      `11 ;
-:_neq     `12 ;
-:_lt      `13 ;
-:_gt      `14 ;
-:_fetch   `15 ;
-:_store   `16 ;
-:_add     `17 ;
-:_sub     `18 ;
-:_mul     `19 ;
-:_divmod  `20 ;
-:_and     `21 ;
-:_or      `22 ;
-:_xor     `23 ;
-:_shift   `24 ;
-:_zret    `25 ;
-:_end     `26 ;
+:_nop     `0 ;   :_lit     `1 ;   :_dup     `2 ;   :_drop    `3 ;
+:_swap    `4 ;   :_push    `5 ;   :_pop     `6 ;   :_jump    `7 ;
+:_call    `8 ;   :_ccall   `9 ;   :_ret     `10 ;  :_eq      `11 ;
+:_neq     `12 ;  :_lt      `13 ;  :_gt      `14 ;  :_fetch   `15 ;
+:_store   `16 ;  :_add     `17 ;  :_sub     `18 ;  :_mul     `19 ;
+:_divmod  `20 ;  :_and     `21 ;  :_or      `22 ;  :_xor     `23 ;
+:_shift   `24 ;  :_zret    `25 ;  :_end     `26 ;
 ````
 
 ## Essentials
 
+### Primitives
+
 Wrap the instructions into actual functions intended for use. Naming here is a blend of Forth, Retro, and Parable.
 
 ````
+:dup   "n-nn"   _dup ;
+:drop  "nx-n"   _drop ;
+:swap  "nx-xn"  _swap ;
+:call  "p-"     _call ;
+:eq?   "nn-f"   _eq ;
+:-eq?  "nn-f"   _neq ;
+:lt?   "nn-f"   _lt ;
+:gt?   "nn-f"   _gt ;
+:fetch "p-n"    _fetch ;
+:store "np-"    _store ;
 :+     "nn-n"   _add ;
 :-     "nn-n"   _sub ;
 :*     "nn-n"   _mul ;
@@ -52,28 +44,47 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 :xor   "nn-n"   _xor ;
 :shift "nn-n"   _shift ;
 :bye   "-"      _end ;
+````
+
+### Stack Shufflers
+
+````
+:rot       "xyz-yzx"  push swap pop swap ;
+:-rot      "xyz-xzy"  swap push swap pop ;
+:tuck      "xy-yxy"   dup -rot ;
+:over      "xy-xyx"   push dup pop swap ;
+:nip       "xy-y"     swap drop ;
+:dup-pair  "xy-xyxy"  over over ;
+:drop-pair "xy-"      drop drop ;
+````
+
+### Math & Logic
+
+````
+:/       "nq-d" /mod swap drop ;
+:mod     "nq-r" /mod drop ;
+:negate  "n-n"  #-1 * ;
+:not     "n-n"  #-1 xor ;
+````
+
+### Memory
+
+````
+:@+     dup #1 + swap @ ;
+:!+     dup #1 + push ! pop ;
+:on     #-1 swap ! ;
+:off    #0 swap ! ;
+````
+
+````
 :@     "a-n"    _fetch ;
 :!     "na-"    _store ;
-:dup   "n-nn"   _dup ;
-:drop  "nx-n"   _drop ;
-:swap  "nx-xn"  _swap ;
 ````
 
 Additional functions from Retro:
 
 ````
-:@+     dup #1 + swap @ ;
-:!+     dup #1 + push ! pop ;
-:over   push dup pop swap ;
-:not    #-1 xor ;
-:on     #-1 swap ! ;
-:off    #0 swap ! ;
-:/      /mod swap drop ;
-:mod    /mod drop ;
-:negate #-1 * ;
 :do     _call ;
-:dup-pair over over ;
-:drop-pair drop drop ;
 ````
 
 String comparisons
@@ -107,16 +118,7 @@ String comparisons
 
 ## Conditionals
 
-First up, wrap the Nga conditional instructions into callable names. These follow Parable conventions.
-
-````
-:eq?   "nn-f"   _eq ;
-:-eq?  "nn-f"   _neq ;
-:lt?   "nn-f"   _lt ;
-:gt?   "nn-f"   _gt ;
-````
-
-Next, implement **cond**, a conditional combinator which will execute one of two functions, depending on the state of a flag. We take advantage of a little hack here. Store the pointers into a jump table with two fields, and use the flag as the index. Default to the *false* entry, since a *true* flag is -1.
+Implement **cond**, a conditional combinator which will execute one of two functions, depending on the state of a flag. We take advantage of a little hack here. Store the pointers into a jump table with two fields, and use the flag as the index. Default to the *false* entry, since a *true* flag is -1.
 
 ````
 :if::true  `0
@@ -230,7 +232,7 @@ The dictionary is a linked list.
 ## Compiler
 
 ````
-:opcode fetch copmma ;
+:opcode @ comma ;
 :heap `8192
 :compiler `0
 :here &heap @ ;
