@@ -223,7 +223,7 @@ Rx provides accessor functions for each field. Since the number of fields (or th
 
 :main
   &startup puts cr cr words cr cr
-  &test asnumber putn cr cr
+  &test asnumber &test2 asnumber putn space putn cr cr
 :main_loop
   &compiler @ [ ok ] -if getToken
   lookup #0 -eq? [ &which @ dup d:xt @ swap d:class @ call ] [ notfound ] cond
@@ -338,6 +338,7 @@ With this, we can build in some interactivity around a terminal I/O model.
 ````
 
 ````
+:asn:mod `0
 :acc `0
 :char>digit $0 - ;
 
@@ -346,9 +347,15 @@ With this, we can build in some interactivity around a terminal I/O model.
     &acc store #1 +
   ^(convert)
 
+:asnumber:negative?  "p-p"
+  #1 &asn:mod store
+  #0 &acc store
+  dup fetch $- eq? [ #-1 &asn:mod store #1 + ] if ;
+
 :asnumber "p-n"
-  #0 &acc store (convert) drop &acc fetch ;
+  asnumber:negative? (convert) drop &acc fetch &asn:mod fetch * ;
 
 :test '9804'
+:test2 '-4011'
 
 ````
