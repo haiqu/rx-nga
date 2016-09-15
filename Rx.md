@@ -193,8 +193,6 @@ Rx provides accessor functions for each field. Since the number of fields (or th
 
 ````
 :notfound $? putc ;
-
-lookup #0 -eq? [ &which @ dup d:xt @ swap d:class @ call ] [ notfound ] cond
 ````
 
 ## Compiler
@@ -223,9 +221,8 @@ lookup #0 -eq? [ &which @ dup d:xt @ swap d:class @ call ] [ notfound ] cond
 :main
   &startup puts cr cr words cr cr
 :main_loop
-  ok getToken
-  find
-  &which @ #0 -eq? [ &which @ dup #1 + @ swap #2 + @ call ] [ $? putc ] cond
+  &compiler @ [ ok ] -if getToken
+  lookup #0 -eq? [ &which @ dup d:xt @ swap d:class @ call ] [ notfound ] cond
   &compiler @ [ cr ] -if
   ^main_loop
 
@@ -279,8 +276,12 @@ The dictionary is a linked list.
 :0031 |0030 |!+     |.word '!+'
 :0032 |0031 |on     |.word 'on'
 :0033 |0032 |off     |.word 'off'
+:0034 |0033 |compare |.word 'compare'
+:0035 |0034 |cond    |.word 'cond'
+:0036 |0035 |if      |.word 'if'
+:0037 |0036 |-if     |.word '-if'
 
-:0100  |0033 |heap  |.data  'heap'
+:0100  |0036 |heap  |.data  'heap'
 :0101  |0100 |comma |.word  ','
 :0103  |0101 |]]    |.word  ']]'
 :0104  |0103 |[[    |.macro '[['
