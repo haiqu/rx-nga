@@ -116,7 +116,7 @@ String comparisons
   ;
 ````
 
-## Conditionals
+### Conditionals
 
 Implement **cond**, a conditional combinator which will execute one of two functions, depending on the state of a flag. We take advantage of a little hack here. Store the pointers into a jump table with two fields, and use the flag as the index. Default to the *false* entry, since a *true* flag is -1.
 
@@ -133,6 +133,85 @@ Next two additional forms:
 :-if  push #0 eq? pop _ccall ;
 ````
 
+## Interpreter
+
+### Word Classes
+
+````
+:.data &compiler @ 0; drop &_lit opcode comma ;
+:.word &compiler @ [ &_lit opcode comma &_call opcode ] [ _call ] cond ;
+:.macro _call ;
+````
+
+### Dictionary
+
+The dictionary is a simple linked list, with the following format.
+
+| field | holds                                       |
+| ----- | ------------------------------------------- |
+| link  | link to the previous entry, 0 if last entry |
+| xt    | link to start of the function               |
+| class | link to the class handler function          |
+| name  | zero terminated string                      |
+
+The initial dictionary is constructed at the end of this file. It'll take a form like this:
+
+    :0000  `0    |+     |.word '+'
+    :0001  |0000 |-     |.word '-'
+
+Each label will contain a reference to the prior one, the internal function name, its class, and a string indicating the name to expose to the Rx interpreter.
+
+Rx will store the pointer to the most recent entry in a variable called **dictionary**. For simplicity, we just assign the last entry an arbitrary label of 9999.
+
+````
+:dictionary |9999
+````
+
+Rx provides accessor functions for each field. Since the number of fields (or their ordering) may change over time, using these reduces the number of places where field offsets are hard coded.
+
+````
+:d:link  "d-p"  #0 + ;
+:d:xt    "d-p"  #1 + ;
+:d:class "d-p"  #2 + ;
+:d:name  "d-p"  #3 + ;
+````
+
+### Dictionary Search
+
+````
+:which `0
+
+:find
+  #0 &which !
+  &dictionary @
+:find_next
+  0;
+  dup #3 + &TIB compare [ dup &which ! ] if
+  @
+^find_next
+
+:lookup find &which fetch ;
+````
+
+````
+:notfound $? putc ;
+
+lookup #0 -eq? [ &which @ dup d:xt @ swap d:class @ _call ] [ notfound ] cond
+````
+
+## Compiler
+
+````
+:opcode @ comma ;
+:heap `8192
+:compiler `0
+:here &heap @ ;
+:comma here !+ &heap ! ;
+:fin   &_ret opcode &compiler off ;
+:]]   &compiler on ;
+:[[   &compiler off ;
+````
+
 
 ````
 :startup
@@ -143,22 +222,11 @@ Next two additional forms:
 
 :ok &okmsg puts space ;
 
-:which `0
-
-:find
-  #0 &which !
-  &dictionary @
-:f1
-  0;
-  dup #3 + &TIB compare [ dup &which ! ] if
-  @
-^f1
-
-
 :main
   &startup puts cr cr words cr cr
 :main_loop
-  ok getToken find
+  ok getToken
+  find
   &which @ #0 -eq? [ &which @ dup #1 + @ swap #2 + @ _call ] [ $? putc ] cond
   &compiler @ [ cr ] -if
   ^main_loop
@@ -177,18 +245,8 @@ Next two additional forms:
 
 The dictionary is a linked list.
 
-| field | holds                                       |
-| ----- | ------------------------------------------- |
-| link  | link to the previous entry, 0 if last entry |
-| xt    | link to start of the function               |
-| class | link to the class handler function          |
-| name  | zero terminated string                      |
 
 ````
-:.data &compiler @ 0; drop &_lit opcode comma ;
-:.word &compiler @ [ &_lit opcode comma &_call opcode ] [ _call ] cond ;
-:.macro _call ;
-
 :0000  `0    |+     |.word '+'
 :0001  |0000 |-     |.word '-'
 :0002  |0001 |*     |.word '*'
@@ -225,21 +283,6 @@ The dictionary is a linked list.
 :0905  |0904 |getn  |.word 'getn'
 
 :9999  |0905 |words |.word 'words'
-
-:dictionary |9999
-````
-
-## Compiler
-
-````
-:opcode @ comma ;
-:heap `8192
-:compiler `0
-:here &heap @ ;
-:comma here !+ &heap ! ;
-:fin   &_ret opcode &compiler off ;
-:]]   &compiler on ;
-:[[   &compiler off ;
 ````
 
 ## Ngura I/O
