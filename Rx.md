@@ -375,23 +375,37 @@ With this, we can build in some interactivity around a terminal I/O model.
 
 ## Number Conversion
 
-````
-:asn:mod `0
-:acc `0
-:char>digit $0 - ;
+This code converts a zero terminated string into a number. The approach is very simple:
 
-:(convert)
-    dup fetch 0; char>digit &acc fetch #10 * +
-    &acc store #1 +
-  ^(convert)
+* Store an internal multiplier value (-1 for negative, 1 for positive)
+* Clear an internal accumulator value
+* Loop:
+
+  * Fetch the accumulator value
+  * Multiply by 10
+  * For each character, convert to a numeric value and add to the accumulator
+  * Store the updated accumulator
+
+* When done, take the accumulator value and the modifier and multiply them to get the final result
+
+````
+:asnumber:mod `0  "modifier"
+:asnumber:acc `0  "accumulator"
+
+:asnumber:char>digit $0 - ;
+
+:asnumber:convert  "p-p"
+  dup fetch 0; asnumber:char>digit &asnumber:acc fetch #10 * +
+  &asnumber:acc store #1 +
+  ^asnumber:convert
 
 :asnumber:negative?  "p-p"
-  #1 &asn:mod store
-  #0 &acc store
-  dup fetch $- eq? [ #-1 &asn:mod store #1 + ] if ;
+  #1 &asnumber:mod store
+  #0 &asnumber:acc store
+  dup fetch $- eq? [ #-1 &asnumber:mod store #1 + ] if ;
 
 :asnumber "p-n"
-  asnumber:negative? (convert) drop &acc fetch &asn:mod fetch * ;
+  asnumber:negative? asnumber:convert drop &asnumber:acc fetch &asnumber:mod fetch * ;
 
 :test '9804'
 :test2 '-4011'
