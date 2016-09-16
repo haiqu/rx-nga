@@ -394,9 +394,10 @@ This code converts a zero terminated string into a number. The approach is very 
 
 :asnumber:char>digit $0 - ;
 
+:asnumber:scale  "-n"  &asnumber:acc fetch #10 * ;
+
 :asnumber:convert  "p-p"
-  dup fetch 0; asnumber:char>digit &asnumber:acc fetch #10 * +
-  &asnumber:acc store #1 +
+  @+ 0; asnumber:char>digit asnumber:scale + &asnumber:acc store
   ^asnumber:convert
 
 :asnumber:negative?  "p-p"
