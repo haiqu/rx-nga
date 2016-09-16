@@ -144,7 +144,7 @@ The heart of the compiler is **comma** which stores a value into memory and incr
 With these we can add a couple of additional forms. **comma:opcode** is used to compile VM instructions into the current defintion. This is where those functions starting with an underscore come into play. Each wraps a single instruction. Using this we can avoid hard coding the opcodes.
 
 ````
-:comma:opcode @ comma ;
+:comma:opcode  "p-"  fetch comma ;
 ````
 
 **comma:string** is used to compile a string into the current definition.
@@ -154,13 +154,34 @@ With these we can add a couple of additional forms. **comma:opcode** is used to 
 :comma:string  "a-"  ($) drop #0 comma ;
 ````
 
+## Compiler Extension
+
+With the core functions above it's now possible to setup a few more things that make compilation at runtime more practical.
+
+First, a variable indicating whether we should compile or run a function. This will be used by the *word classes*.
+
+````
+:compiler `0
+````
+
+Next a couple of functions to control compiler state. In a traditional Forth these would be ] and [. In Rx we use ]] and [[ instead as [ ] are used for quotations.
+
+````
+:]]   &compiler on ;
+:[[   &compiler off ;
+````
+
+````
+:fin   &_ret comma:opcode &compiler off ;
+````
+
 ### Word Classes
 
 Rx handles functions via handlers called *word classes*. Each of these is a function responsible for handling specific groupings of functions. The class handlers will either invoke the code in a function or compile the code needed to call them.
 
 ````
-:.data &compiler @ 0; drop &_lit comma:opcode comma ;
-:.word &compiler @ [ .data &_call comma:opcode ] [ call ] cond ;
+:.data  &compiler @ 0; drop &_lit comma:opcode comma ;
+:.word  &compiler @ [ .data &_call comma:opcode ] [ call ] cond ;
 :.macro call ;
 ````
 
@@ -231,16 +252,6 @@ Adding headers:
 :notfound $? putc ;
 ````
 
-## Compiler
-
-````
-:compiler `0
-:fin   &_ret comma:opcode &compiler off ;
-:]]   &compiler on ;
-:[[   &compiler off ;
-````
-
-
 ````
 :startup
   'rx-2016.09'
@@ -259,15 +270,10 @@ Adding headers:
   lookup #0 -eq? [ &which @ dup d:xt @ swap d:class @ call ] [ notfound ] cond
   &compiler @ [ cr ] -if
   ^main_loop
+````
 
-:words
-  &dictionary @
-:w1
-  0;
-  dup #3 + puts space
-  @
-^w1
-
+````
+:words &dictionary @ [ :w1 0; dup d:name puts space @ ^w1 ] ;
 ````
 
 ## Dictionary
