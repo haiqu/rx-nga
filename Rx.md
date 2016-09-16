@@ -89,9 +89,6 @@ String comparisons
 :count @+ 0; drop ^count
 :getLength dup count #1 - swap - ;
 
-:($)  "a-a"  dup fetch 0; comma #1 + ^($)
-:$    "a-"  ($) drop #0 comma ;
-
 :compare::flag `0
 :compare::maxlength `0
 
@@ -132,15 +129,38 @@ Next two additional forms:
 :-if  push #0 eq? pop _ccall ;
 ````
 
-## Interpreter
+## Interpreter & Compiler
+
+## Compiler Core
+
+The heart of the compiler is **comma** which stores a value into memory and increments a variable (**heap**) pointing to the next free address. **here** is a helper function that returns the address stored in **heap**.
+
+````
+:heap `8192
+:here   "-n"  &heap @ ;
+:comma  "n-"  here !+ &heap ! ;
+````
+
+With these we can add a couple of additional forms. **comma:opcode** is used to compile VM instructions into the current defintion. This is where those functions starting with an underscore come into play. Each wraps a single instruction. Using this we can avoid hard coding the opcodes.
+
+````
+:comma:opcode @ comma ;
+````
+
+**comma:string** is used to compile a string into the current definition.
+
+````
+:($)           "a-a"  @+ 0; comma ^($)
+:comma:string  "a-"  ($) drop #0 comma ;
+````
 
 ### Word Classes
 
 Rx handles functions via handlers called *word classes*. Each of these is a function responsible for handling specific groupings of functions. The class handlers will either invoke the code in a function or compile the code needed to call them.
 
 ````
-:.data &compiler @ 0; drop &_lit opcode comma ;
-:.word &compiler @ [ .data &_call opcode ] [ call ] cond ;
+:.data &compiler @ 0; drop &_lit comma:opcode comma ;
+:.word &compiler @ [ .data &_call comma:opcode ] [ call ] cond ;
 :.macro call ;
 ````
 
@@ -177,6 +197,19 @@ Rx provides accessor functions for each field. Since the number of fields (or th
 :d:name  "d-p"  #3 + ;
 ````
 
+Adding headers:
+
+````
+:newentry
+  here push
+    &dictionary fetch comma  "link"
+    comma "xt"
+    comma "class"
+    comma:string  "name"
+  pop &dictionary store
+  ;
+````
+
 ### Dictionary Search
 
 ````
@@ -201,12 +234,8 @@ Rx provides accessor functions for each field. Since the number of fields (or th
 ## Compiler
 
 ````
-:opcode @ comma ;
-:heap `8192
 :compiler `0
-:here &heap @ ;
-:comma here !+ &heap ! ;
-:fin   &_ret opcode &compiler off ;
+:fin   &_ret comma:opcode &compiler off ;
 :]]   &compiler on ;
 :[[   &compiler off ;
 ````
@@ -224,6 +253,7 @@ Rx provides accessor functions for each field. Since the number of fields (or th
 :main
   &startup puts cr cr words cr cr
   &test asnumber &test2 asnumber putn space putn cr cr
+  &test &.macro &words newentry
 :main_loop
   &compiler @ [ ok ] -if getToken
   lookup #0 -eq? [ &which @ dup d:xt @ swap d:class @ call ] [ notfound ] cond
