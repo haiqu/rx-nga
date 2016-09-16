@@ -296,6 +296,7 @@ This code converts a zero terminated string into a number. The approach is very 
 :prefixed 'prefix:_'
 
 :prefix:# asnumber .data ;
+:prefix:: &.word here newentry here &dictionary fetch d:xt store ]] ;
 
 :prefix:prepare  "s-" fetch &prefixed #7 + store ;
 
@@ -401,8 +402,9 @@ The dictionary is a linked list.
 :0108  |0107 |fin   |.macro ';'
 
 :0200  |0108 |prefix:# |.word 'prefix:#'
+:0201  |0200 |prefix:: |.word 'prefix::'
 
-:0900  |0200 |putc  |.word 'putc'
+:0900  |0201 |putc  |.word 'putc'
 :0901  |0900 |putn  |.word 'putn'
 :0902  |0901 |puts  |.word 'puts'
 :0903  |0902 |cls   |.word 'cls'
