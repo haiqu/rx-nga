@@ -273,7 +273,7 @@ Adding headers:
 ````
 
 ````
-:words &dictionary @ [ :w1 0; dup d:name puts space @ ^w1 ] ;
+:words &dictionary @ :words:list 0; dup d:name puts space @ ^words:list
 ````
 
 ## Dictionary
