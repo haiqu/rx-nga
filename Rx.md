@@ -392,21 +392,22 @@ This code converts a zero terminated string into a number. The approach is very 
 :asnumber:mod `0  "modifier"
 :asnumber:acc `0  "accumulator"
 
-:asnumber:char>digit $0 - ;
+:asnumber:char>digit  "c-n"  $0 - ;
 
-:asnumber:scale  "-n"  &asnumber:acc fetch #10 * ;
+:asnumber:scale       "-n"  &asnumber:acc fetch #10 * ;
 
-:asnumber:convert  "p-p"
+:asnumber:convert     "p-p"
   @+ 0; asnumber:char>digit asnumber:scale + &asnumber:acc store
   ^asnumber:convert
 
-:asnumber:negative?  "p-p"
+:asnumber:prepare     "p-p"
   #1 &asnumber:mod store
   #0 &asnumber:acc store
   dup fetch $- eq? [ #-1 &asnumber:mod store #1 + ] if ;
 
-:asnumber "p-n"
-  asnumber:negative? asnumber:convert drop &asnumber:acc fetch &asnumber:mod fetch * ;
+:asnumber             "p-n"
+  asnumber:prepare asnumber:convert drop
+  &asnumber:acc fetch &asnumber:mod fetch * ;
 
 :test '9804'
 :test2 '-4011'
