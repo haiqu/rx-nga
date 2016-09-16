@@ -106,8 +106,9 @@ String comparisons
 
 :compare
   #0 &compare::flag !
-  dup getLength &compare::maxlength !
-  compare_loop drop drop
+  dup-pair getLength swap getLength eq?
+  [ dup getLength &compare::maxlength ! compare_loop ] if
+  drop drop
   &compare::flag @
   ;
 ````
@@ -125,8 +126,8 @@ Implement **cond**, a conditional combinator which will execute one of two funct
 Next two additional forms:
 
 ````
-:if   _ccall ;
-:-if  push #0 eq? pop _ccall ;
+:if   "bp-"  _ccall ;
+:-if  "bp-"  push #0 eq? pop _ccall ;
 ````
 
 ## Interpreter & Compiler
@@ -235,18 +236,76 @@ Adding headers:
 
 ````
 :which `0
+:needle `0
 
 :find
   #0 &which !
   &dictionary @
 :find_next
   0;
-  dup #3 + &TIB compare [ dup &which ! ] if
+  dup #3 + &needle fetch compare [ dup &which ! ] if
   @
 ^find_next
 
-:lookup find &which fetch ;
+:lookup  "s-n"  &needle store find &which fetch ;
 ````
+
+## Number Conversion
+
+This code converts a zero terminated string into a number. The approach is very simple:
+
+* Store an internal multiplier value (-1 for negative, 1 for positive)
+* Clear an internal accumulator value
+* Loop:
+
+  * Fetch the accumulator value
+  * Multiply by 10
+  * For each character, convert to a numeric value and add to the accumulator
+  * Store the updated accumulator
+
+* When done, take the accumulator value and the modifier and multiply them to get the final result
+
+````
+:asnumber:mod `0  "modifier"
+:asnumber:acc `0  "accumulator"
+
+:asnumber:char>digit  "c-n"  $0 - ;
+
+:asnumber:scale       "-n"  &asnumber:acc fetch #10 * ;
+
+:asnumber:convert     "p-p"
+  @+ 0; asnumber:char>digit asnumber:scale + &asnumber:acc store
+  ^asnumber:convert
+
+:asnumber:prepare     "p-p"
+  #1 &asnumber:mod store
+  #0 &asnumber:acc store
+  dup fetch $- eq? [ #-1 &asnumber:mod store #1 + ] if ;
+
+:asnumber             "p-n"
+  asnumber:prepare asnumber:convert drop
+  &asnumber:acc fetch &asnumber:mod fetch * ;
+
+:test '9804'
+````
+
+## Token Parser
+
+````
+:prefix:handler `0
+:prefixed 'prefix:_'
+
+:prefix:# asnumber .data ;
+
+:prefix:prepare  "s-" fetch &prefixed #7 + store ;
+
+:prefix?  "s-sb"
+  prefix:prepare &prefixed lookup dup &prefix:handler store #0 -eq? ;
+
+:test2 '#-4011'
+:test3 ':foo'
+````
+
 
 ````
 :notfound $? putc ;
@@ -261,13 +320,24 @@ Adding headers:
 
 :ok &okmsg puts space ;
 
+:call:dt dup d:xt fetch swap d:class fetch call ;
+
+:interpret:prefix &prefix:handler fetch 0; &TIB #1 + swap call:dt ;
+:interpret:word   &which fetch call:dt ;
+
+:interpret
+  &TIB prefix?
+  [ interpret:prefix ]
+  [ &TIB lookup #0 -eq? &interpret:word &notfound cond ] cond
+;
+
 :main
   &startup puts cr cr words cr cr
-  &test asnumber &test2 asnumber putn space putn cr cr
+  &test asnumber putn cr cr
   &test &.macro &words newentry
 :main_loop
   &compiler @ [ ok ] -if getToken
-  lookup #0 -eq? [ &which @ dup d:xt @ swap d:class @ call ] [ notfound ] cond
+  interpret
   &compiler @ [ cr ] -if
   ^main_loop
 ````
@@ -330,7 +400,9 @@ The dictionary is a linked list.
 :0107  |0106 |call  |.word 'call'
 :0108  |0107 |fin   |.macro ';'
 
-:0900  |0108 |putc  |.word 'putc'
+:0200  |0108 |prefix:# |.word 'prefix:#'
+
+:0900  |0200 |putc  |.word 'putc'
 :0901  |0900 |putn  |.word 'putn'
 :0902  |0901 |puts  |.word 'puts'
 :0903  |0902 |cls   |.word 'cls'
@@ -371,45 +443,4 @@ With this, we can build in some interactivity around a terminal I/O model.
 
 :getToken #32 #2048 &TIB gets ;
 :TIB `4096
-````
-
-## Number Conversion
-
-This code converts a zero terminated string into a number. The approach is very simple:
-
-* Store an internal multiplier value (-1 for negative, 1 for positive)
-* Clear an internal accumulator value
-* Loop:
-
-  * Fetch the accumulator value
-  * Multiply by 10
-  * For each character, convert to a numeric value and add to the accumulator
-  * Store the updated accumulator
-
-* When done, take the accumulator value and the modifier and multiply them to get the final result
-
-````
-:asnumber:mod `0  "modifier"
-:asnumber:acc `0  "accumulator"
-
-:asnumber:char>digit  "c-n"  $0 - ;
-
-:asnumber:scale       "-n"  &asnumber:acc fetch #10 * ;
-
-:asnumber:convert     "p-p"
-  @+ 0; asnumber:char>digit asnumber:scale + &asnumber:acc store
-  ^asnumber:convert
-
-:asnumber:prepare     "p-p"
-  #1 &asnumber:mod store
-  #0 &asnumber:acc store
-  dup fetch $- eq? [ #-1 &asnumber:mod store #1 + ] if ;
-
-:asnumber             "p-n"
-  asnumber:prepare asnumber:convert drop
-  &asnumber:acc fetch &asnumber:mod fetch * ;
-
-:test '9804'
-:test2 '-4011'
-
 ````
