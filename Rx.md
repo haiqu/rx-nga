@@ -290,22 +290,38 @@ This code converts a zero terminated string into a number. The approach is very 
   &asnumber:acc fetch &asnumber:mod fetch * ;
 ````
 
-## Token Parser
+## Token Processing
+
+An input token has a form like:
+
+    <prefix-char>string
+
+Rx will check the first character to see if it matches a known prefix. If it does, it will pass the string (without the token) to the prefix handler. If not, it will attempt to find the token in the dictionary.
+
+Prefixes are handled by functions with specific naming conventions. A prefix name should be:
+
+    prefix:<prefix-char>
+
+Where *&lt;prefix-char&gt;* is the character for the prefix. These should be compiler macros (using the **.macro** class) and watch the **compiler** state to decide how to deal with the token. To find a prefix, Rx stores the prefix character into a string named **prefixed**. It then searches for this string in the dictionary. If found, it sets an internal variable (**prefix:handler**) to the dictionary entry for the handler function. If not found, **prefix:handler** is set to zero. The check, done by **prefix?**, also returns a flag.
 
 ````
 :prefix:handler `0
 :prefixed 'prefix:_'
-
-:prefix:# asnumber .data ;
-:prefix:: &.word here newentry here &dictionary fetch d:xt store ]] ;
-:prefix:& lookup d:xt fetch .data ;
-
-:prefix:prepare  "s-" fetch &prefixed #7 + store ;
-
-:prefix?  "s-sb"
-  prefix:prepare &prefixed lookup dup &prefix:handler store #0 -eq? ;
+:prefix:prepare  "s-"
+ fetch &prefixed #7 + store ;
+:prefix?         "s-sb"
+ prefix:prepare &prefixed lookup dup &prefix:handler store #0 -eq? ;
 ````
 
+Rx uses prefixes for important bits of functionality including parsing numbers (prefix with **#**), obtaining pointers (prefix with **&amp;**), and starting new functions (using the **:** prefix).
+
+````
+:prefix:#  asnumber .data ;
+:prefix::  &.word here newentry here &dictionary fetch d:xt store ]] ;
+:prefix:&  lookup d:xt fetch .data ;
+````
+
+## Quotations
 
 ````
 :notfound $? putc ;
