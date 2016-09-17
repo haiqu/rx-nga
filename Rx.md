@@ -137,7 +137,7 @@ Next two additional forms:
 The heart of the compiler is **comma** which stores a value into memory and increments a variable (**heap**) pointing to the next free address. **here** is a helper function that returns the address stored in **heap**.
 
 ````
-:heap `8192
+:heap   `8192
 :here   "-n"  &heap @ ;
 :comma  "n-"  here !+ &heap ! ;
 ````
@@ -219,7 +219,7 @@ Rx provides accessor functions for each field. Since the number of fields (or th
 :d:name  "d-p"  #3 + ;
 ````
 
-Adding headers:
+A traditional Forth has **create** to make a new dictionary entry pointing to **here**. Rx has **newentry** which serves as a slightly more flexible base. You provide a string for the name, a pointer to the class handler, and a pointer to the start of the function. Rx does the rest.
 
 ````
 :newentry
@@ -232,19 +232,19 @@ Adding headers:
   ;
 ````
 
+Rx doesn't provide a traditional create as it's designed to avoid assuming a normal input stream and prefers to take its data from the stack.
+
 ### Dictionary Search
 
 ````
-:which `0
+:which  `0
 :needle `0
 
 :find
   #0 &which !
   &dictionary @
 :find_next
-  0;
-  dup #3 + &needle fetch compare [ dup &which ! ] if
-  @
+  0; dup #3 + &needle fetch compare [ dup &which ! ] if @
 ^find_next
 
 :lookup  "s-n"  &needle store find &which fetch ;
@@ -285,8 +285,6 @@ This code converts a zero terminated string into a number. The approach is very 
 :asnumber             "p-n"
   asnumber:prepare asnumber:convert drop
   &asnumber:acc fetch &asnumber:mod fetch * ;
-
-:test '9804'
 ````
 
 ## Token Parser
@@ -297,14 +295,12 @@ This code converts a zero terminated string into a number. The approach is very 
 
 :prefix:# asnumber .data ;
 :prefix:: &.word here newentry here &dictionary fetch d:xt store ]] ;
+:prefix:& lookup d:xt fetch .data ;
 
 :prefix:prepare  "s-" fetch &prefixed #7 + store ;
 
 :prefix?  "s-sb"
   prefix:prepare &prefixed lookup dup &prefix:handler store #0 -eq? ;
-
-:test2 '#-4011'
-:test3 ':foo'
 ````
 
 
@@ -334,8 +330,6 @@ This code converts a zero terminated string into a number. The approach is very 
 
 :main
   &startup puts cr cr words cr cr
-  &test asnumber putn cr cr
-  &test &.macro &words newentry
 :main_loop
   &compiler @ [ ok ] -if getToken
   interpret
@@ -403,8 +397,9 @@ The dictionary is a linked list.
 
 :0200  |0108 |prefix:# |.word 'prefix:#'
 :0201  |0200 |prefix:: |.word 'prefix::'
+:0202  |0201 |prefix:& |.word 'prefix:&'
 
-:0900  |0201 |putc  |.word 'putc'
+:0900  |0202 |putc  |.word 'putc'
 :0901  |0900 |putn  |.word 'putn'
 :0902  |0901 |puts  |.word 'puts'
 :0903  |0902 |cls   |.word 'cls'
