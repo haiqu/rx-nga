@@ -79,14 +79,9 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 
 ````
 :@+     dup #1 + swap fetch ;
-:!+     dup #1 + push ! pop ;
-:on     #-1 swap ! ;
-:off    #0 swap ! ;
-````
-
-````
-:@     "a-n"    _fetch ;
-:!     "na-"    _store ;
+:!+     dup #1 + push store pop ;
+:on     #-1 swap store ;
+:off    #0 swap store ;
 ````
 
 Additional functions from Retro:
@@ -105,17 +100,17 @@ String comparisons
 
 :compare_loop
   dup-pair
-  getSet eq? &compare::flag ! nextSet
-  &compare::maxlength fetch #1 - &compare::maxlength !
+  getSet eq? &compare::flag store nextSet
+  &compare::maxlength fetch #1 - &compare::maxlength store
 
   "Exit conditions"
   &compare::maxlength fetch &compare::flag fetch and 0; drop
   ^compare_loop
 
 :compare
-  #0 &compare::flag !
+  #0 &compare::flag store
   dup-pair getLength swap getLength eq?
-  [ dup getLength &compare::maxlength ! compare_loop ] if
+  [ dup getLength &compare::maxlength store compare_loop ] if
   drop drop
   &compare::flag fetch
   ;
@@ -128,7 +123,7 @@ Implement **cond**, a conditional combinator which will execute one of two funct
 ````
 :if::true  `0
 :if::false `0
-:cond  "bpp-" &if::false ! &if::true ! &if::false + fetch call ;
+:cond  "bpp-" &if::false store &if::true store &if::false + fetch call ;
 ````
 
 Next two additional forms:
@@ -147,7 +142,7 @@ The heart of the compiler is **comma** which stores a value into memory and incr
 ````
 :heap   `8192
 :here   "-n"  &heap fetch ;
-:comma  "n-"  here !+ &heap ! ;
+:comma  "n-"  here !+ &heap store ;
 ````
 
 With these we can add a couple of additional forms. **comma:opcode** is used to compile VM instructions into the current defintion. This is where those functions starting with an underscore come into play. Each wraps a single instruction. Using this we can avoid hard coding the opcodes.
@@ -249,10 +244,10 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
 :needle `0
 
 :find
-  #0 &which !
+  #0 &which store
   &dictionary fetch
 :find_next
-  0; dup #3 + &needle fetch compare [ dup &which ! ] if fetch
+  0; dup #3 + &needle fetch compare [ dup &which store ] if fetch
 ^find_next
 
 :lookup  "s-n"  &needle store find &which fetch ;
