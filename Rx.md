@@ -78,7 +78,7 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 ### Memory
 
 ````
-:@+     dup #1 + swap @ ;
+:@+     dup #1 + swap fetch ;
 :!+     dup #1 + push ! pop ;
 :on     #-1 swap ! ;
 :off    #0 swap ! ;
@@ -100,16 +100,16 @@ String comparisons
 :compare::flag `0
 :compare::maxlength `0
 
-:getSet @ swap @ ;
+:getSet fetch swap fetch ;
 :nextSet #1 + swap #1 + ;
 
 :compare_loop
   dup-pair
   getSet eq? &compare::flag ! nextSet
-  &compare::maxlength @ #1 - &compare::maxlength !
+  &compare::maxlength fetch #1 - &compare::maxlength !
 
   "Exit conditions"
-  &compare::maxlength @ &compare::flag @ and 0; drop
+  &compare::maxlength fetch &compare::flag fetch and 0; drop
   ^compare_loop
 
 :compare
@@ -117,7 +117,7 @@ String comparisons
   dup-pair getLength swap getLength eq?
   [ dup getLength &compare::maxlength ! compare_loop ] if
   drop drop
-  &compare::flag @
+  &compare::flag fetch
   ;
 ````
 
@@ -128,7 +128,7 @@ Implement **cond**, a conditional combinator which will execute one of two funct
 ````
 :if::true  `0
 :if::false `0
-:cond  "bpp-" &if::false ! &if::true ! &if::false + @ call ;
+:cond  "bpp-" &if::false ! &if::true ! &if::false + fetch call ;
 ````
 
 Next two additional forms:
@@ -146,7 +146,7 @@ The heart of the compiler is **comma** which stores a value into memory and incr
 
 ````
 :heap   `8192
-:here   "-n"  &heap @ ;
+:here   "-n"  &heap fetch ;
 :comma  "n-"  here !+ &heap ! ;
 ````
 
@@ -189,8 +189,8 @@ Next a couple of functions to control compiler state. In a traditional Forth the
 Rx handles functions via handlers called *word classes*. Each of these is a function responsible for handling specific groupings of functions. The class handlers will either invoke the code in a function or compile the code needed to call them.
 
 ````
-:.data  &compiler @ 0; drop &_lit comma:opcode comma ;
-:.word  &compiler @ [ .data &_call comma:opcode ] [ call ] cond ;
+:.data  &compiler fetch 0; drop &_lit comma:opcode comma ;
+:.word  &compiler fetch [ .data &_call comma:opcode ] [ call ] cond ;
 :.macro call ;
 ````
 
@@ -250,9 +250,9 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
 
 :find
   #0 &which !
-  &dictionary @
+  &dictionary fetch
 :find_next
-  0; dup #3 + &needle fetch compare [ dup &which ! ] if @
+  0; dup #3 + &needle fetch compare [ dup &which ! ] if fetch
 ^find_next
 
 :lookup  "s-n"  &needle store find &which fetch ;
@@ -327,26 +327,29 @@ This code converts a zero terminated string into a number. The approach is very 
 
 :call:dt dup d:xt fetch swap d:class fetch call ;
 
-:interpret:prefix &prefix:handler fetch 0; &TIB #1 + swap call:dt ;
+:input:source `0
+
+:interpret:prefix &prefix:handler fetch 0; &input:source fetch #1 + swap call:dt ;
 :interpret:word   &which fetch call:dt ;
 
-:interpret
-  &TIB prefix?
+:interpret "s-"
+  &input:source store
+  &input:source fetch prefix?
   [ interpret:prefix ]
-  [ &TIB lookup #0 -eq? &interpret:word &notfound cond ] cond
+  [ &input:source fetch lookup #0 -eq? &interpret:word &notfound cond ] cond
 ;
 
 :main
   &startup puts cr cr words cr cr
 :main_loop
-  &compiler @ [ ok ] -if getToken
-  interpret
-  &compiler @ [ cr ] -if
+  &compiler fetch [ ok ] -if getToken
+  &TIB interpret
+  &compiler fetch [ cr ] -if
   ^main_loop
 ````
 
 ````
-:words &dictionary @ :words:list 0; dup d:name puts space @ ^words:list
+:words &dictionary fetch :words:list 0; dup d:name puts space fetch ^words:list
 ````
 
 ## Dictionary
@@ -398,14 +401,12 @@ The dictionary is a linked list.
 :0101  |0100 |comma |.word  ','
 :0103  |0101 |]]    |.word  ']]'
 :0104  |0103 |[[    |.macro '[['
-:0105  |0104 |@     |.word 'fetch'
-:0106  |0105 |here  |.word 'here'
-:0107  |0106 |call  |.word 'call'
-:0108  |0107 |fin   |.macro ';'
+:0105  |0104 |here  |.word 'here'
+:0106  |0105 |fin   |.macro ';'
 
-:0200  |0108 |prefix:# |.word 'prefix:#'
-:0201  |0200 |prefix:: |.word 'prefix::'
-:0202  |0201 |prefix:& |.word 'prefix:&'
+:0200  |0106 |prefix:# |.macro 'prefix:#'
+:0201  |0200 |prefix:: |.macro 'prefix::'
+:0202  |0201 |prefix:& |.macro 'prefix:&'
 
 :0900  |0202 |putc  |.word 'putc'
 :0901  |0900 |putn  |.word 'putn'
