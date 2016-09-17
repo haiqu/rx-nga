@@ -314,6 +314,11 @@ This code converts a zero terminated string into a number. The approach is very 
 
 ````
 :notfound $? putc ;
+
+:begin here ;
+:again &_lit comma:opcode comma &_jump comma:opcode ;
+:t-[ &_lit comma:opcode here #0 comma &_jump comma:opcode here ;
+:t-] &_ret comma:opcode here swap &_lit comma:opcode comma swap store ;
 ````
 
 ````
@@ -404,7 +409,12 @@ The dictionary is a linked list.
 :0105  |0104 |here  |.word 'here'
 :0106  |0105 |fin   |.macro ';'
 
-:0200  |0106 |prefix:# |.macro 'prefix:#'
+:0150  |0106 |begin |.macro 'begin'
+:0151  |0150 |again |.macro 'again'
+:0152  |0151 |t-[   |.macro '['
+:0153  |0152 |t-]   |.macro ']'
+
+:0200  |0153 |prefix:# |.macro 'prefix:#'
 :0201  |0200 |prefix:: |.macro 'prefix::'
 :0202  |0201 |prefix:& |.macro 'prefix:&'
 
