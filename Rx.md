@@ -4,6 +4,14 @@ The *Rx Core* is the *retro experimental core*, a proto-Forth environment. Past 
 
 As with all of my recent work, I'm attempting to develop this in  more literate style, intermixing commentary and keeping related things together. The sources are extracted with the *unu* tool, preprocessed by *nuance*, and then assembled using *naje*. On my Linode, this normally takes less than 0.01s.
 
+As with Retro and Parable, Rx will make extensive use of quotations for logic and flow control, and prefixes for controlling compilation. The general syntax is a bit more Forth-like at this point:
+
+    :name . . . definition . . . ;
+
+Note that **:** is a prefix that creates a new named entry and starts the compiler, **;** is a compiler macro that compiles a *return* instruction and stops the compiler.
+
+Broadly speaking, this is a reimplementation of the approach used in Retro 11, but without the historical baggage. It's trying to take some lessons learned, and provide a tighter, cleaner core language suitable for expansion into something useful. The current plan is for a core language (sans I/O) of around 60 functions.
+
 ## Nga Instruction Set
 
 The core Nga instruction set consists of 27 instructions. Rx begins by assigning each to a separate function. These are not intended for direct use; in Rx the compiler will fetch the opcode values to use from these functions when compiling. Some of them will also be wrapped in normal functions later.
@@ -441,3 +449,89 @@ With this, we can build in some interactivity around a terminal I/O model.
 :getToken #32 #2048 &TIB gets ;
 :TIB `4096
 ````
+
+## Reference: Initial Dictionary
+
+### Prefixes
+
+**:** for creating new functions
+
+**&** for obtaining pointers
+
+**#** for parsing numbers
+
+**$** for parsing characters
+
+### Primitives
+
+dup
+
+drop
+
+swap
+
+call
+
+eq?
+
+-eq?
+
+lt?
+
+gt?
+
+fetch
+
+store
+
++
+
+-
+
+*
+
+/mod
+
+and
+
+or
+
+xor
+
+shift
+
+bye
+
+### Additional Words
+
+[[
+
+]]
+
+newentry
+
+comma
+
+.word
+
+.data
+
+.macro
+
+here
+
+@+
+
+d:xt
+
+d:link
+
+d:class
+
+d:name
+
+### Data Elements
+
+heap
+
+dictionary
