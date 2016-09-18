@@ -78,10 +78,10 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 ### Memory
 
 ````
-:@+     dup #1 + swap fetch ;
-:!+     dup #1 + push store pop ;
-:on     #-1 swap store ;
-:off    #0 swap store ;
+:@+     "a-An"  dup #1 + swap fetch ;
+:!+     "na-A"  dup #1 + push store pop ;
+:on     "a-"    #-1 swap store ;
+:off    "a-"    #0 swap store ;
 ````
 
 Additional functions from Retro:
@@ -171,12 +171,12 @@ First, a variable indicating whether we should compile or run a function. This w
 Next a couple of functions to control compiler state. In a traditional Forth these would be ] and [. In Rx we use ]] and [[ instead as [ ] are used for quotations.
 
 ````
-:]]   &compiler on ;
-:[[   &compiler off ;
+:]]   "-"  &compiler on ;
+:[[   "-"  &compiler off ;
 ````
 
 ````
-:fin   &_ret comma:opcode &compiler off ;
+:fin  "-"  &_ret comma:opcode &compiler off ;
 ````
 
 ### Word Classes
@@ -225,7 +225,7 @@ Rx provides accessor functions for each field. Since the number of fields (or th
 A traditional Forth has **create** to make a new dictionary entry pointing to **here**. Rx has **newentry** which serves as a slightly more flexible base. You provide a string for the name, a pointer to the class handler, and a pointer to the start of the function. Rx does the rest.
 
 ````
-:newentry
+:newentry  "saa-"
   here push
     &dictionary fetch comma  "link"
     comma "xt"
