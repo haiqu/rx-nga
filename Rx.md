@@ -317,6 +317,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 
 ````
 :prefix:#  asnumber .data ;
+:prefix:$  fetch .data ;
 :prefix::  &.word here newentry here &dictionary fetch d:xt store ]] ;
 :prefix:&  lookup d:xt fetch .data ;
 ````
@@ -413,7 +414,7 @@ The dictionary is a linked list.
 :0036 |0035 |if        |.word  'if'
 :0037 |0036 |-if       |.word  '-if'
 
-:0100 |0036 |heap      |.data  'heap'
+:0100 |0037 |heap      |.data  'heap'
 :0101 |0100 |comma     |.word  ','
 :0103 |0101 |]]        |.word  ']]'
 :0104 |0103 |[[        |.macro '[['
@@ -428,8 +429,9 @@ The dictionary is a linked list.
 :0200 |0153 |prefix:#  |.macro 'prefix:#'
 :0201 |0200 |prefix::  |.macro 'prefix::'
 :0202 |0201 |prefix:&  |.macro 'prefix:&'
+:0203 |0202 |prefix:$  |.macro 'prefix:$'
 
-:0900 |0202 |putc      |.word  'putc'
+:0900 |0203 |putc      |.word  'putc'
 :0901 |0900 |putn      |.word  'putn'
 :0902 |0901 |puts      |.word  'puts'
 :0903 |0902 |cls       |.word  'cls'
