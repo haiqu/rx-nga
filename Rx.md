@@ -320,6 +320,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 :prefix:$  fetch .data ;
 :prefix::  &.word here newentry here &dictionary fetch d:xt store ]] ;
 :prefix:&  lookup d:xt fetch .data ;
+:prefix:`  &compiler fetch [ asnumber comma ] [ drop ] cond ;
 ````
 
 ## Quotations
@@ -410,13 +411,15 @@ The dictionary is a linked list.
 :0032 |0031 |on        |.word  'on'
 :0033 |0032 |off       |.word  'off'
 :0034 |0033 |compare   |.word  'compare'
-:0035 |0034 |cond      |.word  'cond'
-:0036 |0035 |if        |.word  'if'
-:0037 |0036 |-if       |.word  '-if'
+:0035 |0034 |getLength |.word  'length'
+:0036 |0035 |cond      |.word  'cond'
+:0037 |0036 |if        |.word  'if'
+:0038 |0037 |-if       |.word  '-if'
 
-:0100 |0037 |heap      |.data  'heap'
+:0100 |0038 |heap      |.data  'heap'
 :0101 |0100 |comma     |.word  ','
-:0103 |0101 |]]        |.word  ']]'
+:0102 |0101 |comma:string     |.word  ',string'
+:0103 |0102 |]]        |.word  ']]'
 :0104 |0103 |[[        |.macro '[['
 :0105 |0104 |here      |.word  'here'
 :0106 |0105 |fin       |.macro ';'
@@ -430,8 +433,9 @@ The dictionary is a linked list.
 :0201 |0200 |prefix::  |.macro 'prefix::'
 :0202 |0201 |prefix:&  |.macro 'prefix:&'
 :0203 |0202 |prefix:$  |.macro 'prefix:$'
+:0204 |0203 |prefix:`  |.macro 'prefix:`'
 
-:0900 |0203 |putc      |.word  'putc'
+:0900 |0204 |putc      |.word  'putc'
 :0901 |0900 |putn      |.word  'putn'
 :0902 |0901 |puts      |.word  'puts'
 :0903 |0902 |cls       |.word  'cls'
