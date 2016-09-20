@@ -57,7 +57,7 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 ### Stack Shufflers
 
 ````
-:tuck      "xy-yxy"   dup swap push swap pop ;
+:tuck      "xy-yxy"   dup push swap pop ;
 :over      "xy-xyx"   push dup pop swap ;
 :nip       "xy-y"     swap drop ;
 :dup-pair  "xy-xyxy"  over over ;
@@ -319,6 +319,9 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 :prefix::  &.word here newentry here &dictionary fetch d:xt store ]] ;
 :prefix:&  lookup d:xt fetch .data ;
 :prefix:`  &compiler fetch [ asnumber comma ] [ drop ] cond ;
+:prefix:'  &_lit comma:opcode here push #0 comma &_jump comma:opcode
+           here push comma:string pop
+           here pop store .data ;
 ````
 
 ## Quotations
@@ -418,7 +421,7 @@ The dictionary is a linked list.
 
 :0100 |0036 |heap          |.data  'heap'
 :0101 |0100 |comma         |.word  ','
-:0102 |0101 |comma:string  |.word  ',string'
+:0102 |0101 |comma:string  |.word  's,'
 :0103 |0102 |]]            |.word  ']]'
 :0104 |0103 |[[            |.macro '[['
 :0105 |0104 |here          |.word  'here'
@@ -443,8 +446,9 @@ The dictionary is a linked list.
 :0202 |0201 |prefix:&      |.macro 'prefix:&'
 :0203 |0202 |prefix:$      |.macro 'prefix:$'
 :0204 |0203 |prefix:`      |.macro 'prefix:`'
+:0205 |0204 |prefix:'      |.macro 'prefix:''
 
-:0900 |0204 |putc          |.word  'putc'
+:0900 |0205 |putc          |.word  'putc'
 :0901 |0900 |putn          |.word  'putn'
 :0902 |0901 |puts          |.word  'puts'
 :0903 |0902 |cls           |.word  'cls'
