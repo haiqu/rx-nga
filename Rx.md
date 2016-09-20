@@ -440,8 +440,11 @@ The dictionary is a linked list.
 :0172 |0171 |d:xt          |.word  'd:xt'
 :0173 |0172 |d:class       |.word  'd:class'
 :0174 |0173 |d:name        |.word  'd:name'
+:0175 |0174 |.word         |.word  '.word'
+:0176 |0175 |.macro        |.word  '.macro'
+:0177 |0176 |.data         |.word  '.data'
 
-:0200 |0174 |prefix:#      |.macro 'prefix:#'
+:0200 |0177 |prefix:#      |.macro 'prefix:#'
 :0201 |0200 |prefix::      |.macro 'prefix::'
 :0202 |0201 |prefix:&      |.macro 'prefix:&'
 :0203 |0202 |prefix:$      |.macro 'prefix:$'
