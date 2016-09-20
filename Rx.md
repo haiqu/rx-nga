@@ -58,8 +58,7 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 
 ````
 :rot       "xyz-yzx"  push swap pop swap ;
-:-rot      "xyz-xzy"  swap push swap pop ;
-:tuck      "xy-yxy"   dup -rot ;
+:tuck      "xy-yxy"   dup swap push swap pop ;
 :over      "xy-xyx"   push dup pop swap ;
 :nip       "xy-y"     swap drop ;
 :dup-pair  "xy-xyxy"  over over ;
@@ -332,6 +331,10 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 :again &_lit comma:opcode comma &_jump comma:opcode ;
 :t-[ &_lit comma:opcode here #0 comma &_jump comma:opcode here ;
 :t-] &_ret comma:opcode here swap &_lit comma:opcode comma swap store ;
+
+:t-0;    &compiler fetch 0; drop &_zret comma:opcode ;
+:t-push  &compiler fetch 0; drop &_push comma:opcode ;
+:t-pop   &compiler fetch 0; drop &_pop comma:opcode ;
 ````
 
 ````
@@ -396,27 +399,26 @@ The dictionary is a linked list.
 :0017 |0016 |shift     |.word  'shift'
 :0018 |0017 |bye       |.word  'bye'
 :0019 |0018 |rot       |.word  'rot'
-:0020 |0019 |-rot      |.word  '-rot'
-:0021 |0020 |tuck      |.word  'tuck'
-:0022 |0021 |over      |.word  'over'
-:0023 |0022 |nip       |.word  'nip'
-:0024 |0023 |dup-pair  |.word  'dup-pair'
-:0025 |0024 |drop-pair |.word  'drop-pair'
-:0026 |0025 |/         |.word  '/'
-:0027 |0026 |mod       |.word  'mod'
-:0028 |0027 |negate    |.word  'negate'
-:0029 |0028 |not       |.word  'not'
-:0030 |0029 |@+        |.word  '@+'
-:0031 |0030 |!+        |.word  '!+'
-:0032 |0031 |on        |.word  'on'
-:0033 |0032 |off       |.word  'off'
-:0034 |0033 |compare   |.word  'compare'
-:0035 |0034 |getLength |.word  'length'
-:0036 |0035 |cond      |.word  'cond'
-:0037 |0036 |if        |.word  'if'
-:0038 |0037 |-if       |.word  '-if'
+:0020 |0019 |tuck      |.word  'tuck'
+:0021 |0020 |over      |.word  'over'
+:0022 |0021 |nip       |.word  'nip'
+:0023 |0022 |dup-pair  |.word  'dup-pair'
+:0024 |0023 |drop-pair |.word  'drop-pair'
+:0025 |0024 |/         |.word  '/'
+:0026 |0025 |mod       |.word  'mod'
+:0027 |0026 |negate    |.word  'negate'
+:0028 |0027 |not       |.word  'not'
+:0029 |0028 |@+        |.word  '@+'
+:0030 |0029 |!+        |.word  '!+'
+:0031 |0030 |on        |.word  'on'
+:0032 |0031 |off       |.word  'off'
+:0033 |0032 |compare   |.word  'compare'
+:0034 |0033 |getLength |.word  'length'
+:0035 |0034 |cond      |.word  'cond'
+:0036 |0035 |if        |.word  'if'
+:0037 |0036 |-if       |.word  '-if'
 
-:0100 |0038 |heap      |.data  'heap'
+:0100 |0037 |heap      |.data  'heap'
 :0101 |0100 |comma     |.word  ','
 :0102 |0101 |comma:string     |.word  ',string'
 :0103 |0102 |]]        |.word  ']]'
@@ -428,8 +430,11 @@ The dictionary is a linked list.
 :0151 |0150 |again     |.macro 'again'
 :0152 |0151 |t-[       |.macro '['
 :0153 |0152 |t-]       |.macro ']'
+:0154 |0153 |t-push    |.macro 'push'
+:0155 |0154 |t-pop     |.macro 'pop'
+:0156 |0155 |t-0;      |.macro '0;'
 
-:0200 |0153 |prefix:#  |.macro 'prefix:#'
+:0200 |0156 |prefix:#  |.macro 'prefix:#'
 :0201 |0200 |prefix::  |.macro 'prefix::'
 :0202 |0201 |prefix:&  |.macro 'prefix:&'
 :0203 |0202 |prefix:$  |.macro 'prefix:$'
