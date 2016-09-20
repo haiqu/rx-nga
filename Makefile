@@ -2,6 +2,7 @@ d: c buildnga buildrx
 
 buildrx:
 	./bin/unu Rx.md >rx.nuance
+	./bin/unu Lib.md >lib.rx
 	./bin/nuance rx.nuance >rx.naje
 	./bin/naje rx.naje
 
