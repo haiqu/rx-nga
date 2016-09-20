@@ -56,8 +56,6 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 
 ### Stack Shufflers
 
-The primitive stack shufflers are: **dup**, **drop**, and **swap**. These get expanded here with additional functions allowing finer levels of control.
-
 ````
 :rot       "xyz-yzx"  push swap pop swap ;
 :tuck      "xy-yxy"   dup swap push swap pop ;
@@ -87,7 +85,7 @@ The primitive stack shufflers are: **dup**, **drop**, and **swap**. These get ex
 
 Additional functions from Retro:
 
-### String comparisons
+String comparisons
 
 ````
 :count @+ 0; drop ^count
@@ -316,16 +314,6 @@ Where *&lt;prefix-char&gt;* is the character for the prefix. These should be com
 
 Rx uses prefixes for important bits of functionality including parsing numbers (prefix with **#**), obtaining pointers (prefix with **&amp;**), and starting new functions (using the **:** prefix).
 
-The full list:
-
-| Prefix | Example    | Used For                |
-| ====== | ========== | ======================= |
-| #      | #-16       | Numbers                 |
-| $      | $e         | ASCII characters        |
-| :      | :words     | Starting a definition   |
-| &amp;  | &amp;fetch | Obtaining a pointer     | 
-| `      | `130       | Compiling Nga bytecodes |
-
 ````
 :prefix:#  asnumber .data ;
 :prefix:$  fetch .data ;
@@ -334,23 +322,16 @@ The full list:
 :prefix:`  &compiler fetch [ asnumber comma ] [ drop ] cond ;
 ````
 
-## Quotations and Flow Control
-
-A traditional Forth has a simple unconditional loop via **begin** and **repeat**. For convienence, Rx provides these here.
+## Quotations
 
 ````
+:notfound $? putc ;
+
 :begin here ;
 :again &_lit comma:opcode comma &_jump comma:opcode ;
-````
-
-Rx used anonymous, nestable functions called *quotations* for much of its flow control. These are implemented via **[** and **]**.
-
-````
 :t-[ &_lit comma:opcode here #0 comma &_jump comma:opcode here ;
 :t-] &_ret comma:opcode here swap &_lit comma:opcode comma swap store ;
-````
 
-````
 :t-0;    &compiler fetch 0; drop &_zret comma:opcode ;
 :t-push  &compiler fetch 0; drop &_push comma:opcode ;
 :t-pop   &compiler fetch 0; drop &_pop comma:opcode ;
@@ -372,8 +353,6 @@ Rx used anonymous, nestable functions called *quotations* for much of its flow c
 :interpret:prefix &prefix:handler fetch 0; &input:source fetch #1 + swap call:dt ;
 :interpret:word   &which fetch call:dt ;
 
-:notfound $? putc ;
-
 :interpret "s-"
   &input:source store
   &input:source fetch prefix?
@@ -390,8 +369,6 @@ Rx used anonymous, nestable functions called *quotations* for much of its flow c
   ^main_loop
 ````
 
-TODO: move this into *lib.rx*:
-
 ````
 :words &dictionary fetch :words:list 0; dup d:name puts space fetch ^words:list
 ````
@@ -399,6 +376,7 @@ TODO: move this into *lib.rx*:
 ## Dictionary
 
 The dictionary is a linked list.
+
 
 ````
 :0000 `0    |dup           |.word  'dup'
@@ -456,7 +434,13 @@ The dictionary is a linked list.
 :0155 |0154 |t-pop         |.macro 'pop'
 :0156 |0155 |t-0;          |.macro '0;'
 
-:0200 |0156 |prefix:#      |.macro 'prefix:#'
+:0170 |0156 |dictionary    |.data  'dictionary'
+:0171 |0170 |d:link        |.word  'd:link'
+:0172 |0171 |d:xt          |.word  'd:xt'
+:0173 |0172 |d:class       |.word  'd:class'
+:0174 |0173 |d:name        |.word  'd:name'
+
+:0200 |0174 |prefix:#      |.macro 'prefix:#'
 :0201 |0200 |prefix::      |.macro 'prefix::'
 :0202 |0201 |prefix:&      |.macro 'prefix:&'
 :0203 |0202 |prefix:$      |.macro 'prefix:$'
