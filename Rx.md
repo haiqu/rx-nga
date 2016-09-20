@@ -138,9 +138,9 @@ Next two additional forms:
 The heart of the compiler is **comma** which stores a value into memory and increments a variable (**heap**) pointing to the next free address. **here** is a helper function that returns the address stored in **heap**.
 
 ````
-:heap   `8192
-:here   "-n"  &heap fetch ;
-:comma  "n-"  here !+ &heap store ;
+:Heap   `8192
+:here   "-n"  &Heap fetch ;
+:comma  "n-"  here !+ &Heap store ;
 ````
 
 With these we can add a couple of additional forms. **comma:opcode** is used to compile VM instructions into the current defintion. This is where those functions starting with an underscore come into play. Each wraps a single instruction. Using this we can avoid hard coding the opcodes.
@@ -163,18 +163,22 @@ With the core functions above it's now possible to setup a few more things that 
 First, a variable indicating whether we should compile or run a function. This will be used by the *word classes*.
 
 ````
-:compiler `0
+:Compiler `0
+````
+
+````
+:compiling? &Compiler fetch ;
 ````
 
 Next a couple of functions to control compiler state. In a traditional Forth these would be ] and [. In Rx we use ]] and [[ instead as [ ] are used for quotations.
 
 ````
-:]]   "-"  &compiler on ;
-:[[   "-"  &compiler off ;
+:]]   "-"  &Compiler on ;
+:[[   "-"  &Compiler off ;
 ````
 
 ````
-:fin  "-"  &_ret comma:opcode &compiler off ;
+:fin  "-"  &_ret comma:opcode &Compiler off ;
 ````
 
 ### Word Classes
@@ -182,8 +186,8 @@ Next a couple of functions to control compiler state. In a traditional Forth the
 Rx handles functions via handlers called *word classes*. Each of these is a function responsible for handling specific groupings of functions. The class handlers will either invoke the code in a function or compile the code needed to call them.
 
 ````
-:.data  &compiler fetch 0; drop &_lit comma:opcode comma ;
-:.word  &compiler fetch [ .data &_call comma:opcode ] [ call ] cond ;
+:.data  compiling? 0; drop &_lit comma:opcode comma ;
+:.word  compiling? [ .data &_call comma:opcode ] [ call ] cond ;
 :.macro call ;
 ````
 
@@ -318,7 +322,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 :prefix:$  fetch .data ;
 :prefix::  &.word here newentry here &Dictionary fetch d:xt store ]] ;
 :prefix:&  lookup d:xt fetch .data ;
-:prefix:`  &compiler fetch [ asnumber comma ] [ drop ] cond ;
+:prefix:`  compiling? [ asnumber comma ] [ drop ] cond ;
 :prefix:'  &_lit comma:opcode here push #0 comma &_jump comma:opcode
            here push comma:string pop
            here pop store .data ;
@@ -334,9 +338,9 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 :t-[ &_lit comma:opcode here #0 comma &_jump comma:opcode here ;
 :t-] &_ret comma:opcode here swap &_lit comma:opcode comma swap store ;
 
-:t-0;    &compiler fetch 0; drop &_zret comma:opcode ;
-:t-push  &compiler fetch 0; drop &_push comma:opcode ;
-:t-pop   &compiler fetch 0; drop &_pop comma:opcode ;
+:t-0;    compiling? 0; drop &_zret comma:opcode ;
+:t-push  compiling? 0; drop &_push comma:opcode ;
+:t-pop   compiling? 0; drop &_pop comma:opcode ;
 ````
 
 ````
@@ -365,9 +369,9 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 :main
   &startup puts cr cr words cr cr
 :main_loop
-  &compiler fetch [ ok ] -if getToken
+  compiling? [ ok ] -if getToken
   &TIB interpret
-  &compiler fetch [ cr ] -if
+  compiling? [ cr ] -if
   ^main_loop
 ````
 
@@ -419,7 +423,8 @@ The dictionary is a linked list.
 :0035 |0034 |if            |.word  'if'
 :0036 |0035 |-if           |.word  '-if'
 
-:0100 |0036 |heap          |.data  'heap'
+:0099 |0036 |Compiler      |.data  'Compiler'
+:0100 |0099 |Heap          |.data  'Heap'
 :0101 |0100 |comma         |.word  ','
 :0102 |0101 |comma:string  |.word  's,'
 :0103 |0102 |]]            |.word  ']]'
