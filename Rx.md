@@ -170,15 +170,8 @@ First, a variable indicating whether we should compile or run a function. This w
 :compiling? &Compiler fetch ;
 ````
 
-Next a couple of functions to control compiler state. In a traditional Forth these would be ] and [. In Rx we use ]] and [[ instead as [ ] are used for quotations.
-
 ````
-:]]   "-"  &Compiler on ;
-:[[   "-"  &Compiler off ;
-````
-
-````
-:fin  "-"  &_ret comma:opcode &Compiler off ;
+:fin  "-"  &_ret comma:opcode #0 &Compiler store ;
 ````
 
 ### Word Classes
@@ -320,7 +313,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 ````
 :prefix:#  asnumber .data ;
 :prefix:$  fetch .data ;
-:prefix::  &.word here newentry here &Dictionary fetch d:xt store ]] ;
+:prefix::  &.word here newentry here &Dictionary fetch d:xt store #-1 &Compiler store ;
 :prefix:&  lookup d:xt fetch .data ;
 :prefix:`  compiling? [ asnumber comma ] [ drop ] cond ;
 :prefix:'  &_lit comma:opcode here push #0 comma &_jump comma:opcode
@@ -415,9 +408,8 @@ The dictionary is a linked list.
 :0027 |0026 |not           |.word  'not'
 :0028 |0027 |@+            |.word  '@+'
 :0029 |0028 |!+            |.word  '!+'
-:0030 |0029 |on            |.word  'on'
-:0031 |0030 |off           |.word  'off'
-:0032 |0031 |compare       |.word  'str:compare'
+
+:0032 |0029 |compare       |.word  'str:compare'
 :0033 |0032 |getLength     |.word  'str:length'
 :0034 |0033 |cond          |.word  'cond'
 :0035 |0034 |if            |.word  'if'
@@ -427,12 +419,10 @@ The dictionary is a linked list.
 :0100 |0099 |Heap          |.data  'Heap'
 :0101 |0100 |comma         |.word  ','
 :0102 |0101 |comma:string  |.word  's,'
-:0103 |0102 |]]            |.word  ']]'
-:0104 |0103 |[[            |.macro '[['
-:0105 |0104 |here          |.word  'here'
-:0106 |0105 |fin           |.macro ';'
+:0103 |0102 |here          |.word  'here'
+:0104 |0103 |fin           |.macro ';'
 
-:0150 |0106 |begin         |.macro 'begin'
+:0150 |0104 |begin         |.macro 'begin'
 :0151 |0150 |again         |.macro 'again'
 :0152 |0151 |t-[           |.macro '['
 :0153 |0152 |t-]           |.macro ']'
