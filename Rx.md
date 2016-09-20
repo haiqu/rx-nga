@@ -56,6 +56,8 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 
 ### Stack Shufflers
 
+The primitive stack shufflers are: **dup**, **drop**, and **swap**. These get expanded here with additional functions allowing finer levels of control.
+
 ````
 :rot       "xyz-yzx"  push swap pop swap ;
 :tuck      "xy-yxy"   dup swap push swap pop ;
@@ -85,7 +87,7 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 
 Additional functions from Retro:
 
-String comparisons
+### String comparisons
 
 ````
 :count @+ 0; drop ^count
@@ -314,6 +316,16 @@ Where *&lt;prefix-char&gt;* is the character for the prefix. These should be com
 
 Rx uses prefixes for important bits of functionality including parsing numbers (prefix with **#**), obtaining pointers (prefix with **&amp;**), and starting new functions (using the **:** prefix).
 
+The full list:
+
+| Prefix | Example    | Used For                |
+| ====== | ========== | ======================= |
+| #      | #-16       | Numbers                 |
+| $      | $e         | ASCII characters        |
+| :      | :words     | Starting a definition   |
+| &amp;  | &amp;fetch | Obtaining a pointer     | 
+| `      | `130       | Compiling Nga bytecodes |
+
 ````
 :prefix:#  asnumber .data ;
 :prefix:$  fetch .data ;
@@ -322,16 +334,23 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 :prefix:`  &compiler fetch [ asnumber comma ] [ drop ] cond ;
 ````
 
-## Quotations
+## Quotations and Flow Control
+
+A traditional Forth has a simple unconditional loop via **begin** and **repeat**. For convienence, Rx provides these here.
 
 ````
-:notfound $? putc ;
-
 :begin here ;
 :again &_lit comma:opcode comma &_jump comma:opcode ;
+````
+
+Rx used anonymous, nestable functions called *quotations* for much of its flow control. These are implemented via **[** and **]**.
+
+````
 :t-[ &_lit comma:opcode here #0 comma &_jump comma:opcode here ;
 :t-] &_ret comma:opcode here swap &_lit comma:opcode comma swap store ;
+````
 
+````
 :t-0;    &compiler fetch 0; drop &_zret comma:opcode ;
 :t-push  &compiler fetch 0; drop &_push comma:opcode ;
 :t-pop   &compiler fetch 0; drop &_pop comma:opcode ;
@@ -353,6 +372,8 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 :interpret:prefix &prefix:handler fetch 0; &input:source fetch #1 + swap call:dt ;
 :interpret:word   &which fetch call:dt ;
 
+:notfound $? putc ;
+
 :interpret "s-"
   &input:source store
   &input:source fetch prefix?
@@ -369,6 +390,8 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   ^main_loop
 ````
 
+TODO: move this into *lib.rx*:
+
 ````
 :words &dictionary fetch :words:list 0; dup d:name puts space fetch ^words:list
 ````
@@ -376,7 +399,6 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 ## Dictionary
 
 The dictionary is a linked list.
-
 
 ````
 :0000 `0    |dup           |.word  'dup'
