@@ -208,7 +208,7 @@ Each label will contain a reference to the prior one, the internal function name
 Rx will store the pointer to the most recent entry in a variable called **dictionary**. For simplicity, we just assign the last entry an arbitrary label of 9999.
 
 ````
-:dictionary |9999
+:Dictionary |9999
 ````
 
 Rx provides accessor functions for each field. Since the number of fields (or their ordering) may change over time, using these reduces the number of places where field offsets are hard coded.
@@ -225,11 +225,11 @@ A traditional Forth has **create** to make a new dictionary entry pointing to **
 ````
 :newentry  "saa-"
   here push
-    &dictionary fetch comma  "link"
+    &Dictionary fetch comma  "link"
     comma "xt"
     comma "class"
     comma:string  "name"
-  pop &dictionary store
+  pop &Dictionary store
   ;
 ````
 
@@ -243,7 +243,7 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
 
 :find
   #0 &which store
-  &dictionary fetch
+  &Dictionary fetch
 :find_next
   0; dup #3 + &needle fetch compare [ dup &which store ] if fetch
 ^find_next
@@ -316,7 +316,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 ````
 :prefix:#  asnumber .data ;
 :prefix:$  fetch .data ;
-:prefix::  &.word here newentry here &dictionary fetch d:xt store ]] ;
+:prefix::  &.word here newentry here &Dictionary fetch d:xt store ]] ;
 :prefix:&  lookup d:xt fetch .data ;
 :prefix:`  &compiler fetch [ asnumber comma ] [ drop ] cond ;
 :prefix:'  &_lit comma:opcode here push #0 comma &_jump comma:opcode
@@ -372,7 +372,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 ````
 
 ````
-:words &dictionary fetch :words:list 0; dup d:name puts space fetch ^words:list
+:words &Dictionary fetch :words:list 0; dup d:name puts space fetch ^words:list
 ````
 
 ## Dictionary
@@ -435,7 +435,7 @@ The dictionary is a linked list.
 :0155 |0154 |t-pop         |.macro 'pop'
 :0156 |0155 |t-0;          |.macro '0;'
 
-:0170 |0156 |dictionary    |.data  'dictionary'
+:0170 |0156 |Dictionary    |.data  'Dictionary'
 :0171 |0170 |d:link        |.word  'd:link'
 :0172 |0171 |d:xt          |.word  'd:xt'
 :0173 |0172 |d:class       |.word  'd:class'
