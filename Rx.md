@@ -448,8 +448,9 @@ The dictionary is a linked list.
 :0175 |0174 |.word         |.word  '.word'
 :0176 |0175 |.macro        |.word  '.macro'
 :0177 |0176 |.data         |.word  '.data'
-
-:0200 |0177 |prefix:#      |.macro 'prefix:#'
+:0178 |0177 |newentry      |.word  'd:add-header'
+ 
+:0200 |0178 |prefix:#      |.macro 'prefix:#'
 :0201 |0200 |prefix::      |.macro 'prefix::'
 :0202 |0201 |prefix:&      |.macro 'prefix:&'
 :0203 |0202 |prefix:$      |.macro 'prefix:$'
