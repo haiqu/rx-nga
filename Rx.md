@@ -352,15 +352,20 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 :t-pop   compiling? 0; drop &_pop comma:opcode ;
 ````
 
+## Interpreter
+
+The *interpreter* is what processes input. What it does is:
+
+* Take a string
+* See if the first character has a prefix handler
+
+  * Yes: pass the rest of the string to the prefix handler for processing
+  * No: lookup in the dictionary
+
+    * Found: pass xt of word to the class handler for processing
+    * Not found: report error via **notfound**
+
 ````
-:startup
-  'rx-2016.09'
-
-:okmsg
-  'ok'
-
-:ok &okmsg puts space ;
-
 :call:dt dup d:xt fetch swap d:class fetch call ;
 
 :input:source `0
@@ -374,6 +379,16 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   [ interpret:prefix ]
   [ &input:source fetch lookup #0 -eq? &interpret:word &notfound cond ] cond
 ;
+````
+
+````
+:startup
+  'rx-2016.09'
+
+:okmsg
+  'ok'
+
+:ok &okmsg puts space ;
 
 :main
   &startup puts cr cr words cr cr
