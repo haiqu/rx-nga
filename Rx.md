@@ -19,8 +19,8 @@ All code built with the Nga toolchain starts with a jump to the main entry point
 Here's the initial memory map:
 
 | Offset | Contains                    |
-| ====== | =========================== |
-| 0      | _lit / _call / _nop / _nop  |
+| ------ | --------------------------- |
+| 0      | lit call nop nop            |
 | 1      | Pointer to main entry point |
 | 2      | Dictionary                  |
 | 3      | Heap                        |
@@ -507,8 +507,8 @@ With this, we can build in some interactivity around a terminal I/O model.
 
 ## Appendix: Words, Stack Effects, and Usage
 
-| Word  | Stack |   |
-| ===== | ===== | = |
+| Word  | Stack | ? |
+| ----- | ----- | - |
 | dup   | n-nn  |   |
 | drop  | nx-n  |   |
 | swap  | nx-xn |   |
