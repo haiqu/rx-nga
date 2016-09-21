@@ -12,6 +12,28 @@ Note that **:** is a prefix that creates a new named entry and starts the compil
 
 Broadly speaking, this is a reimplementation of the approach used in Retro 11, but without the historical baggage. It's trying to take some lessons learned, and provide a tighter, cleaner core language suitable for expansion into something useful. The current plan is for a core language (sans I/O) of around 80 functions.
 
+## Mapping
+
+All code built with the Nga toolchain starts with a jump to the main entry point. With cell packing, this takes two cells. We can take advantage of this knowledge to place a couple of variables at the start so they can be easily identified and interfaced with external tools. This is important as Nga allows for a variety of I/O models to be implemented and I don't want to tie Rx into any one specific model.
+
+Here's the initial memory map:
+
+| Offset | Contains                    |
+| ====== | =========================== |
+| 0      | _lit / _call / _nop / _nop  |
+| 1      | Pointer to main entry point |
+| 2      | Dictionary                  |
+| 3      | Heap                        |
+
+Naje, the Nga assembler, compiles the initial instructions automatically. The two variables need to be declared next, so:
+
+````
+:Dictionary |9999
+:Heap       `8192
+````
+
+Both of these are pointers. **Dictionary** points to the most recent dictionary entry. (See the *Dictionary* section at the end of this file.) **Heap** points to the next free memory address. For now this is hard coded to an address well beyond the end of the Rx kernel. It'll be fine tuned as development progresses. See the *Interpreter &amp; Compiler* section for more on this.
+
 ## Nga Instruction Set
 
 The core Nga instruction set consists of 27 instructions. Rx begins by assigning each to a separate function. These are not intended for direct use; in Rx the compiler will fetch the opcode values to use from these functions when compiling. Some of them will also be wrapped in normal functions later.
@@ -26,11 +48,9 @@ The core Nga instruction set consists of 27 instructions. Rx begins by assigning
 :_shift   `24 ;  :_zret    `25 ;  :_end     `26 ;
 ````
 
-## Essentials
+## Primitives
 
-### Primitives
-
-Wrap the instructions into actual functions intended for use. Naming here is a blend of Forth, Retro, and Parable.
+Here I wrap the instructions into actual functions intended for use. Naming conventions here are derived from Retro and Parable.
 
 ````
 :dup   "n-nn"   _dup ;
@@ -54,7 +74,7 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 :bye   "-"      _end ;
 ````
 
-### Stack Shufflers
+## Stack Shufflers
 
 ````
 :tuck      "xy-yxy"   dup push swap pop ;
@@ -64,7 +84,7 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 :drop-pair "xy-"      drop drop ;
 ````
 
-### Math & Logic
+## Math & Logic
 
 ````
 :/       "nq-d" /mod swap drop ;
@@ -73,7 +93,7 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 :not     "n-n"  #-1 xor ;
 ````
 
-### Memory
+## Memory
 
 ````
 :@+     "a-An"  dup #1 + swap fetch ;
@@ -82,11 +102,11 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 
 Additional functions from Retro:
 
-String comparisons
+## Strings
 
 ````
 :count @+ 0; drop ^count
-:getLength dup count #1 - swap - ;
+:str:length dup count #1 - swap - ;
 
 :compare::flag `0
 :compare::maxlength `0
@@ -103,10 +123,10 @@ String comparisons
   &compare::maxlength fetch &compare::flag fetch and 0; drop
   ^compare_loop
 
-:compare
+:str:compare
   #0 &compare::flag store
-  dup-pair getLength swap getLength eq?
-  [ dup getLength &compare::maxlength store compare_loop ] if
+  dup-pair str:length swap str:length eq?
+  [ dup str:length &compare::maxlength store compare_loop ] if
   drop drop
   &compare::flag fetch
   ;
@@ -136,7 +156,6 @@ Next two additional forms:
 The heart of the compiler is **comma** which stores a value into memory and increments a variable (**heap**) pointing to the next free address. **here** is a helper function that returns the address stored in **heap**.
 
 ````
-:Heap   `8192
 :here   "-n"  &Heap fetch ;
 :comma  "n-"  here !+ &Heap store ;
 ````
@@ -203,7 +222,6 @@ Each label will contain a reference to the prior one, the internal function name
 Rx will store the pointer to the most recent entry in a variable called **dictionary**. For simplicity, we just assign the last entry an arbitrary label of 9999.
 
 ````
-:Dictionary |9999
 ````
 
 Rx provides accessor functions for each field. Since the number of fields (or their ordering) may change over time, using these reduces the number of places where field offsets are hard coded.
@@ -240,7 +258,7 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
   #0 &which store
   &Dictionary fetch
 :find_next
-  0; dup #3 + &needle fetch compare [ dup &which store ] if fetch
+  0; dup #3 + &needle fetch str:compare [ dup &which store ] if fetch
 ^find_next
 
 :lookup  "s-n"  &needle store find &which fetch ;
@@ -409,8 +427,8 @@ The dictionary is a linked list.
 :0030 |0029 |not           |.word  'not'
 :0031 |0030 |@+            |.word  '@+'
 :0032 |0031 |!+            |.word  '!+'
-:0033 |0022 |compare       |.word  'str:compare'
-:0034 |0033 |getLength     |.word  'str:length'
+:0033 |0022 |str:compare   |.word  'str:compare'
+:0034 |0033 |str:length    |.word  'str:length'
 :0035 |0034 |cond          |.word  'cond'
 :0036 |0035 |if            |.word  'if'
 :0037 |0036 |-if           |.word  '-if'
@@ -440,16 +458,18 @@ The dictionary is a linked list.
 :0061 |0060 |begin         |.macro 'begin'
 :0062 |0061 |again         |.macro 'again'
 :0063 |0062 |interpret     |.word  'interpret'
+:0064 |0063 |lookup        |.word  'd:lookup'
 
-:0900 |0063 |putc          |.word  'putc'
+:0900 |0064 |putc          |.word  'putc'
 :0901 |0900 |putn          |.word  'putn'
 :0902 |0901 |puts          |.word  'puts'
 :0903 |0902 |cls           |.word  'cls'
 :0904 |0903 |getc          |.word  'getc'
 :0905 |0904 |getn          |.word  'getn'
-:0906 |0905 |save          |.word  'save'
+:0906 |0905 |gets          |.word  'gets'
+:0907 |0906 |save          |.word  'save'
 
-:9999 |0906 |words         |.word  'words'
+:9999 |0907 |words         |.word  'words'
 ````
 
 ## Ngura I/O
