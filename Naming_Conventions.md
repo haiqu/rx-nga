@@ -26,6 +26,9 @@ E.g., don't do this:
     $foo
     &bar
 
+Words returning a Boolean flag should generally end in a ?
+
+The use of a leading dash indicates "not". E.g., **if** and **-if**. 
 
 # Coding Guidelines
 
