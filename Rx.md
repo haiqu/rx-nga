@@ -1,6 +1,6 @@
-# Rx Core
+# Rx: a minimal Forth for Nga
 
-The *Rx Core* is the *retro experimental core*, a proto-Forth environment. Past incarnations of this have proved very successful, serving as both a basis for Retro and testbed for interesting concepts. *Rx* (as it will be called from this point on) is *not* intended to be used widely. Expect frequent breakages and bugs as new things are added, tested, and removed. It is my hope that this will prove beneficial in building the next generations of Retro and Parable.
+*Rx* (*retro experimental*) is a proto-Forth environment. Past incarnations of this have proved very successful, serving as both a basis for Retro and testbed for interesting concepts. *Rx* is *not* intended to be used widely at this time. Expect frequent breakages and bugs as new things are added, tested, and removed. It is my hope that this will prove beneficial in building new generations of Retro and Parable.
 
 As with all of my recent work, I'm attempting to develop this in  more literate style, intermixing commentary and keeping related things together. The sources are extracted with the *unu* tool, preprocessed by *nuance*, and then assembled using *naje*. On my Linode, this normally takes less than 0.01s.
 
@@ -10,7 +10,7 @@ As with Retro and Parable, Rx will make extensive use of quotations for logic an
 
 Note that **:** is a prefix that creates a new named entry and starts the compiler, **;** is a compiler macro that compiles a *return* instruction and stops the compiler.
 
-Broadly speaking, this is a reimplementation of the approach used in Retro 11, but without the historical baggage. It's trying to take some lessons learned, and provide a tighter, cleaner core language suitable for expansion into something useful. The current plan is for a core language (sans I/O) of around 60 functions.
+Broadly speaking, this is a reimplementation of the approach used in Retro 11, but without the historical baggage. It's trying to take some lessons learned, and provide a tighter, cleaner core language suitable for expansion into something useful. The current plan is for a core language (sans I/O) of around 80 functions.
 
 ## Nga Instruction Set
 
@@ -78,8 +78,6 @@ Wrap the instructions into actual functions intended for use. Naming here is a b
 ````
 :@+     "a-An"  dup #1 + swap fetch ;
 :!+     "na-A"  dup #1 + push store pop ;
-:on     "a-"    #-1 swap store ;
-:off    "a-"    #0 swap store ;
 ````
 
 Additional functions from Retro:
