@@ -507,70 +507,70 @@ With this, we can build in some interactivity around a terminal I/O model.
 
 ## Appendix: Words, Stack Effects, and Usage
 
-| Word  | Stack | ? |
-| ----- | ----- | - |
-| dup   | n-nn  |   |
-| drop  | nx-n  |   |
-| swap  | nx-xn |   |
-| call  | p-    |   |
-| eq?   | nn-f  |   |
-| -eq?  | nn-f  |   |
-| lt?   | nn-f  |   |
-| gt?   | nn-f  |   |
-| fetch | p-n   |   |
-| store | np-   |   |
-| +     | nn-n  |   |
-| -     | nn-n  |   |
-| *     | nn-n  |   |
-| /mod  | nn-mq |   |
-| and   | nn-n  |   |
-| or    | nn-n  |   |
-| xor   | nn-n  |   |
-| shift | nn-n  |   |
-| bye   | -     |   |
-| tuck      | xy-yxy  | |
-| over      | xy-xyx  | |
-| nip       | xy-y    | |
-| dup-pair  | xy-xyxy | |
-| drop-pair | xy-     | |
-| /         | nq-d    | |
-| mod       | nq-r    | |
-| negate    | n-n     | |
-| not       | n-n     | |
-| @+ | a-an | |
-| !+ | na-a | |
-| push | n- | |
-| pop | -n | |
-| 0; | n-n OR n- | |
-| str:compare | ss-f | |
-| str:length | s-n | |
-| cond | | |
-| if | | |
-| -if | | |
-| Compiler | | |
-| Heap | | |
-| , | n- | |
-| s, | s- | |
-| here | -p | |
-| ; | - | |
-| [ | | |
-| ] | | |
-| Dictionary | | |
-| d:link | | |
-| d:xt | | |
-| d:class | | |
-| d:name | | |
-| .word | | |
-| .macro | | |
-| .data | | |
-| d:add-header | | |
-| prefix:# | | |
-| prefix:: | | |
-| prefix:& | | |
-| prefix:$ | | |
-| prefix:` | | |
-| prefix:' | | |
-| begin | | |
-| again | | |
-| interpret | s- | |
-| d:lookup | s-p | |
+| Word         | Stack     | Notes |
+| ------------ | --------- | ----- |
+| dup          | n-nn      |   |
+| drop         | nx-n      |   |
+| swap         | nx-xn     |   |
+| call         | p-        |   |
+| eq?          | nn-f      |   |
+| -eq?         | nn-f      |   |
+| lt?          | nn-f      |   |
+| gt?          | nn-f      |   |
+| fetch        | p-n       |   |
+| store        | np-       |   |
+| +            | nn-n      |   |
+| -            | nn-n      |   |
+| *            | nn-n      |   |
+| /mod         | nn-mq     |   |
+| and          | nn-n      |   |
+| or           | nn-n      |   |
+| xor          | nn-n      |   |
+| shift        | nn-n      |   |
+| bye          | -         |   |
+| tuck         | xy-yxy    | |
+| over         | xy-xyx    | |
+| nip          | xy-y      | |
+| dup-pair     | xy-xyxy   | |
+| drop-pair    | xy-       | |
+| /            | nq-d      | |
+| mod          | nq-r      | |
+| negate       | n-n       | |
+| not          | n-n       | |
+| @+           | a-an      | |
+| !+           | na-a      | |
+| push         | n-        | |
+| pop          | -n        | |
+| 0;           | n-n OR n- | |
+| str:compare  | ss-f      | |
+| str:length   | s-n       | |
+| cond         |           | |
+| if           |           | |
+| -if          |           | |
+| Compiler     | -p        | |
+| Heap         | -p        | |
+| ,            | n-        | |
+| s,           | s-        | |
+| here         | -p        | |
+| ;            | -         | |
+| [            |           | |
+| ]            |           | |
+| Dictionary   | -p        | |
+| d:link       | p-p       | |
+| d:xt         | p-p       | |
+| d:class      | p-p       | |
+| d:name       | p-p       | |
+| .word        | p-        | |
+| .macro       | p-        | |
+| .data        | p-        | |
+| d:add-header |           | |
+| prefix:#     | s-        | |
+| prefix::     | s-        | |
+| prefix:&     | s-        | |
+| prefix:$     | s-        | |
+| prefix:`     | s-        | |
+| prefix:'     | s-        | |
+| begin        |           | |
+| again        |           | |
+| interpret    | s-        | |
+| d:lookup     | s-p       | |
