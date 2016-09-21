@@ -542,19 +542,19 @@ With this, we can build in some interactivity around a terminal I/O model.
 | or           | nn-n      | Perform bitwise OR operation                      |
 | xor          | nn-n      | Perform bitwise XOR operation                     |
 | shift        | nn-n      | Perform bitwise shift                             |
-| tuck         | xy-yxy    | |
-| over         | xy-xyx    | |
-| nip          | xy-y      | |
-| dup-pair     | xy-xyxy   | |
-| drop-pair    | xy-       | |
-| /            | nq-d      | |
-| mod          | nq-r      | |
-| negate       | n-n       | |
+| tuck         | xy-yxy    | Put a copy of the top item under the second item  |
+| over         | xy-xyx    | Make a copy of the second item on the stack       |
+| nip          | xy-y      | Remove the second item on the stack               |
+| dup-pair     | xy-xyxy   | Duplicate top two values fom the stack            |
+| drop-pair    | xy-       | Drop top two values from the stack                |
+| /            | nq-d      | Divide and return quotient                        |
+| mod          | nq-r      | Divide and return remainder                       |
+| negate       | n-n       | Invert the sign of a number                       |
 | not          | n-n       | |
 | @+           | a-an      | |
 | !+           | na-a      | |
-| push         | n-        | |
-| pop          | -n        | |
+| push         | n-        | Move value from data stack to address stack       |
+| pop          | -n        | Move value from address stack to data stack       |
 | 0;           | n-n OR n- | Exit word (and **drop**) if TOS is zero           |
 | str:compare  | ss-f      | Compare two strings for equality                  |
 | str:length   | s-n       | Return length of string                           |
@@ -574,16 +574,16 @@ With this, we can build in some interactivity around a terminal I/O model.
 | d:xt         | p-p       | Given a DT, return the address of the xt field    |
 | d:class      | p-p       | Given a DT, return the address of the class field |
 | d:name       | p-p       | Given a DT, return the address of the name field  |
-| .word        | p-        | |
-| .macro       | p-        | |
-| .data        | p-        | |
-| d:add-header |           | |
-| prefix:#     | s-        | |
-| prefix::     | s-        | |
-| prefix:&     | s-        | |
-| prefix:$     | s-        | |
-| prefix:`     | s-        | |
-| prefix:'     | s-        | |
+| .word        | p-        | Class handler for standard functions              |
+| .macro       | p-        | Class handler for immediate functions             |
+| .data        | p-        | Class handler for data                            |
+| d:add-header |           | Add an item to the dictionary                     |
+| prefix:#     | s-        | # prefix for numbers                              |
+| prefix::     | s-        | : prefix for definitions                          |
+| prefix:&     | s-        | & prefix for pointers                             |
+| prefix:$     | s-        | $ prefix for ASCII characters                     |
+| prefix:`     | s-        | ` prefix for bytecode                             |
+| prefix:'     | s-        | ' prefix for simple text                          |
 | begin        |           | |
 | again        |           | |
 | interpret    | s-        | |
