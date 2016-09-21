@@ -522,27 +522,26 @@ With this, we can build in some interactivity around a terminal I/O model.
 
 ## Appendix: Words, Stack Effects, and Usage
 
-| Word         | Stack     | Notes |
-| ------------ | --------- | ----- |
-| dup          | n-nn      |   |
-| drop         | nx-n      |   |
-| swap         | nx-xn     |   |
-| call         | p-        |   |
-| eq?          | nn-f      |   |
-| -eq?         | nn-f      |   |
-| lt?          | nn-f      |   |
-| gt?          | nn-f      |   |
-| fetch        | p-n       |   |
-| store        | np-       |   |
-| +            | nn-n      |   |
-| -            | nn-n      |   |
-| *            | nn-n      |   |
-| /mod         | nn-mq     |   |
-| and          | nn-n      |   |
-| or           | nn-n      |   |
-| xor          | nn-n      |   |
-| shift        | nn-n      |   |
-| bye          | -         |   |
+| Word         | Stack     | Notes                                             |
+| ------------ | --------- | ------------------------------------------------- |
+| dup          | n-nn      | Duplicate the top item on the stack               |
+| drop         | nx-n      | Discard the top item on the stack                 |
+| swap         | nx-xn     | Switch the top two items on the stack             |
+| call         | p-        | Call a function (via pointer)                     |
+| eq?          | nn-f      | Compare two values for equality                   |
+| -eq?         | nn-f      | Compare two values for inequality                 |
+| lt?          | nn-f      | Compare two values for less than                  |
+| gt?          | nn-f      | Compare two values for greater than               |
+| fetch        | p-n       | Fetch a value stored at the pointer               |
+| store        | np-       | Store a value into the address at pointer         |
+| +            | nn-n      | Add two numbers                                   |
+| -            | nn-n      | Subtract two numbers                              |
+| *            | nn-n      | Multiply two numbers                              |
+| /mod         | nn-mq     | Divide two numbers, return quotient and remainder |
+| and          | nn-n      | Perform bitwise AND operation                     |
+| or           | nn-n      | Perform bitwise OR operation                      |
+| xor          | nn-n      | Perform bitwise XOR operation                     |
+| shift        | nn-n      | Perform bitwise shift                             |
 | tuck         | xy-yxy    | |
 | over         | xy-xyx    | |
 | nip          | xy-y      | |
@@ -556,25 +555,25 @@ With this, we can build in some interactivity around a terminal I/O model.
 | !+           | na-a      | |
 | push         | n-        | |
 | pop          | -n        | |
-| 0;           | n-n OR n- | |
-| str:compare  | ss-f      | |
-| str:length   | s-n       | |
+| 0;           | n-n OR n- | Exit word (and **drop**) if TOS is zero           |
+| str:compare  | ss-f      | Compare two strings for equality                  |
+| str:length   | s-n       | Return length of string                           |
 | cond         |           | |
 | if           |           | |
 | -if          |           | |
-| Compiler     | -p        | |
-| Heap         | -p        | |
-| ,            | n-        | |
-| s,           | s-        | |
-| here         | -p        | |
-| ;            | -         | |
-| [            |           | |
-| ]            |           | |
-| Dictionary   | -p        | |
-| d:link       | p-p       | |
-| d:xt         | p-p       | |
-| d:class      | p-p       | |
-| d:name       | p-p       | |
+| Compiler     | -p        | Variable; holds compiler state                    |
+| Heap         | -p        | Variable; points to next free memory address      |
+| ,            | n-        | Compile a value into memory at **here**           |
+| s,           | s-        | Compile a string into memory at **here**          |
+| here         | -p        | Return the value stored in **Heap**               |
+| ;            | -         | End compilation and compile a *return* instruction|
+| [            |           | Begin a quotation                                 |
+| ]            |           | End a quotation                                   |
+| Dictionary   | -p        | Variable; points to most recent header            |
+| d:link       | p-p       | Given a DT, return the address of the link field  |
+| d:xt         | p-p       | Given a DT, return the address of the xt field    |
+| d:class      | p-p       | Given a DT, return the address of the class field |
+| d:name       | p-p       | Given a DT, return the address of the name field  |
 | .word        | p-        | |
 | .macro       | p-        | |
 | .data        | p-        | |
@@ -588,4 +587,4 @@ With this, we can build in some interactivity around a terminal I/O model.
 | begin        |           | |
 | again        |           | |
 | interpret    | s-        | |
-| d:lookup     | s-p       | |
+| d:lookup     | s-p       | Given a string, return the DT (or 0 if undefined) |
