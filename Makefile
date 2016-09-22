@@ -1,10 +1,20 @@
-d: c buildnga buildrx
+d: c buildnga rx lib ngita
 
-buildrx:
+ngita:
+	./bin/unu Ngita-Rx.md >ngita-rx.nuance
+	./bin/nuance ngita-rx.nuance >ngita-rx.naje
+	cat rx.naje ngita-rx.naje >_.naje
+	./bin/naje _.naje
+	mv ngaImage ngita-rx.nga
+	mv ngaImage.map ngita-rx.nga.map
+	rm -f _.naje ngita-rx.nuance ngita-rx.naje
+
+rx:
 	./bin/unu Rx.md >rx.nuance
-	./bin/unu Lib.md >lib.rx
 	./bin/nuance rx.nuance >rx.naje
-	./bin/naje rx.naje
+
+lib:
+	./bin/unu Lib.md >lib.rx
 
 buildnga:
 	cd nga && $(CC) unu.c -Wall -o ../bin/unu
