@@ -1,3 +1,7 @@
+# C API for Rx
+
+Compile with **-DINTERACTIVE** for an embedded listener.
+
 ````
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +11,15 @@
 #include "nga.c"
 
 char request[8192];
+
+void injectString(char *s, int buffer) {
+  int m = strlen(s);
+  int i = 0;
+  while (m > 0) {
+    memory[buffer + i] = (CELL)s[i];
+    m--; i++;
+  }
+}
 
 void nguraGetString(int starting)
 {
@@ -27,7 +40,22 @@ int countDictionaryEntries(CELL Dictionary) {
   return count;
 }
 
+int findDictionaryHeader(CELL Dictionary, char *name) {
+  CELL dt = 0;
+  CELL i = Dictionary;
+  while (memory[i] != 0 && i != 0) {
+    nguraGetString(i + 3);
+    if (strcmp(request, name) == 0) {
+      dt = i;
+      i = 0;
+    } else {
+      i = memory[i];
+    }
+  }
+  return dt;
+}
 
+#ifdef INTERACTIVE
 int main(int argc, char **argv) {
   ngaPrepare();
   ngaLoadImage("ngaImage");
@@ -45,6 +73,16 @@ int main(int argc, char **argv) {
 
   printf("%d entries\n", countDictionaryEntries(Dictionary));
 
+  CELL lookup = findDictionaryHeader(Dictionary, "interpret");
+  lookup = memory[lookup + 1];
+  printf("interpret @ %d\n", lookup);
+
+  injectString("#100", 16384);
+
+  sp++;
+  data[sp] = 16384;
+
   exit(0);
 }
+#endif
 ````

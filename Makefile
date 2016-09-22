@@ -1,5 +1,11 @@
 d: c buildnga rx lib ngita
 
+capi:
+	./bin/unu C-Rx.md > c-rx.c
+	cp nga/nga.c .
+	$(CC) c-rx.c -DINTERACTIVE -o c-rx
+	rm nga.c
+
 ngita:
 	./bin/unu Ngita-Rx.md >ngita-rx.nuance
 	./bin/nuance ngita-rx.nuance >ngita-rx.naje
