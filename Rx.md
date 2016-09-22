@@ -71,7 +71,6 @@ Here I wrap the instructions into actual functions intended for use. Naming conv
 :or    "nn-n"   _or ;
 :xor   "nn-n"   _xor ;
 :shift "nn-n"   _shift ;
-:bye   "-"      _end ;
 ````
 
 ## Stack Shufflers
@@ -357,7 +356,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 ## Quotations
 
 ````
-:notfound $? putc ;
+:notfound ^_nop ;
 
 :begin here ;
 :again &_lit comma:opcode comma &_jump comma:opcode ;
@@ -398,28 +397,6 @@ The *interpreter* is what processes input. What it does is:
 ;
 ````
 
-````
-:startup
-  'rx-2016.09'
-
-:okmsg
-  'ok'
-
-:ok &okmsg puts space ;
-
-:main
-  &startup puts cr cr words cr cr
-:main_loop
-  compiling? [ ok ] -if getToken
-  &TIB interpret
-  compiling? [ cr ] -if
-  ^main_loop
-````
-
-````
-:words &Dictionary fetch :words:list 0; dup d:name puts space fetch ^words:list
-````
-
 ## Dictionary
 
 The dictionary is a linked list.
@@ -447,8 +424,8 @@ The dictionary is a linked list.
 :0018 |0017 |t-push        |.macro 'push'
 :0019 |0018 |t-pop         |.macro 'pop'
 :0020 |0019 |t-0;          |.macro '0;'
-:0021 |0020 |bye           |.word  'bye'
-:0022 |0021 |tuck          |.word  'tuck'
+
+:0022 |0020 |tuck          |.word  'tuck'
 :0023 |0022 |over          |.word  'over'
 :0024 |0023 |nip           |.word  'nip'
 :0025 |0024 |dup-pair      |.word  'dup-pair'
@@ -491,50 +468,7 @@ The dictionary is a linked list.
 :0062 |0061 |again         |.macro 'again'
 :0063 |0062 |interpret     |.word  'interpret'
 :0064 |0063 |lookup        |.word  'd:lookup'
-
-:0900 |0064 |putc          |.word  'putc'
-:0901 |0900 |putn          |.word  'putn'
-:0902 |0901 |puts          |.word  'puts'
-:0903 |0902 |cls           |.word  'cls'
-:0904 |0903 |getc          |.word  'getc'
-:0905 |0904 |getn          |.word  'getn'
-:0906 |0905 |gets          |.word  'gets'
-:0907 |0906 |save          |.word  'save'
-
-:9999 |0907 |words         |.word  'words'
-````
-
-## Ngura I/O
-
-Rx does not attempt to become a complete Forth. As with Nga, I/O is generally left undefined. For testing purposes it is helpful though, so the following wraps the reference *Ngura* I/O instructions into functions.
-
-````
-:putc `100 ;
-:putn `101 ;
-:puts `102 ;
-:putsc `103 ;
-:cls `104 ;
-:getc `110 ;
-:getn #32 `111 ;
-:gets `112 ;
-:fs.open `118 ;
-:fs.close `119 ;
-:fs.read `120 ;
-:fs.write `121 ;
-:fs.tell `122 ;
-:fs.seek `123 ;
-:fs.size `124 ;
-:fs.delete `125 ;
-:save `130 ;
-````
-
-With this, we can build in some interactivity around a terminal I/O model.
-
-````
-:cr #10 putc ;
-:space #32 putc ;
-:getToken #32 #2048 &TIB gets ;
-:TIB `4096
+:9999 |0064 |notfound      |.word  'notfound'
 ````
 
 ## Appendix: Words, Stack Effects, and Usage
@@ -605,3 +539,4 @@ With this, we can build in some interactivity around a terminal I/O model.
 | again        | a-        | End an unconditional loop                         |
 | interpret    | s-?       | Evaluate a token                                  |
 | d:lookup     | s-p       | Given a string, return the DT (or 0 if undefined) |
+| notfound     | -         | Handler for token not found errors                |
