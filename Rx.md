@@ -1,18 +1,18 @@
 # Rx: a minimal Forth for Nga
 
-*Rx* (*retro experimental*) is a proto-Forth environment. Past incarnations of this have proved very successful, serving as both a basis for Retro and testbed for interesting concepts. *Rx* is *not* intended to be used widely at this time. Expect frequent breakages and bugs as new things are added, tested, and removed. It is my hope that this will prove beneficial in building new generations of Retro and Parable.
+*Rx* (*retro experimental*) is a minimal Forth implementation for the Nga virtual machine. Like Nga this is intended to be used within a larger supporting framework adding I/O and other desired functionality. Various example interface layers are included.
 
-As with all of my recent work, I'm attempting to develop this in  more literate style, intermixing commentary and keeping related things together. The sources are extracted with the *unu* tool, preprocessed by *nuance*, and then assembled using *naje*. On my Linode, this normally takes less than 0.01s.
+## General Notes on the Source
 
-As with Retro and Parable, Rx will make extensive use of quotations for logic and flow control, and prefixes for controlling compilation. The general syntax is a bit more Forth-like at this point:
+Rx is developed using a literate tool called *unu*. This allows extraction of fenced code blocks into a separate file for later compilation. Developing in a literate approach is beneficial as it makes it easier for me to keep documentation current and lets me approach the code in a more structured manner.
 
-    :name . . . definition . . . ;
+The code is written in *nuance*. Nuance is a small preprocessor that converts a simple Forth-style language into assembly. I chose to do it this way to reduce the time needed to build and maintain this. Generally the syntax of Nuance is similar to the Rx language, though it adds some useful things like support for forward references.
 
-Note that **:** is a prefix that creates a new named entry and starts the compiler, **;** is a compiler macro that compiles a *return* instruction and stops the compiler.
+Nuance generates assembly language. This is built with *naje*, the standard Nga assembler.
 
-Broadly speaking, this is a reimplementation of the approach used in Retro 11, but without the historical baggage. It's trying to take some lessons learned, and provide a tighter, cleaner core language suitable for expansion into something useful. The current plan is for a core language (sans I/O) of around 80 functions.
+The entire process of using *unu*, *nuance*, and *naje* to build an image for Nga takes around 0.1s on my Linode.
 
-## Mapping
+## In the Beginning..
 
 All code built with the Nga toolchain starts with a jump to the main entry point. With cell packing, this takes two cells. We can take advantage of this knowledge to place a couple of variables at the start so they can be easily identified and interfaced with external tools. This is important as Nga allows for a variety of I/O models to be implemented and I don't want to tie Rx into any one specific model.
 
@@ -76,6 +76,8 @@ Here I wrap the instructions into actual functions intended for use. Naming conv
 
 ## Stack Shufflers
 
+These add additional operations on the stack elements that'll keep later code much more readable.
+
 ````
 :tuck      "xy-yxy"   dup push swap pop ;
 :over      "xy-xyx"   push dup pop swap ;
@@ -86,6 +88,8 @@ Here I wrap the instructions into actual functions intended for use. Naming conv
 
 ## Math & Logic
 
+The basic math operations are addition, subtraction, multiplication, and division/remainder. We define a couple more things that'll be useful later: separate division and remainder functions, and negation.
+
 ````
 :/       "nq-d" /mod swap drop ;
 :mod     "nq-r" /mod drop ;
@@ -95,19 +99,38 @@ Here I wrap the instructions into actual functions intended for use. Naming conv
 
 ## Memory
 
+The basic memory accesses are handled via **fetch** and **store**. These two functions provide slightly easier access to linear sequences of data.
+
 ````
 :@+     "a-An"  dup #1 + swap fetch ;
 :!+     "na-A"  dup #1 + push store pop ;
 ````
 
-Additional functions from Retro:
-
 ## Strings
+
+There are two basic string operations needed: obtaining the length and comparing for equality.
+
+Strings in Rx are zero terminated. This is a bit less elegant than counted strings, but the implementation is quick and easy.
+
+First up, string length. The process here is trivial:
+
+* Make a copy of the starting point
+* Fetch each character, comparing to zero
+
+  * If zero, break the loop
+  * Otherwise discard and repeat
+
+* When done subtract the original address from the current one
+* Then subtract one (to account for the zero terminator)
 
 ````
 :count @+ 0; drop ^count
 :str:length dup count #1 - swap - ;
+````
 
+String comparisons are harder.
+
+````
 :compare::flag `0
 :compare::maxlength `0
 
@@ -132,7 +155,7 @@ Additional functions from Retro:
   ;
 ````
 
-### Conditionals
+## Conditionals
 
 Implement **cond**, a conditional combinator which will execute one of two functions, depending on the state of a flag. We take advantage of a little hack here. Store the pointers into a jump table with two fields, and use the flag as the index. Default to the *false* entry, since a *true* flag is -1.
 
@@ -173,18 +196,13 @@ With these we can add a couple of additional forms. **comma:opcode** is used to 
 :comma:string  "a-"  ($) drop #0 comma ;
 ````
 
-## Compiler Extension
-
 With the core functions above it's now possible to setup a few more things that make compilation at runtime more practical.
 
-First, a variable indicating whether we should compile or run a function. This will be used by the *word classes*.
+First, a variable indicating whether we should compile or run a function. This will be used by the *word classes*. I also define an accessor function named **compiling?** to aid in readability later on.
 
 ````
 :Compiler `0
-````
-
-````
-:compiling? &Compiler fetch ;
+:compiling?  "-f"  &Compiler fetch ;
 ````
 
 ````
@@ -219,10 +237,7 @@ The initial dictionary is constructed at the end of this file. It'll take a form
 
 Each label will contain a reference to the prior one, the internal function name, its class, and a string indicating the name to expose to the Rx interpreter.
 
-Rx will store the pointer to the most recent entry in a variable called **dictionary**. For simplicity, we just assign the last entry an arbitrary label of 9999.
-
-````
-````
+Rx will store the pointer to the most recent entry in a variable called **dictionary**. For simplicity, we just assign the last entry an arbitrary label of 9999. This is set at the start of the source. (See *In the Beginning...*)
 
 Rx provides accessor functions for each field. Since the number of fields (or their ordering) may change over time, using these reduces the number of places where field offsets are hard coded.
 
@@ -278,6 +293,8 @@ This code converts a zero terminated string into a number. The approach is very 
   * Store the updated accumulator
 
 * When done, take the accumulator value and the modifier and multiply them to get the final result
+
+At this time Rx only supports decimal numbers.
 
 ````
 :asnumber:mod `0  "modifier"
@@ -550,25 +567,25 @@ With this, we can build in some interactivity around a terminal I/O model.
 | /            | nq-d      | Divide and return quotient                        |
 | mod          | nq-r      | Divide and return remainder                       |
 | negate       | n-n       | Invert the sign of a number                       |
-| not          | n-n       | |
-| @+           | a-an      | |
-| !+           | na-a      | |
+| not          | n-n       | Perform a NOT operation                           |
+| @+           | a-an      | Fetch a value and return next address             |
+| !+           | na-a      | Store a value to address and return next address  |
 | push         | n-        | Move value from data stack to address stack       |
 | pop          | -n        | Move value from address stack to data stack       |
 | 0;           | n-n OR n- | Exit word (and **drop**) if TOS is zero           |
 | str:compare  | ss-f      | Compare two strings for equality                  |
 | str:length   | s-n       | Return length of string                           |
-| cond         |           | |
-| if           |           | |
-| -if          |           | |
+| cond         | fpp-?     | Execute *p1* if *f* is -1, or *p2* if *f* is 0    |
+| if           | fp-?      | Execute *p* if flag *f* is true (-1)              |
+| -if          | fp-?      | Execute *p* if flag *f* is false (0)              |
 | Compiler     | -p        | Variable; holds compiler state                    |
 | Heap         | -p        | Variable; points to next free memory address      |
 | ,            | n-        | Compile a value into memory at **here**           |
 | s,           | s-        | Compile a string into memory at **here**          |
 | here         | -p        | Return the value stored in **Heap**               |
 | ;            | -         | End compilation and compile a *return* instruction|
-| [            |           | Begin a quotation                                 |
-| ]            |           | End a quotation                                   |
+| [            | -         | Begin a quotation                                 |
+| ]            | -         | End a quotation                                   |
 | Dictionary   | -p        | Variable; points to most recent header            |
 | d:link       | p-p       | Given a DT, return the address of the link field  |
 | d:xt         | p-p       | Given a DT, return the address of the xt field    |
@@ -577,14 +594,14 @@ With this, we can build in some interactivity around a terminal I/O model.
 | .word        | p-        | Class handler for standard functions              |
 | .macro       | p-        | Class handler for immediate functions             |
 | .data        | p-        | Class handler for data                            |
-| d:add-header |           | Add an item to the dictionary                     |
+| d:add-header | saa-      | Add an item to the dictionary                     |
 | prefix:#     | s-        | # prefix for numbers                              |
 | prefix::     | s-        | : prefix for definitions                          |
 | prefix:&     | s-        | & prefix for pointers                             |
 | prefix:$     | s-        | $ prefix for ASCII characters                     |
 | prefix:`     | s-        | ` prefix for bytecode                             |
 | prefix:'     | s-        | ' prefix for simple text                          |
-| begin        |           | |
-| again        |           | |
-| interpret    | s-        | |
+| begin        | -a        | Start an unconditional loop                       |
+| again        | a-        | End an unconditional loop                         |
+| interpret    | s-?       | Evaluate a token                                  |
 | d:lookup     | s-p       | Given a string, return the DT (or 0 if undefined) |
