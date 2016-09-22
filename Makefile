@@ -26,9 +26,6 @@ buildnga:
 	cd nga && $(CC) naje.c -DALLOW_FORWARD_REFS -DENABLE_MAP -Wall -o ../bin/naje
 	cd nga && $(CC) nuance.c -Wall -o ../bin/nuance
 
-buildcounts: c buildnga buildrx
-	./bin/naje rx.naje | tail -n 1 | sed 's/ /\n/g' | sed 's/\^/\t/g' >rx.refcounts
-
 c:
 	rm -f bin/*
 	rm -f rx.nuance
