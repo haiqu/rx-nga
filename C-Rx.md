@@ -17,6 +17,7 @@ void injectString(char *s, int buffer) {
   int i = 0;
   while (m > 0) {
     memory[buffer + i] = (CELL)s[i];
+    memory[buffer + i + 1] = 0;
     m--; i++;
   }
 }
@@ -55,6 +56,36 @@ int findDictionaryHeader(CELL Dictionary, char *name) {
   return dt;
 }
 
+void execute(int cell) {
+  CELL opcode, i;
+
+  rp = 1;
+
+  ip = cell;
+  while (ip < IMAGE_SIZE) {
+    opcode = memory[ip];
+    if (ngaValidatePackedOpcodes(opcode) != 0) {
+      ngaProcessPackedOpcodes(opcode);
+    } else if (opcode >= 0 && opcode < 27) {
+      ngaProcessOpcode(opcode);
+    } else {
+      printf("Invalid instruction!\n");
+      printf("At %d, opcode %d\n", ip, opcode);
+      exit(1);
+    }
+    ip++;
+    if (rp == 0)
+      ip = IMAGE_SIZE;
+  }
+}
+
+void dump_stack() {
+  printf("Stack: ");
+  for (CELL i = 1; i <= sp; i++)
+    printf("%d ", data[i]);
+  printf("\n");
+}
+
 #ifdef INTERACTIVE
 int main(int argc, char **argv) {
   ngaPrepare();
@@ -78,9 +109,14 @@ int main(int argc, char **argv) {
   printf("interpret @ %d\n", lookup);
 
   injectString("#100", 16384);
-
   sp++;
   data[sp] = 16384;
+
+  dump_stack();
+
+  execute(lookup);
+
+  dump_stack();
 
   exit(0);
 }
