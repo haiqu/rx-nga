@@ -173,7 +173,7 @@ Next two additional forms:
 
 ## Interpreter & Compiler
 
-## Compiler Core
+### Compiler Core
 
 The heart of the compiler is **comma** which stores a value into memory and increments a variable (**heap**) pointing to the next free address. **here** is a helper function that returns the address stored in **heap**.
 
@@ -278,7 +278,7 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
 :lookup  "s-n"  &needle store find &which fetch ;
 ````
 
-## Number Conversion
+### Number Conversion
 
 This code converts a zero terminated string into a number. The approach is very simple:
 
@@ -317,7 +317,7 @@ At this time Rx only supports decimal numbers.
   &asnumber:acc fetch &asnumber:mod fetch * ;
 ````
 
-## Token Processing
+### Token Processing
 
 An input token has a form like:
 
@@ -353,11 +353,9 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
            here pop store .data ;
 ````
 
-## Quotations
+### Quotations
 
 ````
-:notfound ^_nop ;
-
 :begin here ;
 :again &_lit comma:opcode comma &_jump comma:opcode ;
 :t-[ &_lit comma:opcode here #0 comma &_jump comma:opcode here ;
@@ -382,7 +380,9 @@ The *interpreter* is what processes input. What it does is:
     * Not found: report error via **notfound**
 
 ````
-:call:dt dup d:xt fetch swap d:class fetch call ;
+:notfound "-" ^_nop ;
+
+:call:dt "d-" dup d:xt fetch swap d:class fetch call ;
 
 :input:source `0
 

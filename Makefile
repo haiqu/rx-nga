@@ -1,22 +1,19 @@
-d: c buildnga rx lib ngita capi
+d:
+	@echo Targets: crx ngita rx lib sdk
 
-capi:
-	@echo C-Rx Build
-	@echo + build Rx ngaImage
-	@./bin/naje rx.naje >build_capi.log
-	@./bin/unu C-Rx.md > c-rx.c
-	@cp nga/nga.c .
-	@echo + build C-Rx
-	@$(CC) c-rx.c -DINTERACTIVE -Wall -o c-rx
-	@echo + clean up
-	@rm nga.c
+crx:
+	./bin/naje rx.naje
+	./bin/unu C-Rx.md > c-rx.c
+	cp nga/nga.c .
+	$(CC) c-rx.c -DINTERACTIVE -Wall -o c-rx
+	rm nga.c
 
 ngita:
 	./bin/unu Ngita-Rx.md >ngita-rx.nuance
-	./bin/nuance ngita-rx.nuance >ngita-rx.naje
 	./bin/unu Ngita-Extend.md >ngita-extend.rx
+	./bin/nuance ngita-rx.nuance >ngita-rx.naje
 	cat rx.naje ngita-rx.naje >_.naje
-	./bin/naje _.naje
+	./bin/naje _.naje > build_ngita.log
 	mv ngaImage ngita-rx.nga
 	mv ngaImage.map ngita-rx.nga.map
 	rm -f _.naje ngita-rx.nuance ngita-rx.naje
@@ -30,7 +27,7 @@ rx:
 lib:
 	./bin/unu Lib.md >lib.rx
 
-buildnga:
+sdk:
 	cd nga && $(CC) unu.c -Wall -o ../bin/unu
 	cd nga && $(CC) nga.c -DSTANDALONE -Wall -o ../bin/nga
 	cd nga && $(CC) -DVERBOSE ngita.c -Wall -o ../bin/ngita
