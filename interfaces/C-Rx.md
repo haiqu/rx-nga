@@ -77,6 +77,17 @@ char *string_extract(int at)
 
 ## Dictionary
 
+The dictionary in Rx is a linked list, with each entry consisting of a few fields:
+
+| field	| holds                                       |
+| ----- | ------------------------------------------- |
+| link  | link to the previous entry, 0 if last entry |
+| xt    | link to start of the function               |
+| class	| link to the class handler function          |
+| name  | zero terminated string                      |
+
+C-Rx provides a few functions for addressing these fields:
+
 ````
 int d_link(CELL dt) {
   return dt;
@@ -95,8 +106,10 @@ int d_name(CELL dt) {
 }
 ````
 
+The next function allows counting the number of entries in the dictionary.
+
 ````
-int countDictionaryEntries(CELL Dictionary) {
+int d_count_entries(CELL Dictionary) {
   CELL count = 0;
   CELL i = Dictionary;
   while (memory[i] != 0) {
@@ -105,8 +118,12 @@ int countDictionaryEntries(CELL Dictionary) {
   }
   return count;
 }
+````
 
-int findDictionaryHeader(CELL Dictionary, char *name) {
+And finally, a function to lookup a header.
+
+````
+int d_lookup(CELL Dictionary, char *name) {
   CELL dt = 0;
   CELL i = Dictionary;
   char *dname;
@@ -134,7 +151,6 @@ void execute(int cell) {
   CELL opcode;
 
   rp = 1;
-
   ip = cell;
   while (ip < IMAGE_SIZE) {
     opcode = memory[ip];
@@ -158,35 +174,45 @@ void execute(int cell) {
 
 ````
 #ifdef INTERACTIVE
+
+CELL Dictionary, Heap, Compiler;
+
 void dump_stack() {
   printf("Stack: ");
   for (CELL i = 1; i <= sp; i++)
     printf("%d ", data[i]);
   printf("\n");
 }
+````
 
+The prompt should only show if the compiler is off.
+
+````
+void prompt() {
+  if (memory[Compiler] == 0)
+    printf(" ok  ");
+}
+````
+
+````
 int main(int argc, char **argv) {
+  CELL interpret;
+
   printf("rx-2016.09 [C-Rx Listener]\n");
   ngaPrepare();
   ngaLoadImage("ngaImage");
 
-  CELL Dictionary = memory[2];
-  CELL Compiler = findDictionaryHeader(Dictionary, "Compiler");
-  Compiler = memory[Compiler + 1];
+  Dictionary = memory[2];
+  Heap = memory[3];
+  Compiler = memory[d_xt(d_lookup(Dictionary, "Compiler"))];
+  interpret = memory[d_xt(d_lookup(Dictionary, "interpret"))];
 
-  CELL Heap = memory[3];
-
-  CELL interpret = findDictionaryHeader(Dictionary, "interpret");
-  interpret = memory[interpret + 1];
-
-  printf("%d MAX, %d Heap begins\n\n", IMAGE_SIZE, Heap);
+  printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, Heap - 1024, Heap);
 
   char input[1024];
 
   while(1) {
-    if (memory[Compiler] == 0) {
-      printf(" ok  ");
-    }
+    prompt();
     Dictionary = memory[2];
     scanf("%s", input);
     if (strcmp(input, "bye") == 0)
@@ -198,7 +224,7 @@ int main(int argc, char **argv) {
         printf("%s  ", string_data);
         i = memory[i];
       }
-      printf("(%d entries)\n", countDictionaryEntries(Dictionary));
+      printf("(%d entries)\n", d_count_entries(Dictionary));
     }
     if (strcmp(input, ".s") == 0) {
       dump_stack();
