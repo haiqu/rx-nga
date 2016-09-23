@@ -1,36 +1,83 @@
 # C API for Rx
 
-Compile with **-DINTERACTIVE** for an embedded listener.
+As with Nga, Rx is designed to be embedded and customized. This is a C language API for interacting with an Rx system. It includes an example *listener* which provides a minimal means of interacting with Rx, using the API and standard C libraries.
+
+NOTE: this is *very* early. Expect a lot of changes to occur in the near future.
+
+Compile with **-DINTERACTIVE** for the embedded listener.
+
+## Notes
+
+Things this needs to do:
+
+* copy strings into the image
+* copy strings out of the image
+* push values to stack
+* pop values from stack
+* search the dictionary
+* evaluate specific functions
+* create new headers
+
+Prefix for namespace reasons?
+
+Is C-Rx an ok name for this?
+
+My eventual goal for this is to provide command line, server side, and iOS interfaces to Rx and Nga.
+
+## Headers
 
 ````
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+````
 
+## Nga
+
+Include Nga.
+
+````
 #include "nga.c"
+````
 
-char request[8192];
+## Strings
 
-void injectString(char *s, int buffer) {
-  int m = strlen(s);
+Nga's cell based memory model means that we need to provide some means of copying ASCII data between C and Rx.
+
+To copy data into the Rx memory use **crx\_string\_inject(str, at)**. The *str* argument is a pointer to a C string, *at* is the initial address in the image where the string should be stored.
+
+````
+void crx_string_inject(char *s, int buffer) {
+  int m = strlen(str);
   int i = 0;
   while (m > 0) {
-    memory[buffer + i] = (CELL)s[i];
+    memory[buffer + i] = (CELL)str[i];
     memory[buffer + i + 1] = 0;
     m--; i++;
   }
 }
+````
 
-void nguraGetString(int starting)
+Retrieving data is slightly more complex. C-Rx provides **crx\_string\_extract(at)** for reading a string into a dedicated buffer named **crx\_string\_data**.
+
+````
+char crx_string_data[8192];
+
+char *crx_string_extract(int at)
 {
+  CELL starting = at;
   CELL i = 0;
   while(memory[starting] && i < 8192)
-    request[i++] = (char)memory[starting++];
-  request[i] = 0;
+    crx_string_data[i++] = (char)memory[starting++];
+  crx_string_data[i] = 0;
+  return (char *)crx_string_data;
 }
+````
 
+## Dictionary
 
+````
 int countDictionaryEntries(CELL Dictionary) {
   CELL count = 0;
   CELL i = Dictionary;
@@ -44,9 +91,10 @@ int countDictionaryEntries(CELL Dictionary) {
 int findDictionaryHeader(CELL Dictionary, char *name) {
   CELL dt = 0;
   CELL i = Dictionary;
+  char *d_name;
   while (memory[i] != 0 && i != 0) {
-    nguraGetString(i + 3);
-    if (strcmp(request, name) == 0) {
+    d_name = crx_string_extract(i + 3);
+    if (strcmp(d_name, name) == 0) {
       dt = i;
       i = 0;
     } else {
@@ -55,7 +103,11 @@ int findDictionaryHeader(CELL Dictionary, char *name) {
   }
   return dt;
 }
+````
 
+## Execution
+
+````
 void execute(int cell) {
   CELL opcode, i;
 
@@ -78,7 +130,12 @@ void execute(int cell) {
       ip = IMAGE_SIZE;
   }
 }
+````
 
+## ...
+
+````
+#ifdef INTERACTIVE
 void dump_stack() {
   printf("Stack: ");
   for (CELL i = 1; i <= sp; i++)
@@ -86,7 +143,6 @@ void dump_stack() {
   printf("\n");
 }
 
-#ifdef INTERACTIVE
 int main(int argc, char **argv) {
   ngaPrepare();
   ngaLoadImage("ngaImage");
@@ -97,8 +153,8 @@ int main(int argc, char **argv) {
   CELL i = Dictionary;
 
   while (memory[i] != 0) {
-    nguraGetString(i+3);
-    printf("Entry at %d\nName: %s\nXT: %d\nClass: %d\n\n", i, request, memory[i+1], memory[i+2]);
+    crx_string_extract(i+3);
+    printf("Entry at %d\nName: %s\nXT: %d\nClass: %d\n\n", i, crx_string_data, memory[i+1], memory[i+2]);
     i = memory[i];
   }
 
@@ -108,7 +164,7 @@ int main(int argc, char **argv) {
   lookup = memory[lookup + 1];
   printf("interpret @ %d\n", lookup);
 
-  injectString("#100", 16384);
+  crx_string_inject("#100", 16384);
   sp++;
   data[sp] = 16384;
 
