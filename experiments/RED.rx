@@ -1,0 +1,9 @@
+:red:BlockBuffer #16384 ;
+:red:block #1024 * red:BlockBuffer + ;
+
+:cr #10 putc ;
+:red:segment $+ putc $- putc ;
+:red:bar #9 putc #32 begin 0; red:segment #1 - again ;
+:red:lines #16 begin 0; dup putn #9 putc $. putc cr #1 - again ;
+:red:ui cr red:bar cr red:lines red:bar cr cr ;
+save bye
