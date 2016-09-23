@@ -78,6 +78,24 @@ char *string_extract(int at)
 ## Dictionary
 
 ````
+int d_link(CELL dt) {
+  return dt;
+}
+
+int d_xt(CELL dt) {
+  return dt + 1;
+}
+
+int d_class(CELL dt) {
+  return dt + 2;
+}
+
+int d_name(CELL dt) {
+  return dt + 3;
+}
+````
+
+````
 int countDictionaryEntries(CELL Dictionary) {
   CELL count = 0;
   CELL i = Dictionary;
@@ -91,10 +109,10 @@ int countDictionaryEntries(CELL Dictionary) {
 int findDictionaryHeader(CELL Dictionary, char *name) {
   CELL dt = 0;
   CELL i = Dictionary;
-  char *d_name;
+  char *dname;
   while (memory[i] != 0 && i != 0) {
-    d_name = string_extract(i + 3);
-    if (strcmp(d_name, name) == 0) {
+    dname = string_extract(d_name(i));
+    if (strcmp(dname, name) == 0) {
       dt = i;
       i = 0;
     } else {
@@ -106,6 +124,10 @@ int findDictionaryHeader(CELL Dictionary, char *name) {
 ````
 
 ## Execution
+
+This is a slightly tweaked version of the example bytecode processor from Nga. In a standalone implementation running just the image, control starts at the beginning and ends with the **END** instruction. But that's not what we want here. For an embedded application, this allows for executing a single function and returning to the high level code. This cheats a bit.
+
+Execution stops when the instruction pointer (*ip*) reaches the end of memory. To find out when our initial function is done, we set the return pointer (*rp*) to a dummy depth of 1. When the top level **RETURN** instruction runs, this will reduce *rp* to zero, allowing us to know that control should be returned to the C code by jumping *ip* to the end of memory.
 
 ````
 void execute(int cell) {
@@ -172,7 +194,7 @@ int main(int argc, char **argv) {
     if (strcmp(input, "words") == 0) {
       CELL i = Dictionary;
       while (memory[i] != 0) {
-        string_extract(i+3);
+        string_extract(d_name(i));
         printf("%s  ", string_data);
         i = memory[i];
       }
@@ -181,14 +203,11 @@ int main(int argc, char **argv) {
     if (strcmp(input, ".s") == 0) {
       dump_stack();
     }
-    string_inject(input, 16384);
+    string_inject(input, Heap - 1024);
     sp++;
-    data[sp] = 16384;
+    data[sp] = Heap - 1024;
     execute(interpret);
   }
-
-
-
   exit(0);
 }
 #endif
