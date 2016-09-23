@@ -48,7 +48,7 @@ Nga's cell based memory model means that we need to provide some means of copyin
 To copy data into the Rx memory use **crx\_string\_inject(str, at)**. The *str* argument is a pointer to a C string, *at* is the initial address in the image where the string should be stored.
 
 ````
-void crx_string_inject(char *str, int buffer) {
+void string_inject(char *str, int buffer) {
   int m = strlen(str);
   int i = 0;
   while (m > 0) {
@@ -62,16 +62,16 @@ void crx_string_inject(char *str, int buffer) {
 Retrieving data is slightly more complex. C-Rx provides **crx\_string\_extract(at)** for reading a string into a dedicated buffer named **crx\_string\_data**.
 
 ````
-char crx_string_data[8192];
+char string_data[8192];
 
-char *crx_string_extract(int at)
+char *string_extract(int at)
 {
   CELL starting = at;
   CELL i = 0;
   while(memory[starting] && i < 8192)
-    crx_string_data[i++] = (char)memory[starting++];
-  crx_string_data[i] = 0;
-  return (char *)crx_string_data;
+    string_data[i++] = (char)memory[starting++];
+  string_data[i] = 0;
+  return (char *)string_data;
 }
 ````
 
@@ -93,7 +93,7 @@ int findDictionaryHeader(CELL Dictionary, char *name) {
   CELL i = Dictionary;
   char *d_name;
   while (memory[i] != 0 && i != 0) {
-    d_name = crx_string_extract(i + 3);
+    d_name = string_extract(i + 3);
     if (strcmp(d_name, name) == 0) {
       dt = i;
       i = 0;
@@ -109,7 +109,7 @@ int findDictionaryHeader(CELL Dictionary, char *name) {
 
 ````
 void execute(int cell) {
-  CELL opcode, i;
+  CELL opcode;
 
   rp = 1;
 
@@ -148,13 +148,13 @@ int main(int argc, char **argv) {
   ngaLoadImage("ngaImage");
 
   CELL Dictionary = memory[2];
-  CELL Heap = memory[3];
+//  CELL Heap = memory[3];
 
   CELL i = Dictionary;
 
   while (memory[i] != 0) {
-    crx_string_extract(i+3);
-    printf("Entry at %d\nName: %s\nXT: %d\nClass: %d\n\n", i, crx_string_data, memory[i+1], memory[i+2]);
+    string_extract(i+3);
+    printf("Entry at %d\nName: %s\nXT: %d\nClass: %d\n\n", i, string_data, memory[i+1], memory[i+2]);
     i = memory[i];
   }
 
@@ -164,7 +164,7 @@ int main(int argc, char **argv) {
   lookup = memory[lookup + 1];
   printf("interpret @ %d\n", lookup);
 
-  crx_string_inject("#100", 16384);
+  string_inject("#100", 16384);
   sp++;
   data[sp] = 16384;
 

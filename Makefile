@@ -1,10 +1,15 @@
-d: c buildnga rx lib ngita
+d: c buildnga rx lib ngita capi
 
 capi:
-	./bin/unu C-Rx.md > c-rx.c
-	cp nga/nga.c .
-	$(CC) c-rx.c -DINTERACTIVE -o c-rx
-	rm nga.c
+	@echo C-Rx Build
+	@echo + build Rx ngaImage
+	@./bin/naje rx.naje >build_capi.log
+	@./bin/unu C-Rx.md > c-rx.c
+	@cp nga/nga.c .
+	@echo + build C-Rx
+	@$(CC) c-rx.c -DINTERACTIVE -Wall -o c-rx
+	@echo + clean up
+	@rm nga.c
 
 ngita:
 	./bin/unu Ngita-Rx.md >ngita-rx.nuance
