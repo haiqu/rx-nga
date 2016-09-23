@@ -144,35 +144,50 @@ void dump_stack() {
 }
 
 int main(int argc, char **argv) {
+  printf("rx-2016.09 [C-Rx Listener]\n");
   ngaPrepare();
   ngaLoadImage("ngaImage");
 
   CELL Dictionary = memory[2];
-//  CELL Heap = memory[3];
+  CELL Compiler = findDictionaryHeader(Dictionary, "Compiler");
+  Compiler = memory[Compiler + 1];
 
-  CELL i = Dictionary;
+  CELL Heap = memory[3];
 
-  while (memory[i] != 0) {
-    string_extract(i+3);
-    printf("Entry at %d\nName: %s\nXT: %d\nClass: %d\n\n", i, string_data, memory[i+1], memory[i+2]);
-    i = memory[i];
+  CELL interpret = findDictionaryHeader(Dictionary, "interpret");
+  interpret = memory[interpret + 1];
+
+  printf("%d MAX, %d Heap begins\n\n", IMAGE_SIZE, Heap);
+
+  char input[1024];
+
+  while(1) {
+    if (memory[Compiler] == 0) {
+      printf(" ok  ");
+    }
+    Dictionary = memory[2];
+    scanf("%s", input);
+    if (strcmp(input, "bye") == 0)
+      exit(0);
+    if (strcmp(input, "words") == 0) {
+      CELL i = Dictionary;
+      while (memory[i] != 0) {
+        string_extract(i+3);
+        printf("%s  ", string_data);
+        i = memory[i];
+      }
+      printf("(%d entries)\n", countDictionaryEntries(Dictionary));
+    }
+    if (strcmp(input, ".s") == 0) {
+      dump_stack();
+    }
+    string_inject(input, 16384);
+    sp++;
+    data[sp] = 16384;
+    execute(interpret);
   }
 
-  printf("%d entries\n", countDictionaryEntries(Dictionary));
 
-  CELL lookup = findDictionaryHeader(Dictionary, "interpret");
-  lookup = memory[lookup + 1];
-  printf("interpret @ %d\n", lookup);
-
-  string_inject("#100", 16384);
-  sp++;
-  data[sp] = 16384;
-
-  dump_stack();
-
-  execute(lookup);
-
-  dump_stack();
 
   exit(0);
 }
