@@ -48,7 +48,7 @@ Nga's cell based memory model means that we need to provide some means of copyin
 To copy data into the Rx memory use **crx\_string\_inject(str, at)**. The *str* argument is a pointer to a C string, *at* is the initial address in the image where the string should be stored.
 
 ````
-void crx_string_inject(char *s, int buffer) {
+void crx_string_inject(char *str, int buffer) {
   int m = strlen(str);
   int i = 0;
   while (m > 0) {
