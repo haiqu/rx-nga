@@ -12,6 +12,51 @@ Nuance generates assembly language. This is built with *naje*, the standard Nga 
 
 The entire process of using *unu*, *nuance*, and *naje* to build an image for Nga takes around 0.1s on my Linode.
 
+## Syntax
+
+Rx is not a typical Forth. Drawing from Retro and Parable, it makes use of quotations and prefixes for many language elements.
+
+### Defining a Word
+
+Use the **:** prefix:
+
+    :square dup * ;
+
+### Numbers
+
+Use the **#** prefix:
+
+    #100
+    #-33
+
+### ASCII Characters
+
+Use the **$** prefix:
+
+    $h
+    $i
+
+### Pointers
+
+Use the **&amp;** prefix:
+
+    &+
+    &notfound
+
+### Conditionals
+
+#### IF/ELSE
+
+    #100 #22 eq? [ 'true ] [ 'false ] cond
+
+#### IF TRUE
+
+    #100 #22 eq? [ 'true ] if
+
+#### IF FALSE
+
+    #100 #22 eq? [ 'true ] -if
+
 ## Legalities
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
