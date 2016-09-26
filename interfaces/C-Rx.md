@@ -8,37 +8,51 @@ Compile with **-DINTERACTIVE** for the embedded listener.
 
 ## Notes
 
-Things this needs to do:
+Finished:
 
-* copy strings into the image
-* copy strings out of the image
 * push values to stack
 * pop values from stack
+* copy strings into the image
+* copy strings out of the image
 * search the dictionary
+* dictionary field accessors
+* count dictionary items
 * evaluate specific functions
+
+Todo:
+
+Things this needs to do:
+
 * create new headers
-
-Prefix for namespace reasons?
-
-Is C-Rx an ok name for this?
 
 My eventual goal for this is to provide command line, server side, and iOS interfaces to Rx and Nga.
 
-## Headers
+## Headers &amp; Nga
+
+Just some standard, boring red tape.
 
 ````
+/* c-rx.c, copyright (c) 2016 charles childers */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-````
 
-## Nga
-
-Include Nga.
-
-````
 #include "nga.c"
+````
+
+## Stack
+
+````
+CELL stack_pop() {
+  sp--;
+  return data[sp + 1];
+}
+
+void stack_push(CELL value) {
+  sp++;
+  data[sp] = value;
+}
 ````
 
 ## Strings
@@ -79,30 +93,35 @@ char *string_extract(int at)
 
 The dictionary in Rx is a linked list, with each entry consisting of a few fields:
 
-| field	| holds                                       |
-| ----- | ------------------------------------------- |
-| link  | link to the previous entry, 0 if last entry |
-| xt    | link to start of the function               |
-| class	| link to the class handler function          |
-| name  | zero terminated string                      |
+| offset | field | holds                                       |
+| ------ | ----- | ------------------------------------------- |
+| 0      | link  | link to the previous entry, 0 if last entry |
+| 1      | xt    | link to start of the function               |
+| 2      | class | link to the class handler function          |
+| 3      | name  | zero terminated string                      |
 
 C-Rx provides a few functions for addressing these fields:
 
 ````
+#define D_OFFSET_LINK  0
+#define D_OFFSET_XT    1
+#define D_OFFSET_CLASS 2
+#define D_OFFSET_NAME  3
+
 int d_link(CELL dt) {
-  return dt;
+  return dt + D_OFFSET_LINK;
 }
 
 int d_xt(CELL dt) {
-  return dt + 1;
+  return dt + D_OFFSET_XT;
 }
 
 int d_class(CELL dt) {
-  return dt + 2;
+  return dt + D_OFFSET_CLASS;
 }
 
 int d_name(CELL dt) {
-  return dt + 3;
+  return dt + D_OFFSET_NAME;
 }
 ````
 
@@ -137,6 +156,16 @@ int d_lookup(CELL Dictionary, char *name) {
     }
   }
   return dt;
+}
+````
+
+````
+CELL d_xt_for(char *Name, CELL Dictionary) {
+  return memory[d_xt(d_lookup(Dictionary, Name))];
+}
+
+CELL d_class_for(char *Name, CELL Dictionary) {
+  return memory[d_class(d_lookup(Dictionary, Name))];
 }
 ````
 
@@ -179,8 +208,12 @@ CELL Dictionary, Heap, Compiler;
 
 void dump_stack() {
   printf("Stack: ");
-  for (CELL i = 1; i <= sp; i++)
-    printf("%d ", data[i]);
+  for (CELL i = 1; i <= sp; i++) {
+    if (i == sp)
+      printf("< %d >", data[i]);
+    else
+      printf("%d ", data[i]);
+  }
   printf("\n");
 }
 ````
@@ -204,8 +237,8 @@ int main(int argc, char **argv) {
 
   Dictionary = memory[2];
   Heap = memory[3];
-  Compiler = memory[d_xt(d_lookup(Dictionary, "Compiler"))];
-  interpret = memory[d_xt(d_lookup(Dictionary, "interpret"))];
+  Compiler = d_xt_for("Compiler", Dictionary);
+  interpret = d_xt_for("interpret", Dictionary);
 
   printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, Heap - 1024, Heap);
 
@@ -230,8 +263,7 @@ int main(int argc, char **argv) {
       dump_stack();
     }
     string_inject(input, Heap - 1024);
-    sp++;
-    data[sp] = Heap - 1024;
+    stack_push(Heap - 1024);
     execute(interpret);
   }
   exit(0);
