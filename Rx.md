@@ -1,4 +1,8 @@
 # Rx: a minimal Forth for Nga
+    ____  _   _
+    || \\ \\ //
+    ||_//  )x(
+    || \\ // \\ 2016.09
 
 *Rx* (*retro experimental*) is a minimal Forth implementation for the Nga virtual machine. Like Nga this is intended to be used within a larger supporting framework adding I/O and other desired functionality. Various example interface layers are included.
 
@@ -414,6 +418,7 @@ The dictionary is a linked list.
 :0008 |0007 |fetch         |.word  'fetch'
 :0009 |0008 |store         |.word  'store'
 :0010 |0009 |+             |.word  '+'
+
 :0011 |0010 |-             |.word  '-'
 :0012 |0011 |*             |.word  '*'
 :0013 |0012 |/mod          |.word  '/mod'
@@ -425,25 +430,27 @@ The dictionary is a linked list.
 :0019 |0018 |t-pop         |.macro 'pop'
 :0020 |0019 |t-0;          |.macro '0;'
 
-:0022 |0020 |tuck          |.word  'tuck'
-:0023 |0022 |over          |.word  'over'
-:0024 |0023 |nip           |.word  'nip'
-:0025 |0024 |dup-pair      |.word  'dup-pair'
-:0026 |0025 |drop-pair     |.word  'drop-pair'
-:0027 |0026 |/             |.word  '/'
-:0028 |0027 |mod           |.word  'mod'
-:0029 |0028 |negate        |.word  'negate'
-:0030 |0029 |not           |.word  'not'
-:0031 |0030 |@+            |.word  '@+'
-:0032 |0031 |!+            |.word  '!+'
-:0033 |0032 |str:compare   |.word  'str:compare'
-:0034 |0033 |str:length    |.word  'str:length'
-:0035 |0034 |cond          |.word  'cond'
-:0036 |0035 |if            |.word  'if'
-:0037 |0036 |-if           |.word  '-if'
-:0038 |0037 |Compiler      |.data  'Compiler'
-:0039 |0038 |Heap          |.data  'Heap'
-:0040 |0039 |comma         |.word  ','
+:0021 |0020 |tuck          |.word  'tuck'
+:0022 |0021 |over          |.word  'over'
+:0023 |0022 |nip           |.word  'nip'
+:0024 |0023 |dup-pair      |.word  'dup-pair'
+:0025 |0024 |drop-pair     |.word  'drop-pair'
+:0026 |0025 |/             |.word  '/'
+:0027 |0026 |mod           |.word  'mod'
+:0028 |0027 |negate        |.word  'negate'
+:0029 |0028 |not           |.word  'not'
+
+:0030 |0029 |@+            |.word  '@+'
+:0031 |0030 |!+            |.word  '!+'
+:0032 |0031 |str:compare   |.word  'str:compare'
+:0033 |0032 |str:length    |.word  'str:length'
+:0034 |0033 |cond          |.word  'cond'
+:0035 |0034 |if            |.word  'if'
+:0036 |0035 |-if           |.word  '-if'
+:0037 |0036 |Compiler      |.data  'Compiler'
+:0038 |0037 |Heap          |.data  'Heap'
+
+:0040 |0038 |comma         |.word  ','
 :0041 |0040 |comma:string  |.word  's,'
 :0042 |0041 |here          |.word  'here'
 :0043 |0042 |fin           |.macro ';'
@@ -453,6 +460,7 @@ The dictionary is a linked list.
 :0047 |0046 |d:link        |.word  'd:link'
 :0048 |0047 |d:xt          |.word  'd:xt'
 :0049 |0048 |d:class       |.word  'd:class'
+
 :0050 |0049 |d:name        |.word  'd:name'
 :0051 |0050 |.word         |.word  '.word'
 :0052 |0051 |.macro        |.word  '.macro'
@@ -463,6 +471,7 @@ The dictionary is a linked list.
 :0057 |0056 |prefix:&      |.macro 'prefix:&'
 :0058 |0057 |prefix:$      |.macro 'prefix:$'
 :0059 |0058 |prefix:`      |.macro 'prefix:`'
+
 :0060 |0059 |prefix:'      |.macro 'prefix:''
 :0061 |0060 |begin         |.macro 'begin'
 :0062 |0061 |again         |.macro 'again'
