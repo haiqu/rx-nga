@@ -263,9 +263,11 @@ void include_file(char *fname) {
   {
     read_token(fp, source);
     Dictionary = memory[2];
-    string_inject(source, Heap - 1024);
-    stack_push(Heap - 1024);
-    execute(interpret);
+    if (strlen(source) != 0) {
+      string_inject(source, Heap - 1024);
+      stack_push(Heap - 1024);
+      execute(interpret);
+    }
   }
 
   fclose(fp);
