@@ -1,8 +1,8 @@
-# Rx: a minimal Forth for Nga
     ____  _   _
     || \\ \\ //
     ||_//  )x(
     || \\ // \\ 2016.09
+    a minimalist forth for nga
 
 *Rx* (*retro experimental*) is a minimal Forth implementation for the Nga virtual machine. Like Nga this is intended to be used within a larger supporting framework adding I/O and other desired functionality. Various example interface layers are included.
 
@@ -362,12 +362,12 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 ````
 :begin here ;
 :again &_lit comma:opcode comma &_jump comma:opcode ;
-:t-[ &_lit comma:opcode here #0 comma &_jump comma:opcode here ;
-:t-] &_ret comma:opcode here swap &_lit comma:opcode comma swap store ;
+:t-[   &_lit comma:opcode here #0 comma &_jump comma:opcode here ;
+:t-]   &_ret comma:opcode here swap &_lit comma:opcode comma swap store ;
 
 :t-0;    compiling? 0; drop &_zret comma:opcode ;
 :t-push  compiling? 0; drop &_push comma:opcode ;
-:t-pop   compiling? 0; drop &_pop comma:opcode ;
+:t-pop   compiling? 0; drop &_pop  comma:opcode ;
 ````
 
 ## Interpreter
