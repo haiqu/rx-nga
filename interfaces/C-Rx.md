@@ -228,6 +228,51 @@ void prompt() {
 ````
 
 ````
+void read_token(FILE *file, char *token_buffer) {
+  if (file == NULL)
+  {
+    printf("Error: file pointer is null.");
+    exit(1);
+  }
+
+  char ch = getc(file);
+  int count = 0;
+
+  while ((ch != '\n') && (ch != ' ') && (ch != EOF))
+  {
+    token_buffer[count++] = ch;
+    ch = getc(file);
+  }
+
+  token_buffer[count] = '\0';
+}
+
+
+void include_file(char *fname) {
+  char source[64000];
+  FILE *fp;
+
+  fp = fopen(fname, "r");
+  if (fp == NULL)
+    return;
+
+  CELL interpret;
+  interpret = d_xt_for("interpret", Dictionary);
+
+  while (!feof(fp))
+  {
+    read_token(fp, source);
+    Dictionary = memory[2];
+    string_inject(source, Heap - 1024);
+    stack_push(Heap - 1024);
+    execute(interpret);
+  }
+
+  fclose(fp);
+}
+````
+
+````
 int main(int argc, char **argv) {
   CELL interpret;
 
@@ -243,6 +288,8 @@ int main(int argc, char **argv) {
   printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, Heap - 1024, Heap);
 
   char input[1024];
+
+  include_file("startup.rx");
 
   while(1) {
     prompt();
