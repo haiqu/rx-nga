@@ -147,8 +147,8 @@ String comparisons are harder.
 
 :str:compare
   #0 &compare::flag store
-  dup-pair str:length swap str:length eq?
-  [ dup str:length &compare::maxlength store compare_loop ] if
+  dup-pair str:length swap str:length dup &compare::maxlength store eq?
+  [ compare_loop ] if
   drop drop
   &compare::flag fetch
   ;
