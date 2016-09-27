@@ -17,7 +17,8 @@ Finished:
 * search the dictionary
 * dictionary field accessors
 * count dictionary items
-* evaluate specific functions
+* execute specific functions
+* use rx token evaluator
 
 Todo:
 
@@ -39,6 +40,8 @@ Just some standard, boring red tape.
 #include <string.h>
 
 #include "nga.c"
+
+CELL Dictionary, Heap, Compiler;
 ````
 
 ## Stack
@@ -202,9 +205,29 @@ void execute(int cell) {
 ## ...
 
 ````
-#ifdef INTERACTIVE
+void update_rx() {
+  Dictionary = memory[2];
+  Heap = memory[3];
+  Compiler = d_xt_for("Compiler", Dictionary);
+}
+````
 
-CELL Dictionary, Heap, Compiler;
+````
+void evaluate(char *s) {
+  if (strlen(s) == 0)
+    return;
+
+  update_rx();
+  CELL interpret = d_xt_for("interpret", Dictionary);
+
+  string_inject(s, Heap - 1024);
+  stack_push(Heap - 1024);
+  execute(interpret);
+}
+````
+
+````
+#ifdef INTERACTIVE
 
 void dump_stack() {
   printf("Stack: ");
@@ -256,18 +279,10 @@ void include_file(char *fname) {
   if (fp == NULL)
     return;
 
-  CELL interpret;
-  interpret = d_xt_for("interpret", Dictionary);
-
   while (!feof(fp))
   {
     read_token(fp, source);
-    Dictionary = memory[2];
-    if (strlen(source) != 0) {
-      string_inject(source, Heap - 1024);
-      stack_push(Heap - 1024);
-      execute(interpret);
-    }
+    evaluate(source);
   }
 
   fclose(fp);
@@ -276,16 +291,11 @@ void include_file(char *fname) {
 
 ````
 int main(int argc, char **argv) {
-  CELL interpret;
-
   printf("rx-2016.09 [C-Rx Listener]\n");
   ngaPrepare();
   ngaLoadImage("ngaImage");
 
-  Dictionary = memory[2];
-  Heap = memory[3];
-  Compiler = d_xt_for("Compiler", Dictionary);
-  interpret = d_xt_for("interpret", Dictionary);
+  update_rx();
 
   printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, Heap - 1024, Heap);
 
@@ -311,9 +321,7 @@ int main(int argc, char **argv) {
     if (strcmp(input, ".s") == 0) {
       dump_stack();
     }
-    string_inject(input, Heap - 1024);
-    stack_push(Heap - 1024);
-    execute(interpret);
+    evaluate(input);
   }
   exit(0);
 }
