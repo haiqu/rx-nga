@@ -436,7 +436,7 @@ The dictionary is a linked list.
 :0030 |0029 |not           |.word  'not'
 :0031 |0030 |@+            |.word  '@+'
 :0032 |0031 |!+            |.word  '!+'
-:0033 |0022 |str:compare   |.word  'str:compare'
+:0033 |0032 |str:compare   |.word  'str:compare'
 :0034 |0033 |str:length    |.word  'str:length'
 :0035 |0034 |cond          |.word  'cond'
 :0036 |0035 |if            |.word  'if'
