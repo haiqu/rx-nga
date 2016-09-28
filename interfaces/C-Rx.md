@@ -42,6 +42,7 @@ Just some standard, boring red tape.
 #include "nga.c"
 
 CELL Dictionary, Heap, Compiler;
+CELL notfound;
 ````
 
 ## Stack
@@ -185,6 +186,9 @@ void execute(int cell) {
   rp = 1;
   ip = cell;
   while (ip < IMAGE_SIZE) {
+    if (ip == notfound) {
+      printf("%s ?\n", string_extract(Heap - 1024));
+    }
     opcode = memory[ip];
     if (ngaValidatePackedOpcodes(opcode) != 0) {
       ngaProcessPackedOpcodes(opcode);
@@ -209,6 +213,7 @@ void update_rx() {
   Dictionary = memory[2];
   Heap = memory[3];
   Compiler = d_xt_for("Compiler", Dictionary);
+  notfound = d_xt_for("notfound", Dictionary);
 }
 ````
 
@@ -309,7 +314,7 @@ int main(int argc, char **argv) {
     scanf("%s", input);
     if (strcmp(input, "bye") == 0)
       exit(0);
-    if (strcmp(input, "words") == 0) {
+    else if (strcmp(input, "words") == 0) {
       CELL i = Dictionary;
       while (memory[i] != 0) {
         string_extract(d_name(i));
@@ -318,10 +323,11 @@ int main(int argc, char **argv) {
       }
       printf("(%d entries)\n", d_count_entries(Dictionary));
     }
-    if (strcmp(input, ".s") == 0) {
+    else if (strcmp(input, ".s") == 0) {
       dump_stack();
     }
-    evaluate(input);
+    else
+      evaluate(input);
   }
   exit(0);
 }
