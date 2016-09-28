@@ -357,6 +357,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 :prefix:'  &_lit comma:opcode here push #0 comma &_jump comma:opcode
            here push comma:string pop
            here pop store .data ;
+:prefix:(  drop ;
 ````
 
 ### Quotations
@@ -483,11 +484,12 @@ The dictionary is a linked list.
 :0058 |0057 |prefix:`      |.macro 'prefix:`'
 :0059 |0058 |prefix:'      |.macro 'prefix:''
 
-:0060 |0059 |begin         |.macro 'begin'
-:0061 |0060 |again         |.macro 'again'
-:0062 |0061 |interpret     |.word  'interpret'
-:0063 |0062 |lookup        |.word  'd:lookup'
-:9999 |0063 |notfound      |.word  'notfound'
+:0060 |0059 |prefix:(      |.macro 'prefix:('
+:0061 |0060 |begin         |.macro 'begin'
+:0062 |0061 |again         |.macro 'again'
+:0063 |0062 |interpret     |.word  'interpret'
+:0064 |0063 |lookup        |.word  'd:lookup'
+:9999 |0064 |notfound      |.word  'notfound'
 ````
 
 ## Appendix: Words, Stack Effects, and Usage
@@ -554,6 +556,7 @@ The dictionary is a linked list.
 | prefix:$     | s-        | $ prefix for ASCII characters                     |
 | prefix:`     | s-        | ` prefix for bytecode                             |
 | prefix:'     | s-        | ' prefix for simple text                          |
+| prefix:(     | s-        | ( prefix for stack comments                       |
 | begin        | -a        | Start an unconditional loop                       |
 | again        | a-        | End an unconditional loop                         |
 | interpret    | s-?       | Evaluate a token                                  |
