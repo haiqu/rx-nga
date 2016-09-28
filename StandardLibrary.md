@@ -1,0 +1,93 @@
+    ____  _   _
+    || \\ \\ //
+    ||_//  )x(
+    || \\ // \\ 2016.09
+    a minimalist forth for nga
+
+By itself Rx provides a very minimal Forth implementation. This, the *Rx Standard Library*, extends this into a more useful language.
+
+## Lexical Scope
+
+The dictionary is a simple linked list. Rx allows for some control over what is visible using the **{{**, **---reveal---**, and **}}** words.
+
+As an example:
+
+    {{
+      :increment dup fetch #1 + swap store ;
+      :Value `0 ;
+    ---reveal---
+      :next-number &Value fetch &Value increment ;
+    }}
+
+Only the **next-number** function will remain visible once **}}** is executed.
+
+````
+:{{ &Dictionary fetch dup &ScopeList !+ store ;
+:---reveal--- &Dictionary fetch &ScopeList #1 + store ;
+:}} &ScopeList @+ swap fetch eq? [ &ScopeList fetch &Dictionary store ] [ &ScopeList fetch [ &Dictionary begin fetch dup fetch &ScopeList #1 + fetch -eq? 0; drop again ] call store ] cond ;
+````
+
+## Word Classes
+
+Rx uses word classes to determine the behavior of functions. There are three primary classes:
+
+* .word
+* .macro
+* .data
+
+The compiler defaults to using **.word**. The functions below add support for marking words as using other classses.
+
+````
+:reclass &Dictionary fetch d:class store ;
+:immediate &.macro reclass ;
+:data &.data reclass ;
+````
+
+## Math
+
+````
+:square dup * ;
+:min dup-pair lt? [ drop ] [ nip ] cond ;
+:max dup-pair gt? [ drop ] [ nip ] cond ;
+````
+
+## Prefixes
+
+This adds handy **@** and **!** prefixes that can help make code more readable. E.g.,
+
+    &Base fetch
+    @Base
+
+    #16 &Base store
+    #16 !Base
+
+````
+:compiling? &Compiler fetch ;
+{{
+:call, .data #8 , ;
+---reveal---
+:prefix:@ d:lookup d:xt fetch .data &fetch compiling? [ call, ] [ call ] cond ; immediate
+:prefix:! d:lookup d:xt fetch .data &store compiling? [ call, ] [ call ] cond ; immediate
+}}
+````
+
+## TORS
+
+Short for *top of return stack*, this returns the top item on the address stack. As an analog to traditional Forth, this is equivilent to **R@**.
+
+````
+:tors pop pop dup push swap push ;
+````
+
+## Combinators
+
+````
+:dip swap push call pop ;
+:sip over &call dip ;
+:bi &sip dip call ;
+:bi* &dip dip call ;
+:bi@ dup bi* ;
+:tri [ &sip dip sip ] dip call ;
+:tri* [ [ swap &dip dip ] dip dip ] dip call ;
+:tri@ dup dup tri* ;
+````
