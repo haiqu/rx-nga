@@ -1,3 +1,13 @@
+# Formatting
+
+* Source should be in ASCII or UTF-8 format
+* Use 2 space indents, no tabs
+* Avoid trailing whitespace
+* Use Unix-style line endings
+* All named functions should have a stack comment
+* If a function is more than one line, start the code on the line following the stack comment
+* Short, one line definitions are preferred, but you can split functions into multiple lines when necessary
+
 # Naming Conventions
 
 Keep names short, but still readable and descriptive.
