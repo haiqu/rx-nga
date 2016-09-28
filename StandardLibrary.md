@@ -110,4 +110,5 @@ Short for *top of return stack*, this returns the top item on the address stack.
 :until [ begin dup dip swap not 0; drop again ] call drop ;
 :when [ over swap call ] dip swap [ call #-1 ] [ drop #0 ] cond 0; pop drop-pair ;
 :whend [ over swap call ] dip swap [ nip call #-1 ] [ drop #0 ] cond 0; pop drop-pair ;
+:times swap [ begin 0; #1 - push &call sip pop again ] call drop ;
 ````
