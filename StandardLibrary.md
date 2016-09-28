@@ -38,7 +38,7 @@ Rx uses word classes to determine the behavior of functions. There are three pri
 The compiler defaults to using **.word**. The functions below add support for marking words as using other classses.
 
 ````
-:reclass &Dictionary fetch d:class store ;
+:reclass (a-) &Dictionary fetch d:class store ;
 :immediate &.macro reclass ;
 :data &.data reclass ;
 ````
@@ -46,9 +46,9 @@ The compiler defaults to using **.word**. The functions below add support for ma
 ## Math
 
 ````
-:square dup * ;
-:min dup-pair lt? [ drop ] [ nip ] cond ;
-:max dup-pair gt? [ drop ] [ nip ] cond ;
+:square  (n-n)   dup * ;
+:min     (nn-n)  dup-pair lt? [ drop ] [ nip ] cond ;
+:max     (nn-n)  dup-pair gt? [ drop ] [ nip ] cond ;
 ````
 
 ## Prefixes
