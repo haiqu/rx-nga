@@ -50,6 +50,8 @@ The core Nga instruction set consists of 27 instructions. Rx begins by assigning
 :_store   `16 ;  :_add     `17 ;  :_sub     `18 ;  :_mul     `19 ;
 :_divmod  `20 ;  :_and     `21 ;  :_or      `22 ;  :_xor     `23 ;
 :_shift   `24 ;  :_zret    `25 ;  :_end     `26 ;
+
+:packedcall `2049 ;
 ````
 
 ## Primitives
@@ -218,7 +220,7 @@ Rx handles functions via handlers called *word classes*. Each of these is a func
 
 ````
 :.data  compiling? [ &_lit comma:opcode comma ] if ;
-:.word  compiling? [ .data &_call comma:opcode ] [ call ] cond ;
+:.word  compiling? [ &packedcall comma:opcode comma ] [ call ] cond ;
 :.macro call ;
 ````
 
