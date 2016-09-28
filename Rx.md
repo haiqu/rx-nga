@@ -217,7 +217,7 @@ First, a variable indicating whether we should compile or run a function. This w
 Rx handles functions via handlers called *word classes*. Each of these is a function responsible for handling specific groupings of functions. The class handlers will either invoke the code in a function or compile the code needed to call them.
 
 ````
-:.data  compiling? 0; drop &_lit comma:opcode comma ;
+:.data  compiling? [ &_lit comma:opcode comma ] if ;
 :.word  compiling? [ .data &_call comma:opcode ] [ call ] cond ;
 :.macro call ;
 ````
@@ -362,8 +362,16 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 ````
 :begin here ;
 :again &_lit comma:opcode comma &_jump comma:opcode ;
-:t-[   &_lit comma:opcode here #0 comma &_jump comma:opcode here ;
-:t-]   &_ret comma:opcode here swap &_lit comma:opcode comma swap store ;
+:t-[
+  here #3 + &Compiler fetch
+  #-1 &Compiler store
+  &_lit comma:opcode here #0 comma &_jump comma:opcode here
+;
+:t-]
+  &_ret comma:opcode here swap &_lit comma:opcode comma swap store
+  &Compiler store
+  compiling? [ drop ] if
+;
 
 :t-0;    compiling? 0; drop &_zret comma:opcode ;
 :t-push  compiling? 0; drop &_push comma:opcode ;
