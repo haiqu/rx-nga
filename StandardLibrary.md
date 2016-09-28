@@ -91,3 +91,23 @@ Short for *top of return stack*, this returns the top item on the address stack.
 :tri* [ [ swap &dip dip ] dip dip ] dip call ;
 :tri@ dup dup tri* ;
 ````
+
+## Stack Shufflers
+
+````
+:?dup dup 0; ;
+:+! [ fetch + ] sip store ;
+:-! [ fetch swap - ] sip store ;
+:++ #1 swap +! ;
+:-- #1 swap -! ;
+:rot [ swap ] dip swap ;
+````
+
+## Flow
+
+````
+:while [ begin dup dip swap 0; drop again ] call drop ;
+:until [ begin dup dip swap not 0; drop again ] call drop ;
+:when [ over swap call ] dip swap [ call #-1 ] [ drop #0 ] cond 0; pop drop-pair ;
+:whend [ over swap call ] dip swap [ nip call #-1 ] [ drop #0 ] cond 0; pop drop-pair ;
+````

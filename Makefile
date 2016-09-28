@@ -1,7 +1,10 @@
 d:
-	@echo Targets: capi ngita rx sdk
+	@echo Targets: capi ngita rx sdk stl
 
-capi: sdk rx
+stl: sdk
+	./bin/unu StandardLibrary.md > startup.rx
+
+capi: clean sdk stl rx
 	./bin/naje rx.naje
 	./bin/unu interfaces/C-Rx.md > c-rx.c
 	cp nga/nga.c .
@@ -11,20 +14,18 @@ capi: sdk rx
 clean-capi:
 	rm -f c-rx.c c-rx *.log
 
-ngita: sdk rx
+ngita: clean sdk rx stl
 	./bin/unu interfaces/Ngita-Rx.md >ngita-rx.nuance
 	./bin/unu Ngita-Extend.md >ngita-extend.rx
 	./bin/nuance ngita-rx.nuance >ngita-rx.naje
 	cat rx.naje ngita-rx.naje >_.naje
 	./bin/naje _.naje > build_ngita.log
-	mv ngaImage ngita-rx.nga
-	mv ngaImage.map ngita-rx.nga.map
 	rm -f _.naje ngita-rx.nuance ngita-rx.naje
-	cat ngita-extend.rx | ./bin/ngita ngita-rx.nga
-	mv rx.nga ngita-rx.nga
+	cat startup.rx ngita-extend.rx | ./bin/ngita ngita-rx.nga
+	mv rx.nga ngaImage
 
 clean-ngita:
-	rm -f ngita-rx.nga ngita-rx.nga.map ngita-extend.rx *.log
+	rm -f ngaImage ngaImage.map ngita-extend.rx *.log
 
 rx: sdk
 	./bin/unu Rx.md >rx.nuance
