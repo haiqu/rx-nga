@@ -313,7 +313,7 @@ At this time Rx only supports decimal numbers.
   #0 &asnumber:acc store
   dup fetch $- eq? [ #-1 &asnumber:mod store #1 + ] if ;
 
-:asnumber             "p-n"
+:str:asnumber             "p-n"
   asnumber:prepare asnumber:convert drop
   &asnumber:acc fetch &asnumber:mod fetch * ;
 ````
@@ -344,11 +344,11 @@ Where *&lt;prefix-char&gt;* is the character for the prefix. These should be com
 Rx uses prefixes for important bits of functionality including parsing numbers (prefix with **#**), obtaining pointers (prefix with **&amp;**), and starting new functions (using the **:** prefix).
 
 ````
-:prefix:#  asnumber .data ;
+:prefix:#  str:asnumber .data ;
 :prefix:$  fetch .data ;
 :prefix::  &.word here newentry here &Dictionary fetch d:xt store #-1 &Compiler store ;
 :prefix:&  lookup d:xt fetch .data ;
-:prefix:`  compiling? [ asnumber comma ] [ drop ] cond ;
+:prefix:`  compiling? [ str:asnumber comma ] [ drop ] cond ;
 :prefix:'  &_lit comma:opcode here push #0 comma &_jump comma:opcode
            here push comma:string pop
            here pop store .data ;
@@ -387,10 +387,10 @@ The *interpreter* is what processes input. What it does is:
   * No: lookup in the dictionary
 
     * Found: pass xt of word to the class handler for processing
-    * Not found: report error via **notfound**
+    * Not found: report error via **err:notfound**
 
 ````
-:notfound "-" ^_nop ;
+:err:notfound "-" ^_nop ;
 
 :call:dt "d-" dup d:xt fetch swap d:class fetch call ;
 
@@ -403,7 +403,7 @@ The *interpreter* is what processes input. What it does is:
   &input:source store
   &input:source fetch prefix?
   [ interpret:prefix ]
-  [ &input:source fetch lookup #0 -eq? &interpret:word &notfound cond ] cond
+  [ &input:source fetch lookup #0 -eq? &interpret:word &err:notfound cond ] cond
 ;
 ````
 
@@ -447,7 +447,7 @@ The dictionary is a linked list.
 :0029 |0028 |!+            |.word  '!+'
 
 :0030
-:0031 |0029 |asnumber      |.word  'str:asnumber'
+:0031 |0029 |str:asnumber  |.word  'str:asnumber'
 :0032 |0031 |str:compare   |.word  'str:compare'
 :0033 |0032 |str:length    |.word  'str:length'
 :0034 |0033 |cond          |.word  'cond'
@@ -484,7 +484,7 @@ The dictionary is a linked list.
 :0062 |0061 |again         |.macro 'again'
 :0063 |0062 |interpret     |.word  'interpret'
 :0064 |0063 |lookup        |.word  'd:lookup'
-:9999 |0064 |notfound      |.word  'notfound'
+:9999 |0064 |err:notfound  |.word  'err:notfound'
 ````
 
 ## Appendix: Words, Stack Effects, and Usage
@@ -552,7 +552,7 @@ The dictionary is a linked list.
 | again        | a-        | End an unconditional loop                         |
 | interpret    | s-?       | Evaluate a token                                  |
 | d:lookup     | s-p       | Given a string, return the DT (or 0 if undefined) |
-| notfound     | -         | Handler for token not found errors                |
+| err:notfound | -         | Handler for token not found errors                |
 
 ----
 
@@ -617,7 +617,7 @@ Use the **$** prefix:
 Use the **&amp;** prefix:
 
     &+
-    &notfound
+    &err:notfound
 
 ### Conditionals
 
@@ -639,24 +639,25 @@ Permission to use, copy, modify, and/or distribute this software for any purpose
 
 THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-````
-Copyright (c) 2008 - 2016, Charles Childers
-Copyright (c) 2012 - 2013, Michal J Wallace
-Copyright (c) 2009 - 2011, Luke Parrish
-Copyright (c) 2009 - 2010, JGL
-Copyright (c) 2010 - 2011, Marc Simpson
-Copyright (c) 2011 - 2012, Oleksandr Kozachuk
-Copyright (c) 2010,        Jay Skeer
-Copyright (c) 2010,        Greg Copeland
-Copyright (c) 2011,        Aleksej Saushev
-Copyright (c) 2011,        Foucist
-Copyright (c) 2011,        Erturk Kocalar
-Copyright (c) 2011,        Kenneth Keating
-Copyright (c) 2011,        Ashley Feniello
-Copyright (c) 2011,        Peter Salvi
-Copyright (c) 2011,        Christian Kellermann
-Copyright (c) 2011,        Jorge Acereda
-Copyright (c) 2011,        Remy Moueza
-Copyright (c) 2012,        John M Harrison
-Copyright (c) 2012,        Todd Thomas
-````
+    Copyright (c) 2008 - 2016, Charles Childers
+
+Rx is based loosely on Retro. Though the core code has been rewritten to target Nga it wouldn't have been possible without the help of those who worked on its predecessor. 
+
+    Copyright (c) 2012 - 2013, Michal J Wallace
+    Copyright (c) 2009 - 2011, Luke Parrish
+    Copyright (c) 2009 - 2010, JGL
+    Copyright (c) 2010 - 2011, Marc Simpson
+    Copyright (c) 2011 - 2012, Oleksandr Kozachuk
+    Copyright (c) 2010,        Jay Skeer
+    Copyright (c) 2010,        Greg Copeland
+    Copyright (c) 2011,        Aleksej Saushev
+    Copyright (c) 2011,        Foucist
+    Copyright (c) 2011,        Erturk Kocalar
+    Copyright (c) 2011,        Kenneth Keating
+    Copyright (c) 2011,        Ashley Feniello
+    Copyright (c) 2011,        Peter Salvi
+    Copyright (c) 2011,        Christian Kellermann
+    Copyright (c) 2011,        Jorge Acereda
+    Copyright (c) 2011,        Remy Moueza
+    Copyright (c) 2012,        John M Harrison
+    Copyright (c) 2012,        Todd Thomas
