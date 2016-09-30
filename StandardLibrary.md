@@ -22,9 +22,9 @@ As an example:
 Only the **next-number** function will remain visible once **}}** is executed.
 
 ````
-:{{ &Dictionary fetch dup &ScopeList !+ store ;
+:{{ &Dictionary fetch dup &ScopeList store-next store ;
 :---reveal--- &Dictionary fetch &ScopeList #1 + store ;
-:}} &ScopeList @+ swap fetch eq? [ &ScopeList fetch &Dictionary store ] [ &ScopeList fetch [ &Dictionary begin fetch dup fetch &ScopeList #1 + fetch -eq? 0; drop again ] call store ] cond ;
+:}} &ScopeList fetch-next swap fetch eq? [ &ScopeList fetch &Dictionary store ] [ &ScopeList fetch [ &Dictionary begin fetch dup fetch &ScopeList #1 + fetch -eq? 0; drop again ] call store ] cond ;
 ````
 
 ## Word Classes

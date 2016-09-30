@@ -101,8 +101,8 @@ These add additional operations on the stack elements that'll keep later code mu
 The basic memory accesses are handled via **fetch** and **store**. These two functions provide slightly easier access to linear sequences of data.
 
 ````
-:@+     "a-An"  dup #1 + swap fetch ;
-:!+     "na-A"  dup #1 + push store pop ;
+:fetch-next "a-An"  dup #1 + swap fetch ;
+:store-next "na-A"  dup #1 + push store pop ;
 ````
 
 ## Strings
@@ -123,7 +123,7 @@ First up, string length. The process here is trivial:
 * Then subtract one (to account for the zero terminator)
 
 ````
-:count @+ 0; drop ^count
+:count fetch-next 0; drop ^count
 :str:length dup count #1 - swap - ;
 ````
 
@@ -154,6 +154,15 @@ String comparisons are harder.
   ;
 ````
 
+## String Hash
+
+Using djb2.
+
+````
+:(hash) push #33 * pop fetch-next 0; swap push + pop ^(hash)
+:str:hash #5381 swap (hash) drop ;
+````
+
 ## Conditionals
 
 Implement **cond**, a conditional combinator which will execute one of two functions, depending on the state of a flag. We take advantage of a little hack here. Store the pointers into a jump table with two fields, and use the flag as the index. Default to the *false* entry, since a *true* flag is -1.
@@ -179,7 +188,7 @@ The heart of the compiler is **comma** which stores a value into memory and incr
 
 ````
 :here   "-n"  &Heap fetch ;
-:comma  "n-"  here !+ &Heap store ;
+:comma  "n-"  here store-next &Heap store ;
 ````
 
 With these we can add a couple of additional forms. **comma:opcode** is used to compile VM instructions into the current defintion. This is where those functions starting with an underscore come into play. Each wraps a single instruction. Using this we can avoid hard coding the opcodes.
@@ -191,7 +200,7 @@ With these we can add a couple of additional forms. **comma:opcode** is used to 
 **comma:string** is used to compile a string into the current definition.
 
 ````
-:($)           "a-a"  @+ 0; comma ^($)
+:($)           "a-a"  fetch-next 0; comma ^($)
 :comma:string  "a-"  ($) drop #0 comma ;
 ````
 
@@ -304,7 +313,7 @@ At this time Rx only supports decimal numbers.
 :asnumber:scale       "-n"  &asnumber:acc fetch #10 * ;
 
 :asnumber:convert     "p-p"
-  @+ 0; asnumber:char>digit asnumber:scale + &asnumber:acc store
+  fetch-next 0; asnumber:char>digit asnumber:scale + &asnumber:acc store
   ^asnumber:convert
 
 :asnumber:prepare     "p-p"
@@ -442,11 +451,11 @@ The dictionary is a linked list.
 :0025
 :0026
 :0027
-:0028 |0024 |@+            |.word  '@+'
-:0029 |0028 |!+            |.word  '!+'
+:0028 |0024 |fetch-next    |.word  'fetch-next'
+:0029 |0028 |store-next    |.word  'store-next'
 
-:0030
-:0031 |0029 |str:asnumber  |.word  'str:asnumber'
+:0030 |0029 |str:hash      |.word  'str:hash'
+:0031 |0030 |str:asnumber  |.word  'str:asnumber'
 :0032 |0031 |str:compare   |.word  'str:compare'
 :0033 |0032 |str:length    |.word  'str:length'
 :0034 |0033 |cond          |.word  'cond'
@@ -511,13 +520,14 @@ The dictionary is a linked list.
 | tuck         | xy-yxy    | Put a copy of the top item under the second item  |
 | over         | xy-xyx    | Make a copy of the second item on the stack       |
 | dup-pair     | xy-xyxy   | Duplicate top two values fom the stack            |
-| @+           | a-an      | Fetch a value and return next address             |
-| !+           | na-a      | Store a value to address and return next address  |
+| fetch-next   | a-an      | Fetch a value and return next address             |
+| store-next   | na-a      | Store a value to address and return next address  |
 | push         | n-        | Move value from data stack to address stack       |
 | pop          | -n        | Move value from address stack to data stack       |
 | 0;           | n-n OR n- | Exit word (and **drop**) if TOS is zero           |
 | str:asnumber | s-n       | Convert a string to a number                      |
 | str:compare  | ss-f      | Compare two strings for equality                  |
+| str:hash     | s-n       | Return the DJB2 hash of a string                  |
 | str:length   | s-n       | Return length of string                           |
 | cond         | fpp-?     | Execute *p1* if *f* is -1, or *p2* if *f* is 0    |
 | if           | fp-?      | Execute *p* if flag *f* is true (-1)              |
