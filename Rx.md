@@ -105,7 +105,6 @@ The basic math operations are addition, subtraction, multiplication, and divisio
 ````
 :/       "nq-d" /mod swap drop ;
 :mod     "nq-r" /mod drop ;
-:not     "n-n"  #-1 xor ;
 ````
 
 ## Memory
@@ -454,10 +453,10 @@ The dictionary is a linked list.
 :0025 |0024 |drop-pair     |.word  'drop-pair'
 :0026 |0025 |/             |.word  '/'
 :0027 |0026 |mod           |.word  'mod'
-:0028 |0027 |not           |.word  'not'
+:0028
 :0029
 
-:0030 |0028 |@+            |.word  '@+'
+:0030 |0027 |@+            |.word  '@+'
 :0031 |0030 |!+            |.word  '!+'
 :0032 |0031 |str:compare   |.word  'str:compare'
 :0033 |0032 |str:length    |.word  'str:length'
@@ -527,7 +526,6 @@ The dictionary is a linked list.
 | drop-pair    | xy-       | Drop top two values from the stack                |
 | /            | nq-d      | Divide and return quotient                        |
 | mod          | nq-r      | Divide and return remainder                       |
-| not          | n-n       | Perform a NOT operation                           |
 | @+           | a-an      | Fetch a value and return next address             |
 | !+           | na-a      | Store a value to address and return next address  |
 | push         | n-        | Move value from data stack to address stack       |
