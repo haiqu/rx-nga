@@ -453,11 +453,11 @@ The dictionary is a linked list.
 :0025 |0024 |drop-pair     |.word  'drop-pair'
 :0026 |0025 |/             |.word  '/'
 :0027 |0026 |mod           |.word  'mod'
-:0028
-:0029
+:0028 |0027 |@+            |.word  '@+'
+:0029 |0028 |!+            |.word  '!+'
 
-:0030 |0027 |@+            |.word  '@+'
-:0031 |0030 |!+            |.word  '!+'
+:0030
+:0031 |0029 |asnumber      |.word  'str:asnumber'
 :0032 |0031 |str:compare   |.word  'str:compare'
 :0033 |0032 |str:length    |.word  'str:length'
 :0034 |0033 |cond          |.word  'cond'
@@ -531,6 +531,7 @@ The dictionary is a linked list.
 | push         | n-        | Move value from data stack to address stack       |
 | pop          | -n        | Move value from address stack to data stack       |
 | 0;           | n-n OR n- | Exit word (and **drop**) if TOS is zero           |
+| str:asnumber | s-n       | Convert a string to a number                      |
 | str:compare  | ss-f      | Compare two strings for equality                  |
 | str:length   | s-n       | Return length of string                           |
 | cond         | fpp-?     | Execute *p1* if *f* is -1, or *p2* if *f* is 0    |
