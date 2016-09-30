@@ -95,7 +95,6 @@ These add additional operations on the stack elements that'll keep later code mu
 :over      "xy-xyx"   push dup pop swap ;
 :nip       "xy-y"     swap drop ;
 :dup-pair  "xy-xyxy"  over over ;
-:drop-pair "xy-"      drop drop ;
 ````
 
 ## Memory
@@ -441,10 +440,10 @@ The dictionary is a linked list.
 :0022 |0021 |over          |.word  'over'
 :0023 |0022 |nip           |.word  'nip'
 :0024 |0023 |dup-pair      |.word  'dup-pair'
-:0025 |0024 |drop-pair     |.word  'drop-pair'
+:0025
 :0026
 :0027
-:0028 |0025 |@+            |.word  '@+'
+:0028 |0024 |@+            |.word  '@+'
 :0029 |0028 |!+            |.word  '!+'
 
 :0030
@@ -514,7 +513,6 @@ The dictionary is a linked list.
 | over         | xy-xyx    | Make a copy of the second item on the stack       |
 | nip          | xy-y      | Remove the second item on the stack               |
 | dup-pair     | xy-xyxy   | Duplicate top two values fom the stack            |
-| drop-pair    | xy-       | Drop top two values from the stack                |
 | @+           | a-an      | Fetch a value and return next address             |
 | !+           | na-a      | Store a value to address and return next address  |
 | push         | n-        | Move value from data stack to address stack       |

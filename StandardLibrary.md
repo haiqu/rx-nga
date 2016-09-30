@@ -99,6 +99,7 @@ Short for *top of return stack*, this returns the top item on the address stack.
 ## Stack Shufflers
 
 ````
+:drop-pair drop drop ;
 :?dup dup 0; ;
 :+! [ fetch + ] sip store ;
 :-! [ fetch swap - ] sip store ;
