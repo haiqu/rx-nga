@@ -281,7 +281,7 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
   #0 &which store
   &Dictionary fetch
 :find_next
-  0; dup #3 + &needle fetch str:compare [ dup &which store ] if fetch
+  0; dup #3 + &needle fetch str:compare [ dup &which store drop &_nop ] if fetch
 ^find_next
 
 :lookup  "s-n"  &needle store find &which fetch ;
