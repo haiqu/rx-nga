@@ -46,6 +46,7 @@ The compiler defaults to using **.word**. The functions below add support for ma
 ## Math
 
 ````
+:negate  (n-n)   #-1 * ;
 :square  (n-n)   dup * ;
 :min     (nn-n)  dup-pair lt? [ drop ] [ nip ] cond ;
 :max     (nn-n)  dup-pair gt? [ drop ] [ nip ] cond ;

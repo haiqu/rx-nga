@@ -10,9 +10,7 @@
 
 Rx is developed using a literate tool called *unu*. This allows extraction of fenced code blocks into a separate file for later compilation. Developing in a literate approach is beneficial as it makes it easier for me to keep documentation current and lets me approach the code in a more structured manner.
 
-The code is written in *nuance*. Nuance is a small preprocessor that converts a simple Forth-style language into assembly. I chose to do it this way to reduce the time needed to build and maintain this. Generally the syntax of Nuance is similar to the Rx language, though it adds some useful things like support for forward references.
-
-Nuance generates assembly language. This is built with *naje*, the standard Nga assembler.
+Since this targets Nga, it makes use of the Nga toolchain for building. The code is written in *nuance*. Nuance is a small preprocessor that converts a simple Forth-style language into assembly. I chose to do it this way to reduce the time needed to build and maintain this. Generally the syntax of Nuance is similar to the Rx language, though it adds some useful things like support for forward references. Nuance generates assembly language. This is built with *naje*, the standard Nga assembler.
 
 The entire process of using *unu*, *nuance*, and *naje* to build an image for Nga takes around 0.1s on my Linode.
 
@@ -50,8 +48,17 @@ The core Nga instruction set consists of 27 instructions. Rx begins by assigning
 :_store   `16 ;  :_add     `17 ;  :_sub     `18 ;  :_mul     `19 ;
 :_divmod  `20 ;  :_and     `21 ;  :_or      `22 ;  :_xor     `23 ;
 :_shift   `24 ;  :_zret    `25 ;  :_end     `26 ;
+````
 
-:packedcall `2049 ;
+Nga also allows for multiple instructions to be packed into a single memory location (called a *cell*). Rx doesn't take advantage of this yet, with the exception of calls. Since calls take a value from the stack, a typical call (in Naje assembly) would look like:
+
+    lit &bye
+    call
+
+Without packing this takes three cells: one for the lit, one for the address, and one for the call. Packing drops it to two since the lit/call combination can be fit into a single cell. We define the opcode for this here so that the compiler can take advantage of the space savings.
+
+````
+:_packedcall `2049 ;
 ````
 
 ## Primitives
@@ -98,7 +105,6 @@ The basic math operations are addition, subtraction, multiplication, and divisio
 ````
 :/       "nq-d" /mod swap drop ;
 :mod     "nq-r" /mod drop ;
-:negate  "n-n"  #-1 * ;
 :not     "n-n"  #-1 xor ;
 ````
 
@@ -220,7 +226,7 @@ Rx handles functions via handlers called *word classes*. Each of these is a func
 
 ````
 :.data  compiling? [ &_lit comma:opcode comma ] if ;
-:.word  compiling? [ &packedcall comma:opcode comma ] [ call ] cond ;
+:.word  compiling? [ &_packedcall comma:opcode comma ] [ call ] cond ;
 :.macro call ;
 ````
 
@@ -448,10 +454,10 @@ The dictionary is a linked list.
 :0025 |0024 |drop-pair     |.word  'drop-pair'
 :0026 |0025 |/             |.word  '/'
 :0027 |0026 |mod           |.word  'mod'
-:0028 |0027 |negate        |.word  'negate'
-:0029 |0028 |not           |.word  'not'
+:0028 |0027 |not           |.word  'not'
+:0029
 
-:0030 |0029 |@+            |.word  '@+'
+:0030 |0028 |@+            |.word  '@+'
 :0031 |0030 |!+            |.word  '!+'
 :0032 |0031 |str:compare   |.word  'str:compare'
 :0033 |0032 |str:length    |.word  'str:length'
@@ -521,7 +527,6 @@ The dictionary is a linked list.
 | drop-pair    | xy-       | Drop top two values from the stack                |
 | /            | nq-d      | Divide and return quotient                        |
 | mod          | nq-r      | Divide and return remainder                       |
-| negate       | n-n       | Invert the sign of a number                       |
 | not          | n-n       | Perform a NOT operation                           |
 | @+           | a-an      | Fetch a value and return next address             |
 | !+           | na-a      | Store a value to address and return next address  |
@@ -562,3 +567,110 @@ The dictionary is a linked list.
 | interpret    | s-?       | Evaluate a token                                  |
 | d:lookup     | s-p       | Given a string, return the DT (or 0 if undefined) |
 | notfound     | -         | Handler for token not found errors                |
+
+----
+
+## Implementation Model
+
+### Threading
+
+Rx is a call threaded Forth, with some inlining optimizations. As an example:
+
+    :square dup * #10 + ;
+
+Compiles to:
+
+    lit &dup
+    call
+    lit &*
+    call
+    lit 10
+    lit &+
+    call
+    ret
+
+### Interpreter / Compiler
+
+Interpretation and compilation are handled via *word classes*. These are functions that decide how to execute or compile other functions based on system state. The main piece of state is the **Compiler** variable which indicates whether the classes should compile or call the functions passed to them. 
+
+As an example, here's a simple class that can inline primitives or call a function wrapping then as needed.
+
+    :.primitive (s-) d:lookup d:xt fetch &Compiler fetch [ fetch , ] [ call ] cond ;
+
+And a test case for it:
+
+    (2=nga_DUP_instruction)
+    :test `2 ; &.primitive reclass
+
+## Syntax
+
+Rx is not a typical Forth. Drawing from Retro and Parable, it makes use of quotations and prefixes for many language elements.
+
+### Defining a Word
+
+Use the **:** prefix:
+
+    :square dup * ;
+
+### Numbers
+
+Use the **#** prefix:
+
+    #100
+    #-33
+
+### ASCII Characters
+
+Use the **$** prefix:
+
+    $h
+    $i
+
+### Pointers
+
+Use the **&amp;** prefix:
+
+    &+
+    &notfound
+
+### Conditionals
+
+#### IF/ELSE
+
+    #100 #22 eq? [ 'true ] [ 'false ] cond
+
+#### IF TRUE
+
+    #100 #22 eq? [ 'true ] if
+
+#### IF FALSE
+
+    #100 #22 eq? [ 'true ] -if
+
+## Legalities
+
+Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+````
+Copyright (c) 2008 - 2016, Charles Childers
+Copyright (c) 2012 - 2013, Michal J Wallace
+Copyright (c) 2009 - 2011, Luke Parrish
+Copyright (c) 2009 - 2010, JGL
+Copyright (c) 2010 - 2011, Marc Simpson
+Copyright (c) 2011 - 2012, Oleksandr Kozachuk
+Copyright (c) 2010,        Jay Skeer
+Copyright (c) 2010,        Greg Copeland
+Copyright (c) 2011,        Aleksej Saushev
+Copyright (c) 2011,        Foucist
+Copyright (c) 2011,        Erturk Kocalar
+Copyright (c) 2011,        Kenneth Keating
+Copyright (c) 2011,        Ashley Feniello
+Copyright (c) 2011,        Peter Salvi
+Copyright (c) 2011,        Christian Kellermann
+Copyright (c) 2011,        Jorge Acereda
+Copyright (c) 2011,        Remy Moueza
+Copyright (c) 2012,        John M Harrison
+Copyright (c) 2012,        Todd Thomas
+````
