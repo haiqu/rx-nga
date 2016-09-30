@@ -45,6 +45,12 @@ CELL Dictionary, Heap, Compiler;
 CELL notfound;
 ````
 
+## Configuration
+
+````
+#define TIB 2048
+````
+
 ## Stack
 
 ````
@@ -63,7 +69,7 @@ void stack_push(CELL value) {
 
 Nga's cell based memory model means that we need to provide some means of copying ASCII data between C and Rx.
 
-To copy data into the Rx memory use **crx\_string\_inject(str, at)**. The *str* argument is a pointer to a C string, *at* is the initial address in the image where the string should be stored.
+To copy data into the Rx memory use **string\_inject(str, at)**. The *str* argument is a pointer to a C string, *at* is the initial address in the image where the string should be stored.
 
 ````
 void string_inject(char *str, int buffer) {
@@ -77,7 +83,7 @@ void string_inject(char *str, int buffer) {
 }
 ````
 
-Retrieving data is slightly more complex. C-Rx provides **crx\_string\_extract(at)** for reading a string into a dedicated buffer named **crx\_string\_data**.
+Retrieving data is slightly more complex. C-Rx provides **string\_extract(at)** for reading a string into a dedicated buffer named **string\_data**.
 
 ````
 char string_data[8192];
@@ -187,7 +193,7 @@ void execute(int cell) {
   ip = cell;
   while (ip < IMAGE_SIZE) {
     if (ip == notfound) {
-      printf("%s ?\n", string_extract(Heap - 1024));
+      printf("%s ?\n", string_extract(TIB));
     }
     opcode = memory[ip];
     if (ngaValidatePackedOpcodes(opcode) != 0) {
@@ -225,8 +231,8 @@ void evaluate(char *s) {
   update_rx();
   CELL interpret = d_xt_for("interpret", Dictionary);
 
-  string_inject(s, Heap - 1024);
-  stack_push(Heap - 1024);
+  string_inject(s, TIB);
+  stack_push(TIB);
   execute(interpret);
 }
 ````
@@ -302,7 +308,7 @@ int main(int argc, char **argv) {
 
   update_rx();
 
-  printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, Heap - 1024, Heap);
+  printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, TIB, Heap);
 
   char input[1024];
 
