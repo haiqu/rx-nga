@@ -98,15 +98,6 @@ These add additional operations on the stack elements that'll keep later code mu
 :drop-pair "xy-"      drop drop ;
 ````
 
-## Math & Logic
-
-The basic math operations are addition, subtraction, multiplication, and division/remainder. We define a couple more things that'll be useful later: separate division and remainder functions, and negation.
-
-````
-:/       "nq-d" /mod swap drop ;
-:mod     "nq-r" /mod drop ;
-````
-
 ## Memory
 
 The basic memory accesses are handled via **fetch** and **store**. These two functions provide slightly easier access to linear sequences of data.
@@ -451,9 +442,9 @@ The dictionary is a linked list.
 :0023 |0022 |nip           |.word  'nip'
 :0024 |0023 |dup-pair      |.word  'dup-pair'
 :0025 |0024 |drop-pair     |.word  'drop-pair'
-:0026 |0025 |/             |.word  '/'
-:0027 |0026 |mod           |.word  'mod'
-:0028 |0027 |@+            |.word  '@+'
+:0026
+:0027
+:0028 |0025 |@+            |.word  '@+'
 :0029 |0028 |!+            |.word  '!+'
 
 :0030
@@ -524,8 +515,6 @@ The dictionary is a linked list.
 | nip          | xy-y      | Remove the second item on the stack               |
 | dup-pair     | xy-xyxy   | Duplicate top two values fom the stack            |
 | drop-pair    | xy-       | Drop top two values from the stack                |
-| /            | nq-d      | Divide and return quotient                        |
-| mod          | nq-r      | Divide and return remainder                       |
 | @+           | a-an      | Fetch a value and return next address             |
 | !+           | na-a      | Store a value to address and return next address  |
 | push         | n-        | Move value from data stack to address stack       |

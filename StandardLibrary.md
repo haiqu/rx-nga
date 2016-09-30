@@ -46,6 +46,8 @@ The compiler defaults to using **.word**. The functions below add support for ma
 ## Math
 
 ````
+:/       (nq-d)  /mod swap drop ;
+:mod     (nq-r)  /mod drop ;
 :not     (n-n)   #-1 xor ;
 :negate  (n-n)   #-1 * ;
 :square  (n-n)   dup * ;
