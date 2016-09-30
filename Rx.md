@@ -93,7 +93,6 @@ These add additional operations on the stack elements that'll keep later code mu
 ````
 :tuck      "xy-yxy"   dup push swap pop ;
 :over      "xy-xyx"   push dup pop swap ;
-:nip       "xy-y"     swap drop ;
 :dup-pair  "xy-xyxy"  over over ;
 ````
 
@@ -438,8 +437,8 @@ The dictionary is a linked list.
 
 :0021 |0020 |tuck          |.word  'tuck'
 :0022 |0021 |over          |.word  'over'
-:0023 |0022 |nip           |.word  'nip'
-:0024 |0023 |dup-pair      |.word  'dup-pair'
+:0023 
+:0024 |0022 |dup-pair      |.word  'dup-pair'
 :0025
 :0026
 :0027
@@ -511,7 +510,6 @@ The dictionary is a linked list.
 | shift        | nn-n      | Perform bitwise shift                             |
 | tuck         | xy-yxy    | Put a copy of the top item under the second item  |
 | over         | xy-xyx    | Make a copy of the second item on the stack       |
-| nip          | xy-y      | Remove the second item on the stack               |
 | dup-pair     | xy-xyxy   | Duplicate top two values fom the stack            |
 | @+           | a-an      | Fetch a value and return next address             |
 | !+           | na-a      | Store a value to address and return next address  |

@@ -43,6 +43,15 @@ The compiler defaults to using **.word**. The functions below add support for ma
 :data &.data reclass ;
 ````
 
+## Stack Shufflers
+
+````
+:nip (xy-y) swap drop ;
+:drop-pair (nn-) drop drop ;
+:?dup dup 0; ;
+````
+
+
 ## Math
 
 ````
@@ -96,11 +105,7 @@ Short for *top of return stack*, this returns the top item on the address stack.
 :tri@ dup dup tri* ;
 ````
 
-## Stack Shufflers
-
 ````
-:drop-pair drop drop ;
-:?dup dup 0; ;
 :+! [ fetch + ] sip store ;
 :-! [ fetch swap - ] sip store ;
 :++ #1 swap +! ;
