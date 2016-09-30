@@ -43,7 +43,7 @@ The initial dictionary is constructed at the end of this file. It'll take a form
   ^patch
 :patch
   &_nop &run-once #1 + store
-  &ngita-notfound &notfound #1 + store
+  &ngita-notfound &err:notfound #1 + store
   &Dictionary fetch &0900 store
   &0908 &Dictionary store
   ;

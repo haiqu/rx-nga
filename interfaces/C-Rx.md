@@ -219,7 +219,7 @@ void update_rx() {
   Dictionary = memory[2];
   Heap = memory[3];
   Compiler = d_xt_for("Compiler", Dictionary);
-  notfound = d_xt_for("notfound", Dictionary);
+  notfound = d_xt_for("err:notfound", Dictionary);
 }
 ````
 
