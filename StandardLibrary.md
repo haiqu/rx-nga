@@ -30,12 +30,39 @@ The standard library provides a number of these.
 :sip  (nq-n)  over &call dip ;
 ````
 
+Apply each quote to a copy of x
+
 ````
-:bi &sip dip call ;
-:bi* &dip dip call ;
-:bi@ dup bi* ;
-:tri [ &sip dip sip ] dip call ;
-:tri* [ [ swap &dip dip ] dip dip ] dip call ;
+:bi  (xqq-)  &sip dip call ;
+````
+
+Apply q1 to x and q2 to y
+
+````
+:bi*  (xyqq-) &dip dip call ;
+````
+
+Apply q to x and y
+
+````
+:bi@  (xyq-)  dup bi* ;
+````
+
+Apply each quote to a copy of x
+
+````
+:tri  (xqqq-)  [ &sip dip sip ] dip call ;
+````
+
+Apply q1 to x, q2 to y, and q3 to z
+
+````
+:tri*  (xyzqqq-)  [ [ swap &dip dip ] dip dip ] dip call ;
+````
+
+Apply q to x, y, and z
+
+````
 :tri@ dup dup tri* ;
 ````
 
@@ -107,7 +134,6 @@ Short for *top of return stack*, this returns the top item on the address stack.
 :tors pop pop dup push swap push ;
 ````
 
-
 ## Math
 
 The core Rx language provides addition, subtraction, multiplication, and a combined division/remainder. The standard library expands on this.
@@ -152,9 +178,21 @@ This adds handy **@** and **!** prefixes that can help make code more readable. 
 
 ## Flow
 
+Execute quote until quote returns a flag of 0.
+
 ````
 :while [ repeat dup dip swap 0; drop again ] call drop ;
+````
+
+Execute quote until quote returns a flag of -1.
+
+````
 :until [ repeat dup dip swap not 0; drop again ] call drop ;
+````
+
+The **times** combinator runs a quote (n) times.
+
+````
 :times swap [ repeat 0; #1 - push &call sip pop again ] call drop ;
 ````
 
