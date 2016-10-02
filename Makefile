@@ -21,7 +21,7 @@ ngita: clean sdk rx stl
 	cat rx.naje ngita-rx.naje >_.naje
 	./bin/naje _.naje > build_ngita.log
 	rm -f _.naje ngita-rx.nuance ngita-rx.naje
-	cat startup.rx ngita-extend.rx | ./bin/ngita ngita-rx.nga
+	cat startup.rx ngita-extend.rx | ./bin/ngita
 	mv rx.nga ngaImage
 
 clean-ngita:

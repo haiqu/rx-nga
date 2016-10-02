@@ -302,7 +302,7 @@ void include_file(char *fname) {
 
 ````
 int main(int argc, char **argv) {
-  printf("rx-2016.09 [C-Rx Listener]\n");
+  printf("rx-2016.10 [C-Rx Listener]\n");
   ngaPrepare();
   ngaLoadImage("ngaImage");
 

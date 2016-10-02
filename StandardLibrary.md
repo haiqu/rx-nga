@@ -1,7 +1,7 @@
     ____  _   _
     || \\ \\ //
     ||_//  )x(
-    || \\ // \\ 2016.09
+    || \\ // \\ 2016.10
     a minimalist forth for nga
 
 By itself Rx provides a very minimal Forth implementation. This, the *Rx Standard Library*, extends this into a more useful language.
