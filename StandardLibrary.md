@@ -6,6 +6,39 @@
 
 By itself Rx provides a very minimal Forth implementation. This, the *Rx Standard Library*, extends this into a more useful language.
 
+## Combinators
+
+Rx makes use of anonymous functions called *quotations* for much of the execution flow and stack control. The words that operate on these quotations are called *combinators*.
+
+The standard library provides a number of these.
+
+**dip** executes a quotation after moving a value off the stack. The value is restored after execution completes. These are equivilent:
+
+    #10 #12 [ #3 - ] dip
+    #10 #12 push #3 - pop
+
+````
+:dip swap push call pop ;
+````
+
+**sip** is similar to dip, but leaves a copy of the value on the stack while the quotation is executed. These are equivilent:
+
+    #10 [ #3 * ] sip
+    #10 dup push #3 * pop
+
+````
+:sip over &call dip ;
+````
+
+````
+:bi &sip dip call ;
+:bi* &dip dip call ;
+:bi@ dup bi* ;
+:tri [ &sip dip sip ] dip call ;
+:tri* [ [ swap &dip dip ] dip dip ] dip call ;
+:tri@ dup dup tri* ;
+````
+
 ## Lexical Scope
 
 The dictionary is a simple linked list. Rx allows for some control over what is visible using the **{{**, **---reveal---**, and **}}** words.
@@ -43,16 +76,41 @@ The compiler defaults to using **.word**. The functions below add support for ma
 :data &.data reclass ;
 ````
 
+Now we can do useful things like:
+
+    :Red   #0 ; data
+    :Green #1 ; data
+    :Blue  #2 ; data
+    
+    :inline-100 &Compiler fetch [ #1 , #100 , ] [ #100 ] choose ; immediate
+
+## ...
+
+````
+:compiling?  (-f)  &Compiler fetch ;
+````
+
 ## Stack Shufflers
+
+The core Rx language provides a few basic stack shuffling words: **push**, **pop**, **drop**, **swap**, **dup**, **over**, **tuck**, **dup-pair**. There are quite a few more that are useful. These are provided here.
 
 ````
 :nip (xy-y) swap drop ;
 :drop-pair (nn-) drop drop ;
 :?dup dup 0; ;
+:rot [ swap ] dip swap ;
+````
+
+Short for *top of return stack*, this returns the top item on the address stack. As an analog to traditional Forth, this is equivilent to **R@**.
+
+````
+:tors pop pop dup push swap push ;
 ````
 
 
 ## Math
+
+The core Rx language provides addition, subtraction, multiplication, and a combined division/remainder. The standard library expands on this.
 
 ````
 :/       (nq-d)  /mod swap drop ;
@@ -62,6 +120,8 @@ The compiler defaults to using **.word**. The functions below add support for ma
 :square  (n-n)   dup * ;
 :min     (nn-n)  dup-pair lt? [ drop ] [ nip ] choose ;
 :max     (nn-n)  dup-pair gt? [ drop ] [ nip ] choose ;
+:++      (n-n)   #1 swap +! ;
+:--      (n-n)   #1 swap -! ;
 ````
 
 ## Prefixes
@@ -75,7 +135,6 @@ This adds handy **@** and **!** prefixes that can help make code more readable. 
     #16 !Base
 
 ````
-:compiling? &Compiler fetch ;
 {{
 :call, .data #8 , ;
 ---reveal---
@@ -84,33 +143,11 @@ This adds handy **@** and **!** prefixes that can help make code more readable. 
 }}
 ````
 
-## TORS
 
-Short for *top of return stack*, this returns the top item on the address stack. As an analog to traditional Forth, this is equivilent to **R@**.
 
 ````
-:tors pop pop dup push swap push ;
-````
-
-## Combinators
-
-````
-:dip swap push call pop ;
-:sip over &call dip ;
-:bi &sip dip call ;
-:bi* &dip dip call ;
-:bi@ dup bi* ;
-:tri [ &sip dip sip ] dip call ;
-:tri* [ [ swap &dip dip ] dip dip ] dip call ;
-:tri@ dup dup tri* ;
-````
-
-````
-:+! [ fetch + ] sip store ;
-:-! [ fetch swap - ] sip store ;
-:++ #1 swap +! ;
-:-- #1 swap -! ;
-:rot [ swap ] dip swap ;
+:+!  (na-)  [ fetch + ] sip store ;
+:-!  (na-)  [ fetch swap - ] sip store ;
 ````
 
 ## Flow
@@ -118,8 +155,6 @@ Short for *top of return stack*, this returns the top item on the address stack.
 ````
 :while [ repeat dup dip swap 0; drop again ] call drop ;
 :until [ repeat dup dip swap not 0; drop again ] call drop ;
-:when [ over swap call ] dip swap [ call #-1 ] [ drop #0 ] choose 0; pop drop-pair ;
-:whend [ over swap call ] dip swap [ nip call #-1 ] [ drop #0 ] choose 0; pop drop-pair ;
 :times swap [ repeat 0; #1 - push &call sip pop again ] call drop ;
 ````
 
@@ -129,6 +164,9 @@ Hash (using DJB2)
 
 
 ````
-:(hash) repeat push #33 * pop fetch-next 0; swap push + pop again ;
-:str:hash #5381 swap (hash) drop ;
+{{
+  :(hash) repeat push #33 * pop fetch-next 0; swap push + pop again ;
+---reveal---
+  :str:hash  (s-n)  #5381 swap (hash) drop ;
+}}
 ````
