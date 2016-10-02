@@ -2,7 +2,7 @@
     ____  _   _
     || \\ \\ //
     ||_//  )x(
-    || \\ // \\ 2016.09
+    || \\ // \\ 2016.10
     a minimalist forth for nga
 
 *Rx* is an implementation of Forth for the Nga virtual machine. It's small, easy to extend, and has some unique aspects.
