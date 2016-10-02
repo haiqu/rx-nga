@@ -154,15 +154,6 @@ String comparisons are harder.
   ;
 ````
 
-## String Hash
-
-Using djb2.
-
-````
-:(hash) push #33 * pop fetch-next 0; swap push + pop ^(hash)
-:str:hash #5381 swap (hash) drop ;
-````
-
 ## Conditionals
 
 Implement **cond**, a conditional combinator which will execute one of two functions, depending on the state of a flag. We take advantage of a little hack here. Store the pointers into a jump table with two fields, and use the flag as the index. Default to the *false* entry, since a *true* flag is -1.
@@ -284,7 +275,7 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
   0; dup #3 + &needle fetch str:compare [ dup &which store drop &_nop ] if fetch
 ^find_next
 
-:lookup  "s-n"  &needle store find &which fetch ;
+:d:lookup  "s-n"  &needle store find &which fetch ;
 ````
 
 ### Number Conversion
@@ -346,7 +337,7 @@ Where *&lt;prefix-char&gt;* is the character for the prefix. These should be com
 :prefix:prepare  "s-"
  fetch &prefixed #7 + store ;
 :prefix?         "s-sb"
- prefix:prepare &prefixed lookup dup &prefix:handler store #0 -eq? ;
+ prefix:prepare &prefixed d:lookup dup &prefix:handler store #0 -eq? ;
 ````
 
 Rx uses prefixes for important bits of functionality including parsing numbers (prefix with **#**), obtaining pointers (prefix with **&amp;**), and starting new functions (using the **:** prefix).
@@ -355,7 +346,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 :prefix:#  str:asnumber .data ;
 :prefix:$  fetch .data ;
 :prefix::  &.word here newentry here &Dictionary fetch d:xt store #-1 &Compiler store ;
-:prefix:&  lookup d:xt fetch .data ;
+:prefix:&  d:lookup d:xt fetch .data ;
 :prefix:`  compiling? [ str:asnumber comma ] [ drop ] cond ;
 :prefix:'  &_lit comma:opcode here push #0 comma &_jump comma:opcode
            here push comma:string pop
@@ -411,7 +402,7 @@ The *interpreter* is what processes input. What it does is:
   &input:source store
   &input:source fetch prefix?
   [ interpret:prefix ]
-  [ &input:source fetch lookup #0 -eq? &interpret:word &err:notfound cond ] cond
+  [ &input:source fetch d:lookup #0 -eq? &interpret:word &err:notfound cond ] cond
 ;
 ````
 
@@ -454,8 +445,8 @@ The dictionary is a linked list.
 :0028 |0024 |fetch-next    |.word  'fetch-next'
 :0029 |0028 |store-next    |.word  'store-next'
 
-:0030 |0029 |str:hash      |.word  'str:hash'
-:0031 |0030 |str:asnumber  |.word  'str:asnumber'
+:0030
+:0031 |0029 |str:asnumber  |.word  'str:asnumber'
 :0032 |0031 |str:compare   |.word  'str:compare'
 :0033 |0032 |str:length    |.word  'str:length'
 :0034 |0033 |cond          |.word  'cond'
@@ -491,7 +482,7 @@ The dictionary is a linked list.
 :0061 |0060 |begin         |.macro 'begin'
 :0062 |0061 |again         |.macro 'again'
 :0063 |0062 |interpret     |.word  'interpret'
-:0064 |0063 |lookup        |.word  'd:lookup'
+:0064 |0063 |d:lookup      |.word  'd:lookup'
 :9999 |0064 |err:notfound  |.word  'err:notfound'
 ````
 
@@ -527,7 +518,6 @@ The dictionary is a linked list.
 | 0;           | n-n OR n- | Exit word (and **drop**) if TOS is zero           |
 | str:asnumber | s-n       | Convert a string to a number                      |
 | str:compare  | ss-f      | Compare two strings for equality                  |
-| str:hash     | s-n       | Return the DJB2 hash of a string                  |
 | str:length   | s-n       | Return length of string                           |
 | cond         | fpp-?     | Execute *p1* if *f* is -1, or *p2* if *f* is 0    |
 | if           | fp-?      | Execute *p* if flag *f* is true (-1)              |

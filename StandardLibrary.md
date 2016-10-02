@@ -122,3 +122,13 @@ Short for *top of return stack*, this returns the top item on the address stack.
 :whend [ over swap call ] dip swap [ nip call #-1 ] [ drop #0 ] cond 0; pop drop-pair ;
 :times swap [ begin 0; #1 - push &call sip pop again ] call drop ;
 ````
+
+## Strings
+
+Hash (using DJB2)
+
+
+````
+:(hash) begin push #33 * pop fetch-next 0; swap push + pop again ;
+:str:hash #5381 swap (hash) drop ;
+````
