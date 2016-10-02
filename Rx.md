@@ -108,7 +108,7 @@ The basic memory accesses are handled via **fetch** and **store**. These two fun
 
 **store-next** takes a value and an address. It stores the value to the address and returns the next address.
 
-`````
+````
 :store-next "na-A"  dup #1 + push store pop ;
 ````
 
