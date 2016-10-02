@@ -120,6 +120,13 @@ The core Rx language provides addition, subtraction, multiplication, and a combi
 :square  (n-n)   dup * ;
 :min     (nn-n)  dup-pair lt? [ drop ] [ nip ] choose ;
 :max     (nn-n)  dup-pair gt? [ drop ] [ nip ] choose ;
+````
+
+## Memory
+
+````
+:+!  (na-)  [ fetch + ] sip store ;
+:-!  (na-)  [ fetch swap - ] sip store ;
 :++      (n-n)   #1 swap +! ;
 :--      (n-n)   #1 swap -! ;
 ````
@@ -141,13 +148,6 @@ This adds handy **@** and **!** prefixes that can help make code more readable. 
 :prefix:@ d:lookup d:xt fetch .data &fetch compiling? [ call, ] [ call ] choose ; immediate
 :prefix:! d:lookup d:xt fetch .data &store compiling? [ call, ] [ call ] choose ; immediate
 }}
-````
-
-
-
-````
-:+!  (na-)  [ fetch + ] sip store ;
-:-!  (na-)  [ fetch swap - ] sip store ;
 ````
 
 ## Flow
