@@ -18,7 +18,7 @@ The standard library provides a number of these.
     #10 #12 push #3 - pop
 
 ````
-:dip swap push call pop ;
+:dip  (nq-n)  swap push call pop ;
 ````
 
 **sip** is similar to dip, but leaves a copy of the value on the stack while the quotation is executed. These are equivilent:
@@ -27,7 +27,7 @@ The standard library provides a number of these.
     #10 dup push #3 * pop
 
 ````
-:sip over &call dip ;
+:sip  (nq-n)  over &call dip ;
 ````
 
 ````
