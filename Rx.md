@@ -437,26 +437,21 @@ The dictionary is a linked list.
 
 :0021 |0020 |tuck          |.word  'tuck'
 :0022 |0021 |over          |.word  'over'
-:0023 
-:0024 |0022 |dup-pair      |.word  'dup-pair'
-:0025
-:0026
-:0027
-:0028 |0024 |fetch-next    |.word  'fetch-next'
-:0029 |0028 |store-next    |.word  'store-next'
+:0023 |0022 |dup-pair      |.word  'dup-pair'
+:0024 |0023 |fetch-next    |.word  'fetch-next'
+:0025 |0024 |store-next    |.word  'store-next'
+:0026 |0025 |str:asnumber  |.word  'str:asnumber'
+:0027 |0026 |str:compare   |.word  'str:compare'
+:0028 |0027 |str:length    |.word  'str:length'
+:0029 |0028 |cond          |.word  'cond'
+:0030 |0029 |if            |.word  'if'
 
-:0030
-:0031 |0029 |str:asnumber  |.word  'str:asnumber'
-:0032 |0031 |str:compare   |.word  'str:compare'
-:0033 |0032 |str:length    |.word  'str:length'
-:0034 |0033 |cond          |.word  'cond'
-:0035 |0034 |if            |.word  'if'
-:0036 |0035 |-if           |.word  '-if'
-:0037 |0036 |Compiler      |.data  'Compiler'
-:0038 |0037 |Heap          |.data  'Heap'
-:0039 |0038 |comma         |.word  ','
+:0031 |0030 |-if           |.word  '-if'
+:0032 |0031 |Compiler      |.data  'Compiler'
+:0033 |0032 |Heap          |.data  'Heap'
+:0034 |0033 |comma         |.word  ','
 
-:0040 |0039 |comma:string  |.word  's,'
+:0040 |0034 |comma:string  |.word  's,'
 :0041 |0040 |here          |.word  'here'
 :0042 |0041 |fin           |.macro ';'
 :0043 |0042 |t-[           |.macro '['
