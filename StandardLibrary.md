@@ -24,7 +24,7 @@ Only the **next-number** function will remain visible once **}}** is executed.
 ````
 :{{ &Dictionary fetch dup &ScopeList store-next store ;
 :---reveal--- &Dictionary fetch &ScopeList #1 + store ;
-:}} &ScopeList fetch-next swap fetch eq? [ &ScopeList fetch &Dictionary store ] [ &ScopeList fetch [ &Dictionary begin fetch dup fetch &ScopeList #1 + fetch -eq? 0; drop again ] call store ] cond ;
+:}} &ScopeList fetch-next swap fetch eq? [ &ScopeList fetch &Dictionary store ] [ &ScopeList fetch [ &Dictionary repeat fetch dup fetch &ScopeList #1 + fetch -eq? 0; drop again ] call store ] choose ;
 ````
 
 ## Word Classes
@@ -60,8 +60,8 @@ The compiler defaults to using **.word**. The functions below add support for ma
 :not     (n-n)   #-1 xor ;
 :negate  (n-n)   #-1 * ;
 :square  (n-n)   dup * ;
-:min     (nn-n)  dup-pair lt? [ drop ] [ nip ] cond ;
-:max     (nn-n)  dup-pair gt? [ drop ] [ nip ] cond ;
+:min     (nn-n)  dup-pair lt? [ drop ] [ nip ] choose ;
+:max     (nn-n)  dup-pair gt? [ drop ] [ nip ] choose ;
 ````
 
 ## Prefixes
@@ -79,8 +79,8 @@ This adds handy **@** and **!** prefixes that can help make code more readable. 
 {{
 :call, .data #8 , ;
 ---reveal---
-:prefix:@ d:lookup d:xt fetch .data &fetch compiling? [ call, ] [ call ] cond ; immediate
-:prefix:! d:lookup d:xt fetch .data &store compiling? [ call, ] [ call ] cond ; immediate
+:prefix:@ d:lookup d:xt fetch .data &fetch compiling? [ call, ] [ call ] choose ; immediate
+:prefix:! d:lookup d:xt fetch .data &store compiling? [ call, ] [ call ] choose ; immediate
 }}
 ````
 
@@ -116,11 +116,11 @@ Short for *top of return stack*, this returns the top item on the address stack.
 ## Flow
 
 ````
-:while [ begin dup dip swap 0; drop again ] call drop ;
-:until [ begin dup dip swap not 0; drop again ] call drop ;
-:when [ over swap call ] dip swap [ call #-1 ] [ drop #0 ] cond 0; pop drop-pair ;
-:whend [ over swap call ] dip swap [ nip call #-1 ] [ drop #0 ] cond 0; pop drop-pair ;
-:times swap [ begin 0; #1 - push &call sip pop again ] call drop ;
+:while [ repeat dup dip swap 0; drop again ] call drop ;
+:until [ repeat dup dip swap not 0; drop again ] call drop ;
+:when [ over swap call ] dip swap [ call #-1 ] [ drop #0 ] choose 0; pop drop-pair ;
+:whend [ over swap call ] dip swap [ nip call #-1 ] [ drop #0 ] choose 0; pop drop-pair ;
+:times swap [ repeat 0; #1 - push &call sip pop again ] call drop ;
 ````
 
 ## Strings
@@ -129,6 +129,6 @@ Hash (using DJB2)
 
 
 ````
-:(hash) begin push #33 * pop fetch-next 0; swap push + pop again ;
+:(hash) repeat push #33 * pop fetch-next 0; swap push + pop again ;
 :str:hash #5381 swap (hash) drop ;
 ````

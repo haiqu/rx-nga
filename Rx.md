@@ -20,12 +20,12 @@ All code built with the Nga toolchain starts with a jump to the main entry point
 
 Here's the initial memory map:
 
-| Offset | Contains                    |
-| ------ | --------------------------- |
-| 0      | lit call nop nop            |
-| 1      | Pointer to main entry point |
-| 2      | Dictionary                  |
-| 3      | Heap                        |
+| Offset | Contains                    | Notes              |
+| ------ | --------------------------- | ------------------ |
+| 0      | lit call nop nop            | Compiled by *Naje* |
+| 1      | Pointer to main entry point | Compiled by *Naje* |
+| 2      | Dictionary                  |                    |
+| 3      | Heap                        |                    |
 
 Naje, the Nga assembler, compiles the initial instructions automatically. The two variables need to be declared next, so:
 
@@ -34,7 +34,7 @@ Naje, the Nga assembler, compiles the initial instructions automatically. The tw
 :Heap       `2560
 ````
 
-Both of these are pointers. **Dictionary** points to the most recent dictionary entry. (See the *Dictionary* section at the end of this file.) **Heap** points to the next free memory address. For now this is hard coded to an address well beyond the end of the Rx kernel. It'll be fine tuned as development progresses. See the *Interpreter &amp; Compiler* section for more on this.
+Both of these are pointers. **Dictionary** points to the most recent dictionary entry. (See the *Dictionary* section at the end of this file.) **Heap** points to the next free memory address. This is hard coded to an address beyond the end of the Rx kernel. It'll be fine tuned as development progresses. See the *Interpreter &amp; Compiler* section for more on this.
 
 ## Nga Instruction Set
 
@@ -63,7 +63,7 @@ Without packing this takes three cells: one for the lit, one for the address, an
 
 ## Primitives
 
-Here I wrap the instructions into actual functions intended for use. Naming conventions here are derived from Retro and Parable.
+Here I wrap the instructions into actual functions intended for use.
 
 ````
 :dup   "n-nn"   _dup ;
@@ -88,7 +88,7 @@ Here I wrap the instructions into actual functions intended for use. Naming conv
 
 ## Stack Shufflers
 
-These add additional operations on the stack elements that'll keep later code much more readable.
+These add additional operations on the stack elements that'll keep later code much more readable. There are significantly more shufflers that can be useful, but which aren't needed for the Rx kernel. The additional ones are implemented in the standard library.
 
 ````
 :tuck      "xy-yxy"   dup push swap pop ;
@@ -100,14 +100,21 @@ These add additional operations on the stack elements that'll keep later code mu
 
 The basic memory accesses are handled via **fetch** and **store**. These two functions provide slightly easier access to linear sequences of data.
 
+**fetch-next** takes an address and fetches the stored value. It returns the next address and the stored value.
+
 ````
 :fetch-next "a-An"  dup #1 + swap fetch ;
+````
+
+**store-next** takes a value and an address. It stores the value to the address and returns the next address.
+
+`````
 :store-next "na-A"  dup #1 + push store pop ;
 ````
 
 ## Strings
 
-There are two basic string operations needed: obtaining the length and comparing for equality.
+The kernel needs two basic string operations for dictionary searches: obtaining the length and comparing for equality.
 
 Strings in Rx are zero terminated. This is a bit less elegant than counted strings, but the implementation is quick and easy.
 
@@ -128,6 +135,8 @@ First up, string length. The process here is trivial:
 ````
 
 String comparisons are harder.
+
+**This is not an optimal approach.**
 
 ````
 :compare::flag `0
@@ -156,12 +165,12 @@ String comparisons are harder.
 
 ## Conditionals
 
-Implement **cond**, a conditional combinator which will execute one of two functions, depending on the state of a flag. We take advantage of a little hack here. Store the pointers into a jump table with two fields, and use the flag as the index. Default to the *false* entry, since a *true* flag is -1.
+Implement **choose**, a conditional combinator which will execute one of two functions, depending on the state of a flag. We take advantage of a little hack here. Store the pointers into a jump table with two fields, and use the flag as the index. Default to the *false* entry, since a *true* flag is -1.
 
 ````
 :if::true  `0
 :if::false `0
-:cond  "bpp-" &if::false store &if::true store &if::false + fetch call ;
+:choose "bpp-" &if::false store &if::true store &if::false + fetch call ;
 ````
 
 Next two additional forms:
@@ -214,7 +223,7 @@ Rx handles functions via handlers called *word classes*. Each of these is a func
 
 ````
 :.data  compiling? [ &_lit comma:opcode comma ] if ;
-:.word  compiling? [ &_packedcall comma:opcode comma ] [ call ] cond ;
+:.word  compiling? [ &_packedcall comma:opcode comma ] [ call ] choose ;
 :.macro call ;
 ````
 
@@ -265,17 +274,17 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
 ### Dictionary Search
 
 ````
-:which  `0
-:needle `0
+:Which  `0
+:Needle `0
 
 :find
-  #0 &which store
+  #0 &Which store
   &Dictionary fetch
 :find_next
-  0; dup #3 + &needle fetch str:compare [ dup &which store drop &_nop ] if fetch
+  0; dup #3 + &Needle fetch str:compare [ dup &Which store drop &_nop ] if fetch
 ^find_next
 
-:d:lookup  "s-n"  &needle store find &which fetch ;
+:d:lookup  "s-n"  &Needle store find &Which fetch ;
 ````
 
 ### Number Conversion
@@ -296,25 +305,25 @@ This code converts a zero terminated string into a number. The approach is very 
 At this time Rx only supports decimal numbers.
 
 ````
-:asnumber:mod `0  "modifier"
-:asnumber:acc `0  "accumulator"
+:asnumber:Mod `0  "modifier"
+:asnumber:Acc `0  "accumulator"
 
 :asnumber:char>digit  "c-n"  $0 - ;
 
-:asnumber:scale       "-n"  &asnumber:acc fetch #10 * ;
+:asnumber:scale       "-n"  &asnumber:Acc fetch #10 * ;
 
 :asnumber:convert     "p-p"
-  fetch-next 0; asnumber:char>digit asnumber:scale + &asnumber:acc store
+  fetch-next 0; asnumber:char>digit asnumber:scale + &asnumber:Acc store
   ^asnumber:convert
 
 :asnumber:prepare     "p-p"
-  #1 &asnumber:mod store
-  #0 &asnumber:acc store
-  dup fetch $- eq? [ #-1 &asnumber:mod store #1 + ] if ;
+  #1 &asnumber:Mod store
+  #0 &asnumber:Acc store
+  dup fetch $- eq? [ #-1 &asnumber:Mod store #1 + ] if ;
 
 :str:asnumber             "p-n"
   asnumber:prepare asnumber:convert drop
-  &asnumber:acc fetch &asnumber:mod fetch * ;
+  &asnumber:Acc fetch &asnumber:Mod fetch * ;
 ````
 
 ### Token Processing
@@ -334,8 +343,7 @@ Where *&lt;prefix-char&gt;* is the character for the prefix. These should be com
 ````
 :prefix:handler `0
 :prefixed 'prefix:_'
-:prefix:prepare  "s-"
- fetch &prefixed #7 + store ;
+:prefix:prepare  "s-"  fetch &prefixed #7 + store ;
 :prefix?         "s-sb"
  prefix:prepare &prefixed d:lookup dup &prefix:handler store #0 -eq? ;
 ````
@@ -347,7 +355,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 :prefix:$  fetch .data ;
 :prefix::  &.word here newentry here &Dictionary fetch d:xt store #-1 &Compiler store ;
 :prefix:&  d:lookup d:xt fetch .data ;
-:prefix:`  compiling? [ str:asnumber comma ] [ drop ] cond ;
+:prefix:`  compiling? [ str:asnumber comma ] [ drop ] choose ;
 :prefix:'  &_lit comma:opcode here push #0 comma &_jump comma:opcode
            here push comma:string pop
            here pop store .data ;
@@ -357,7 +365,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 ### Quotations
 
 ````
-:begin here ;
+:repeat here ;
 :again &_lit comma:opcode comma &_jump comma:opcode ;
 :t-[
   here #3 + &Compiler fetch
@@ -396,13 +404,13 @@ The *interpreter* is what processes input. What it does is:
 :input:source `0
 
 :interpret:prefix &prefix:handler fetch 0; &input:source fetch #1 + swap call:dt ;
-:interpret:word   &which fetch call:dt ;
+:interpret:word   &Which fetch call:dt ;
 
 :interpret "s-"
   &input:source store
   &input:source fetch prefix?
   [ interpret:prefix ]
-  [ &input:source fetch d:lookup #0 -eq? &interpret:word &err:notfound cond ] cond
+  [ &input:source fetch d:lookup #0 -eq? &interpret:word &err:notfound choose ] choose
 ;
 ````
 
@@ -443,7 +451,7 @@ The dictionary is a linked list.
 :0026 |0025 |str:asnumber  |.word  'str:asnumber'
 :0027 |0026 |str:compare   |.word  'str:compare'
 :0028 |0027 |str:length    |.word  'str:length'
-:0029 |0028 |cond          |.word  'cond'
+:0029 |0028 |choose        |.word  'choose'
 :0030 |0029 |if            |.word  'if'
 
 :0031 |0030 |-if           |.word  '-if'
@@ -473,7 +481,7 @@ The dictionary is a linked list.
 :0053 |0052 |prefix:`      |.macro 'prefix:`'
 :0054 |0053 |prefix:'      |.macro 'prefix:''
 :0055 |0054 |prefix:(      |.macro 'prefix:('
-:0056 |0055 |begin         |.macro 'begin'
+:0056 |0055 |repeat        |.macro 'repeat'
 :0057 |0056 |again         |.macro 'again'
 :0058 |0057 |interpret     |.word  'interpret'
 :0059 |0058 |d:lookup      |.word  'd:lookup'
@@ -513,7 +521,7 @@ The dictionary is a linked list.
 | str:asnumber | s-n       | Convert a string to a number                      |
 | str:compare  | ss-f      | Compare two strings for equality                  |
 | str:length   | s-n       | Return length of string                           |
-| cond         | fpp-?     | Execute *p1* if *f* is -1, or *p2* if *f* is 0    |
+| choose       | fpp-?     | Execute *p1* if *f* is -1, or *p2* if *f* is 0    |
 | if           | fp-?      | Execute *p* if flag *f* is true (-1)              |
 | -if          | fp-?      | Execute *p* if flag *f* is false (0)              |
 | Compiler     | -p        | Variable; holds compiler state                    |
@@ -540,116 +548,18 @@ The dictionary is a linked list.
 | prefix:`     | s-        | ` prefix for bytecode                             |
 | prefix:'     | s-        | ' prefix for simple text                          |
 | prefix:(     | s-        | ( prefix for stack comments                       |
-| begin        | -a        | Start an unconditional loop                       |
+| repeat       | -a        | Start an unconditional loop                       |
 | again        | a-        | End an unconditional loop                         |
 | interpret    | s-?       | Evaluate a token                                  |
 | d:lookup     | s-p       | Given a string, return the DT (or 0 if undefined) |
 | err:notfound | -         | Handler for token not found errors                |
 
-----
-
-## Implementation Model
-
-### Threading
-
-Rx is a call threaded Forth, with some inlining optimizations. As an example:
-
-    :square dup * #10 + ;
-
-Compiles to:
-
-    lit &dup
-    call
-    lit &*
-    call
-    lit 10
-    lit &+
-    call
-    ret
-
-### Interpreter / Compiler
-
-Interpretation and compilation are handled via *word classes*. These are functions that decide how to execute or compile other functions based on system state. The main piece of state is the **Compiler** variable which indicates whether the classes should compile or call the functions passed to them. 
-
-As an example, here's a simple class that can inline primitives or call a function wrapping then as needed.
-
-    :.primitive (s-) d:lookup d:xt fetch &Compiler fetch [ fetch , ] [ call ] cond ;
-
-And a test case for it:
-
-    (2=nga_DUP_instruction)
-    :test `2 ; &.primitive reclass
-
-## Syntax
-
-Rx is not a typical Forth. Drawing from Retro and Parable, it makes use of quotations and prefixes for many language elements.
-
-### Defining a Word
-
-Use the **:** prefix:
-
-    :square dup * ;
-
-### Numbers
-
-Use the **#** prefix:
-
-    #100
-    #-33
-
-### ASCII Characters
-
-Use the **$** prefix:
-
-    $h
-    $i
-
-### Pointers
-
-Use the **&amp;** prefix:
-
-    &+
-    &err:notfound
-
-### Conditionals
-
-#### IF/ELSE
-
-    #100 #22 eq? [ 'true ] [ 'false ] cond
-
-#### IF TRUE
-
-    #100 #22 eq? [ 'true ] if
-
-#### IF FALSE
-
-    #100 #22 eq? [ 'true ] -if
-
 ## Legalities
+
+Rx is Copyright (c) 2016, Charles Childers
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
 
 THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-    Copyright (c) 2008 - 2016, Charles Childers
-
-Rx is based loosely on Retro. Though the core code has been rewritten to target Nga it wouldn't have been possible without the help of those who worked on its predecessor. 
-
-    Copyright (c) 2012 - 2013, Michal J Wallace
-    Copyright (c) 2009 - 2011, Luke Parrish
-    Copyright (c) 2009 - 2010, JGL
-    Copyright (c) 2010 - 2011, Marc Simpson
-    Copyright (c) 2011 - 2012, Oleksandr Kozachuk
-    Copyright (c) 2010,        Jay Skeer
-    Copyright (c) 2010,        Greg Copeland
-    Copyright (c) 2011,        Aleksej Saushev
-    Copyright (c) 2011,        Foucist
-    Copyright (c) 2011,        Erturk Kocalar
-    Copyright (c) 2011,        Kenneth Keating
-    Copyright (c) 2011,        Ashley Feniello
-    Copyright (c) 2011,        Peter Salvi
-    Copyright (c) 2011,        Christian Kellermann
-    Copyright (c) 2011,        Jorge Acereda
-    Copyright (c) 2011,        Remy Moueza
-    Copyright (c) 2012,        John M Harrison
-    Copyright (c) 2012,        Todd Thomas
+My thanks go out to Michal J Wallace, Luke Parrish, JGL, Marc Simpson, Oleksandr Kozachuk, Jay Skeer, Greg Copeland, Aleksej Saushev, Foucist, Erturk Kocalar, Kenneth Keating, Ashley Feniello, Peter Salvi, Christian Kellermann, Jorge Acereda, Remy Moueza, John M Harrison, and Todd Thomas. All of these great people helped in the development of Retro 10 & 11, without which Rx wouldn't have been possible.
