@@ -31,7 +31,7 @@ Naje, the Nga assembler, compiles the initial instructions automatically. The tw
 
 ````
 :Dictionary |9999
-:Heap       `2560
+:Heap       `2048
 ````
 
 Both of these are pointers. **Dictionary** points to the most recent dictionary entry. (See the *Dictionary* section at the end of this file.) **Heap** points to the next free memory address. This is hard coded to an address beyond the end of the Rx kernel. It'll be fine tuned as development progresses. See the *Interpreter &amp; Compiler* section for more on this.
@@ -88,10 +88,9 @@ Here I wrap the instructions into functions intended for use.
 
 ## Stack Shufflers
 
-These add additional operations on the stack elements that'll keep later code much more readable. There are significantly more shufflers that can be useful, but which aren't needed for the Rx kernel. The additional ones are implemented in the standard library.
+These add additional operations on the stack elements that'll keep later code much more readable.
 
 ````
-:tuck      "xy-yxy"   dup push swap pop ;
 :over      "xy-xyx"   push dup pop swap ;
 :dup-pair  "xy-xyxy"  over over ;
 ````
@@ -362,9 +361,6 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 :prefix::  &.word here newentry here &Dictionary fetch d:xt store #-1 &Compiler store ;
 :prefix:&  d:lookup d:xt fetch .data ;
 :prefix:`  compiling? [ str:asnumber comma ] [ drop ] choose ;
-:prefix:'  &_lit comma:opcode here push #0 comma &_jump comma:opcode
-           here push comma:string pop
-           here pop store .data ;
 :prefix:(  drop ;
 ````
 
@@ -449,49 +445,49 @@ The dictionary is a linked list.
 :0019 |0018 |t-pop         |.macro 'pop'
 :0020 |0019 |t-0;          |.macro '0;'
 
-:0021 |0020 |tuck          |.word  'tuck'
-:0022 |0021 |over          |.word  'over'
-:0023 |0022 |dup-pair      |.word  'dup-pair'
-:0024 |0023 |fetch-next    |.word  'fetch-next'
-:0025 |0024 |store-next    |.word  'store-next'
-:0026 |0025 |str:asnumber  |.word  'str:asnumber'
-:0027 |0026 |str:compare   |.word  'str:compare'
-:0028 |0027 |str:length    |.word  'str:length'
-:0029 |0028 |choose        |.word  'choose'
-:0030 |0029 |if            |.word  'if'
+:0021 |0020 |dup-pair      |.word  'dup-pair'
+:0022 |0021 |fetch-next    |.word  'fetch-next'
+:0023 |0022 |store-next    |.word  'store-next'
+:0024 |0023 |str:asnumber  |.word  'str:asnumber'
+:0025 |0024 |str:compare   |.word  'str:compare'
+:0026 |0025 |str:length    |.word  'str:length'
+:0027 |0026 |choose        |.word  'choose'
+:0028 |0027 |if            |.word  'if'
+:0029 |0028 |-if           |.word  '-if'
+:0030 |0029 |Compiler      |.data  'Compiler'
 
-:0031 |0030 |-if           |.word  '-if'
-:0032 |0031 |Compiler      |.data  'Compiler'
-:0033 |0032 |Heap          |.data  'Heap'
-:0034 |0033 |comma         |.word  ','
-:0035 |0034 |comma:string  |.word  's,'
-:0036 |0035 |here          |.word  'here'
-:0037 |0036 |t-;           |.macro ';'
-:0038 |0037 |t-[           |.macro '['
-:0039 |0038 |t-]           |.macro ']'
-:0040 |0039 |Dictionary    |.data  'Dictionary'
+:0031 |0030 |Heap          |.data  'Heap'
+:0032 |0031 |comma         |.word  ','
+:0033 |0032 |comma:string  |.word  's,'
+:0034 |0033 |here          |.word  'here'
+:0035 |0034 |t-;           |.macro ';'
+:0036 |0035 |t-[           |.macro '['
+:0037 |0036 |t-]           |.macro ']'
+:0038 |0037 |Dictionary    |.data  'Dictionary'
+:0039 |0038 |d:link        |.word  'd:link'
+:0040 |0039 |d:xt          |.word  'd:xt'
 
-:0041 |0040 |d:link        |.word  'd:link'
-:0042 |0041 |d:xt          |.word  'd:xt'
-:0043 |0042 |d:class       |.word  'd:class'
-:0044 |0043 |d:name        |.word  'd:name'
-:0045 |0044 |.word         |.word  '.word'
-:0046 |0045 |.macro        |.word  '.macro'
-:0047 |0046 |.data         |.word  '.data'
-:0048 |0047 |newentry      |.word  'd:add-header'
-:0049 |0048 |prefix:#      |.macro 'prefix:#'
-:0050 |0049 |prefix::      |.macro 'prefix::'
+:0041 |0040 |d:class       |.word  'd:class'
+:0042 |0041 |d:name        |.word  'd:name'
+:0043 |0042 |.word         |.word  '.word'
+:0044 |0043 |.macro        |.word  '.macro'
+:0045 |0044 |.data         |.word  '.data'
+:0046 |0045 |newentry      |.word  'd:add-header'
+:0047 |0046 |prefix:#      |.macro 'prefix:#'
+:0048 |0047 |prefix::      |.macro 'prefix::'
+:0049 |0048 |prefix:&      |.macro 'prefix:&'
+:0050 |0049 |prefix:$      |.macro 'prefix:$'
 
-:0051 |0050 |prefix:&      |.macro 'prefix:&'
-:0052 |0051 |prefix:$      |.macro 'prefix:$'
-:0053 |0052 |prefix:`      |.macro 'prefix:`'
-:0054 |0053 |prefix:'      |.macro 'prefix:''
-:0055 |0054 |prefix:(      |.macro 'prefix:('
-:0056 |0055 |repeat        |.macro 'repeat'
-:0057 |0056 |again         |.macro 'again'
-:0058 |0057 |interpret     |.word  'interpret'
-:0059 |0058 |d:lookup      |.word  'd:lookup'
-:9999 |0059 |err:notfound  |.word  'err:notfound'
+:0051 |0050 |prefix:`      |.macro 'prefix:`'
+:0052 |0051 |prefix:(      |.macro 'prefix:('
+:0053 |0052 |repeat        |.macro 'repeat'
+:0054 |0053 |again         |.macro 'again'
+:0055 |0054 |interpret     |.word  'interpret'
+:0056 |0055 |d:lookup      |.word  'd:lookup'
+:9999 |0056 |err:notfound  |.word  'err:notfound'
+
+:TOKEN '................................................................'
+:EOK
 ````
 
 ## Appendix: Words, Stack Effects, and Usage
@@ -516,9 +512,6 @@ The dictionary is a linked list.
 | or           | nn-n      | Perform bitwise OR operation                      |
 | xor          | nn-n      | Perform bitwise XOR operation                     |
 | shift        | nn-n      | Perform bitwise shift                             |
-| tuck         | xy-yxy    | Put a copy of the top item under the second item  |
-| over         | xy-xyx    | Make a copy of the second item on the stack       |
-| dup-pair     | xy-xyxy   | Duplicate top two values fom the stack            |
 | fetch-next   | a-an      | Fetch a value and return next address             |
 | store-next   | na-a      | Store a value to address and return next address  |
 | push         | n-        | Move value from data stack to address stack       |
@@ -552,7 +545,6 @@ The dictionary is a linked list.
 | prefix:&     | s-        | & prefix for pointers                             |
 | prefix:$     | s-        | $ prefix for ASCII characters                     |
 | prefix:`     | s-        | ` prefix for bytecode                             |
-| prefix:'     | s-        | ' prefix for simple text                          |
 | prefix:(     | s-        | ( prefix for stack comments                       |
 | repeat       | -a        | Start an unconditional loop                       |
 | again        | a-        | End an unconditional loop                         |
