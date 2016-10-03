@@ -63,7 +63,7 @@ Without packing this takes three cells: one for the lit, one for the address, an
 
 ## Primitives
 
-Here I wrap the instructions into actual functions intended for use.
+Here I wrap the instructions into functions intended for use.
 
 ````
 :dup   "n-nn"   _dup ;
@@ -165,6 +165,12 @@ String comparisons are harder.
 
 ## Conditionals
 
+The Rx kernel provides three conditional forms:
+
+    flag true-pointer false-pointer choose
+    flag true-pointer if
+    flag false-pointer -if
+
 Implement **choose**, a conditional combinator which will execute one of two functions, depending on the state of a flag. We take advantage of a little hack here. Store the pointers into a jump table with two fields, and use the flag as the index. Default to the *false* entry, since a *true* flag is -1.
 
 ````
@@ -173,7 +179,7 @@ Implement **choose**, a conditional combinator which will execute one of two fun
 :choose "bpp-" &if::false store &if::true store &if::false + fetch call ;
 ````
 
-Next two additional forms:
+Next the two *if* forms:
 
 ````
 :if   "bp-"  _ccall ;
@@ -214,7 +220,7 @@ First, a variable indicating whether we should compile or run a function. This w
 ````
 
 ````
-:fin  "-"  &_ret comma:opcode #0 &Compiler store ;
+:t-;  "-"  &_ret comma:opcode #0 &Compiler store ;
 ````
 
 ### Word Classes
@@ -460,7 +466,7 @@ The dictionary is a linked list.
 :0034 |0033 |comma         |.word  ','
 :0035 |0034 |comma:string  |.word  's,'
 :0036 |0035 |here          |.word  'here'
-:0037 |0036 |fin           |.macro ';'
+:0037 |0036 |t-;           |.macro ';'
 :0038 |0037 |t-[           |.macro '['
 :0039 |0038 |t-]           |.macro ']'
 :0040 |0039 |Dictionary    |.data  'Dictionary'
