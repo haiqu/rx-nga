@@ -48,7 +48,7 @@ CELL notfound;
 ## Configuration
 
 ````
-#define TIB 2048
+#define TIB 1920
 ````
 
 ## Stack
@@ -322,7 +322,7 @@ int main(int argc, char **argv) {
       exit(0);
     else if (strcmp(input, "words") == 0) {
       CELL i = Dictionary;
-      while (memory[i] != 0) {
+      while (i != 0) {
         string_extract(d_name(i));
         printf("%s  ", string_data);
         i = memory[i];
