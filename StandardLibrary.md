@@ -27,7 +27,7 @@ The standard library provides a number of these.
     #10 dup push #3 * pop
 
 ````
-:sip  (nq-n)  over &call dip ;
+:sip  (nq-n)  push dup pop swap &call dip ;
 ````
 
 Apply each quote to a copy of x
