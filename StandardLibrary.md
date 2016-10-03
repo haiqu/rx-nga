@@ -98,10 +98,13 @@ Now we can do useful things like:
 
 ## Stack Shufflers
 
-The core Rx language provides a few basic stack shuffling words: **push**, **pop**, **drop**, **swap**, **dup**, **over**, **tuck**, **dup-pair**. There are quite a few more that are useful. These are provided here.
+The core Rx language provides a few basic stack shuffling words: **push**, **pop**, **drop**, **swap**, and **dup**. There are quite a few more that are useful. These are provided here.
 
 ````
-:nip (xy-y) swap drop ;
+:tuck      (xy-yxy)   dup push swap pop ;
+:over      (xy-xyx)   push dup pop swap ;
+:dup-pair  (xy-xyxy)  over over ;
+:nip       (xy-y) swap drop ;
 :drop-pair (nn-) drop drop ;
 :?dup dup 0; ;
 :rot [ swap ] dip swap ;
