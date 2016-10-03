@@ -48,7 +48,7 @@ CELL notfound;
 ## Configuration
 
 ````
-#define TIB 1920
+#define TIB 1471
 ````
 
 ## Stack

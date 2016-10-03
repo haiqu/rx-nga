@@ -31,7 +31,7 @@ Naje, the Nga assembler, compiles the initial instructions automatically. The tw
 
 ````
 :Dictionary |9999
-:Heap       `2048
+:Heap       `1536
 ````
 
 Both of these are pointers. **Dictionary** points to the most recent dictionary entry. (See the *Dictionary* section at the end of this file.) **Heap** points to the next free memory address. This is hard coded to an address beyond the end of the Rx kernel. It'll be fine tuned as development progresses. See the *Interpreter &amp; Compiler* section for more on this.
@@ -486,8 +486,7 @@ The dictionary is a linked list.
 :0056 |0055 |d:lookup      |.word  'd:lookup'
 :9999 |0056 |err:notfound  |.word  'err:notfound'
 
-:TOKEN '................................................................'
-:EOK
+:EOM
 ````
 
 ## Appendix: Words, Stack Effects, and Usage
