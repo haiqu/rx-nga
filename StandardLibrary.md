@@ -66,27 +66,6 @@ Apply q to x, y, and z
 :tri@ dup dup tri* ;
 ````
 
-## Lexical Scope
-
-The dictionary is a simple linked list. Rx allows for some control over what is visible using the **{{**, **---reveal---**, and **}}** words.
-
-As an example:
-
-    {{
-      :increment dup fetch #1 + swap store ;
-      :Value `0 ;
-    ---reveal---
-      :next-number &Value fetch &Value increment ;
-    }}
-
-Only the **next-number** function will remain visible once **}}** is executed.
-
-````
-:{{ &Dictionary fetch dup &ScopeList store-next store ;
-:---reveal--- &Dictionary fetch &ScopeList #1 + store ;
-:}} &ScopeList fetch-next swap fetch eq? [ &ScopeList fetch &Dictionary store ] [ &ScopeList fetch [ &Dictionary repeat fetch dup fetch &ScopeList #1 + fetch -eq? 0; drop again ] call store ] choose ;
-````
-
 ## Word Classes
 
 Rx uses word classes to determine the behavior of functions. There are three primary classes:
@@ -108,7 +87,7 @@ Now we can do useful things like:
     :Red   #0 ; data
     :Green #1 ; data
     :Blue  #2 ; data
-    
+
     :inline-100 &Compiler fetch [ #1 , #100 , ] [ #100 ] choose ; immediate
 
 ## ...
@@ -168,12 +147,9 @@ This adds handy **@** and **!** prefixes that can help make code more readable. 
     #16 !Base
 
 ````
-{{
 :call, .data #8 , ;
----reveal---
 :prefix:@ d:lookup d:xt fetch .data &fetch compiling? [ call, ] [ call ] choose ; immediate
 :prefix:! d:lookup d:xt fetch .data &store compiling? [ call, ] [ call ] choose ; immediate
-}}
 ````
 
 ## Flow
@@ -200,11 +176,7 @@ The **times** combinator runs a quote (n) times.
 
 Hash (using DJB2)
 
-
 ````
-{{
-  :(hash) repeat push #33 * pop fetch-next 0; swap push + pop again ;
----reveal---
-  :str:hash  (s-n)  #5381 swap (hash) drop ;
-}}
+:(str:hash) repeat push #33 * pop fetch-next 0; swap push + pop again ;
+:str:hash  (s-n)  #5381 swap (str:hash) drop ;
 ````
