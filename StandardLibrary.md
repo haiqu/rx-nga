@@ -177,6 +177,6 @@ The **times** combinator runs a quote (n) times.
 Hash (using DJB2)
 
 ````
-:(str:hash) repeat push #33 * pop fetch-next 0; swap push + pop again ;
-:str:hash  (s-n)  #5381 swap (str:hash) drop ;
+:<str:hash> repeat push #33 * pop fetch-next 0; swap push + pop again ;
+:str:hash  (s-n)  #5381 swap <str:hash> drop ;
 ````
