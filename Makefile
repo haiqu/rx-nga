@@ -1,3 +1,6 @@
+CC = clang-3.5
+CFLAGS =
+
 d:
 	@echo Targets: capi ngita rx sdk stl
 
@@ -8,7 +11,7 @@ capi: clean sdk stl rx
 	./bin/naje rx.naje
 	./bin/unu interfaces/C-Rx.md > c-rx.c
 	cp nga/nga.c .
-	$(CC) c-rx.c -DINTERACTIVE -Wall -o c-rx
+	$(CC) $(CFLAGS) c-rx.c -DINTERACTIVE -Wall -o c-rx
 	rm nga.c
 
 clean-capi:
@@ -35,11 +38,11 @@ clean-rx:
 	rm -f rx.nuance rx.naje
 
 sdk:
-	cd nga && $(CC) unu.c -Wall -o ../bin/unu
-	cd nga && $(CC) nga.c -DSTANDALONE -Wall -o ../bin/nga
-	cd nga && $(CC) -DVERBOSE ngita.c -Wall -o ../bin/ngita
-	cd nga && $(CC) naje.c -DALLOW_FORWARD_REFS -DENABLE_MAP -Wall -o ../bin/naje
-	cd nga && $(CC) nuance.c -Wall -o ../bin/nuance
+	cd nga && $(CC) $(CFLAGS) unu.c -Wall -o ../bin/unu
+	cd nga && $(CC) $(CFLAGS) nga.c -DSTANDALONE -Wall -o ../bin/nga
+	cd nga && $(CC) $(CFLAGS) -DVERBOSE ngita.c -Wall -o ../bin/ngita
+	cd nga && $(CC) $(CFLAGS) naje.c -DALLOW_FORWARD_REFS -DENABLE_MAP -Wall -o ../bin/naje
+	cd nga && $(CC) $(CFLAGS) nuance.c -Wall -o ../bin/nuance
 
 clean-sdk:
 	rm -f bin/*
