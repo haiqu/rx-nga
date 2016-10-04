@@ -447,8 +447,7 @@ With these we can add a couple of additional forms. **comma:opcode** is used to 
 
 ````
 :comma:opcode
-  lit &fetch
-  call
+  fetch
   lit &comma
   call
   ret
@@ -595,8 +594,7 @@ A traditional Forth has **create** to make a new dictionary entry pointing to **
   call
   push
   lit &Dictionary
-  lit &fetch
-  call
+  fetch
   lit &comma
   call
   lit &comma
@@ -607,8 +605,7 @@ A traditional Forth has **create** to make a new dictionary entry pointing to **
   call
   pop
   lit &Dictionary
-  lit &store
-  call
+  store
   ret
 ````
 
@@ -624,19 +621,16 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
 :find
   lit 0
   lit &Which
-  lit &store
-  call
+  store
   lit &Dictionary
-  lit &fetch
-  call
+  fetch
 :find_next
   zret
   dup
   lit &d:name
   call
   lit &Needle
-  lit &fetch
-  call
+  fetch
   lit &str:compare
   call
   lit &87<1_s>
@@ -652,19 +646,16 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
 :87<1_e>
   lit &if
   call
-  lit &fetch
-  call
+  fetch
   lit &find_next
   jump
 :d:lookup
   lit &Needle
-  lit &store
-  call
+  store
   lit &find
   call
   lit &Which
-  lit &fetch
-  call
+  fetch
   ret
 ````
 
@@ -696,8 +687,7 @@ At this time Rx only supports decimal numbers.
   ret
 :asnumber:scale
   lit &asnumber:Acc
-  lit &fetch
-  call
+  fetch
   lit 10
   lit &*
   call
@@ -712,22 +702,18 @@ At this time Rx only supports decimal numbers.
   call
   add
   lit &asnumber:Acc
-  lit &store
-  call
+  store
   lit &asnumber:convert
   jump
 :asnumber:prepare
   lit 1
   lit &asnumber:Mod
-  lit &store
-  call
+  store
   lit 0
   lit &asnumber:Acc
-  lit &store
-  call
+  store
   dup
-  lit &fetch
-  call
+  fetch
   lit 45
   lit &eq?
   call
@@ -737,8 +723,7 @@ At this time Rx only supports decimal numbers.
 :100<1_s>
   lit -1
   lit &asnumber:Mod
-  lit &store
-  call
+  store
   lit 1
   add
   ret
@@ -922,13 +907,10 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   call
   lit &comma
   call
-  lit &swap
-  call
-  lit &store
-  call
+  swap
+  store
   lit &Compiler
-  lit &store
-  call
+  store
   lit &compiling?
   call
   lit &126<1_s>
@@ -1015,8 +997,7 @@ The *interpreter* is what processes input. What it does is:
   ret
 :interpret:word
   lit &Which
-  lit &fetch
-  call
+  fetch
   lit &call:dt
   call
   ret
