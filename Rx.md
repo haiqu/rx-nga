@@ -468,8 +468,7 @@ With these we can add a couple of additional forms. **comma:opcode** is used to 
 :comma:string
   lit &($)
   call
-  lit &drop
-  call
+  drop
   lit 0
   lit &comma
   call
@@ -485,8 +484,7 @@ First, a variable indicating whether we should compile or run a function. This w
   .data 0
 :compiling?
   lit &Compiler
-  lit &fetch
-  call
+  fetch
   ret
 ````
 
@@ -497,8 +495,7 @@ First, a variable indicating whether we should compile or run a function. This w
   call
   lit 0
   lit &Compiler
-  lit &store
-  call
+  store
   ret
 ````
 
@@ -510,18 +507,12 @@ Rx handles functions via handlers called *word classes*. Each of these is a func
 :.data
   lit &compiling?
   call
-  lit &65<1_s>
-  lit &65<1_e>
-  jump
-:65<1_s>
+  zret
+  drop
   lit &_lit
   lit &comma:opcode
   call
   lit &comma
-  call
-  ret
-:65<1_e>
-  lit &if
   call
   ret
 :.word
@@ -580,23 +571,19 @@ Rx provides accessor functions for each field. Since the number of fields (or th
 ````
 :d:link
   lit 0
-  lit &+
-  call
+  add
   ret
 :d:xt
   lit 1
-  lit &+
-  call
+  add
   ret
 :d:class
   lit 2
-  lit &+
-  call
+  add
   ret
 :d:name
   lit 3
-  lit &+
-  call
+  add
   ret
 ````
 
@@ -644,10 +631,8 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
   call
 :find_next
   zret
-  lit &dup
-  call
-  lit 3
-  lit &+
+  dup
+  lit &d:name
   call
   lit &Needle
   lit &fetch
@@ -658,13 +643,10 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
   lit &87<1_e>
   jump
 :87<1_s>
-  lit &dup
-  call
+  dup
   lit &Which
-  lit &store
-  call
-  lit &drop
-  call
+  store
+  drop
   lit &_nop
   ret
 :87<1_e>
@@ -710,8 +692,7 @@ At this time Rx only supports decimal numbers.
   .data 0
 :asnumber:char>digit
   lit 48
-  lit &-
-  call
+  sub
   ret
 :asnumber:scale
   lit &asnumber:Acc
@@ -729,8 +710,7 @@ At this time Rx only supports decimal numbers.
   call
   lit &asnumber:scale
   call
-  lit &+
-  call
+  add
   lit &asnumber:Acc
   lit &store
   call
@@ -745,8 +725,7 @@ At this time Rx only supports decimal numbers.
   lit &asnumber:Acc
   lit &store
   call
-  lit &dup
-  call
+  dup
   lit &fetch
   call
   lit 45
@@ -761,8 +740,7 @@ At this time Rx only supports decimal numbers.
   lit &store
   call
   lit 1
-  lit &+
-  call
+  add
   ret
 :100<1_e>
   lit &if
@@ -773,16 +751,12 @@ At this time Rx only supports decimal numbers.
   call
   lit &asnumber:convert
   call
-  lit &drop
-  call
+  drop
   lit &asnumber:Acc
-  lit &fetch
-  call
+  fetch
   lit &asnumber:Mod
-  lit &fetch
-  call
-  lit &*
-  call
+  fetch
+  mul
   ret
 ````
 
@@ -806,14 +780,11 @@ Where *&lt;prefix-char&gt;* is the character for the prefix. These should be com
 :prefixed
   .string prefix:_
 :prefix:prepare
-  lit &fetch
-  call
+  fetch
   lit &prefixed
   lit 7
-  lit &+
-  call
-  lit &store
-  call
+  add
+  store
   ret
 :prefix?
   lit &prefix:prepare
@@ -821,14 +792,11 @@ Where *&lt;prefix-char&gt;* is the character for the prefix. These should be com
   lit &prefixed
   lit &d:lookup
   call
-  lit &dup
-  call
+  dup
   lit &prefix:handler
-  lit &store
-  call
+  store
   lit 0
-  lit &-eq?
-  call
+  neq?
   ret
 ````
 
@@ -842,8 +810,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   call
   ret
 :prefix:$
-  lit &fetch
-  call
+  fetch
   lit &.data
   call
   ret
@@ -856,24 +823,20 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   lit &here
   call
   lit &Dictionary
-  lit &fetch
-  call
+  fetch
   lit &d:xt
   call
-  lit &store
-  call
+  store
   lit -1
   lit &Compiler
-  lit &store
-  call
+  store
   ret
 :prefix:&
   lit &d:lookup
   call
   lit &d:xt
   call
-  lit &fetch
-  call
+  fetch
   lit &.data
   call
   ret
@@ -894,16 +857,14 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   lit &114<1_e>
   jump
 :114<1_s>
-  lit &drop
-  call
+  drop
   ret
 :114<1_e>
   lit &choose
   call
   ret
 :prefix:(
-  lit &drop
-  call
+  drop
   ret
 ````
 
@@ -928,15 +889,12 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   lit &here
   call
   lit 3
-  lit &+
-  call
+  add
   lit &Compiler
-  lit &fetch
-  call
+  fetch
   lit -1
   lit &Compiler
-  lit &store
-  call
+  store
   lit &_lit
   lit &comma:opcode
   call
@@ -977,8 +935,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   lit &126<1_e>
   jump
 :126<1_s>
-  lit &drop
-  call
+  drop
   ret
 :126<1_e>
   lit &if
@@ -988,8 +945,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   lit &compiling?
   call
   zret
-  lit &drop
-  call
+  drop
   lit &_zret
   lit &comma:opcode
   call
@@ -998,8 +954,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   lit &compiling?
   call
   zret
-  lit &drop
-  call
+  drop
   lit &_push
   lit &comma:opcode
   call
@@ -1008,8 +963,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   lit &compiling?
   call
   zret
-  lit &drop
-  call
+  drop
   lit &_pop
   lit &comma:opcode
   call
@@ -1035,36 +989,27 @@ The *interpreter* is what processes input. What it does is:
   jump
   ret
 :call:dt
-  lit &dup
-  call
+  dup
   lit &d:xt
   call
-  lit &fetch
-  call
-  lit &swap
-  call
+  fetch
+  swap
   lit &d:class
   call
-  lit &fetch
-  call
-  lit &call
+  fetch
   call
   ret
 :input:source
   .data 0
 :interpret:prefix
   lit &prefix:handler
-  lit &fetch
-  call
+  fetch
   zret
   lit &input:source
-  lit &fetch
-  call
+  fetch
   lit 1
-  lit &+
-  call
-  lit &swap
-  call
+  add
+  swap
   lit &call:dt
   call
   ret
@@ -1076,12 +1021,9 @@ The *interpreter* is what processes input. What it does is:
   call
   ret
 :interpret
+  dup
   lit &input:source
-  lit &store
-  call
-  lit &input:source
-  lit &fetch
-  call
+  store
   lit &prefix?
   call
   lit &139<1_s>
@@ -1097,13 +1039,11 @@ The *interpreter* is what processes input. What it does is:
   jump
 :140<1_s>
   lit &input:source
-  lit &fetch
-  call
+  fetch
   lit &d:lookup
   call
   lit 0
-  lit &-eq?
-  call
+  neq?
   lit &interpret:word
   lit &err:notfound
   lit &choose
