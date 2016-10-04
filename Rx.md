@@ -741,25 +741,12 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   call
   ret
 :prefix:`
-  lit &compiling?
-  call
-  lit &113<1_s>
-  lit &113<1_e>
-  jump
-:113<1_s>
   lit &str:asnumber
   call
-  lit &comma
+  lit &compiling?
   call
-  ret
-:113<1_e>
-  lit &114<1_s>
-  lit &114<1_e>
-  jump
-:114<1_s>
-  drop
-  ret
-:114<1_e>
+  lit &comma
+  lit &_drop
   lit &choose
   call
   ret
