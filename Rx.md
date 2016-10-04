@@ -139,85 +139,6 @@ Without packing this takes three cells: one for the lit, one for the address, an
   ret
 ````
 
-## Primitives
-
-Here I wrap the instructions into functions intended for use.
-
-````
-:dup
-  lit &_dup
-  call
-  ret
-:drop
-  lit &_drop
-  call
-  ret
-:swap
-  lit &_swap
-  call
-  ret
-:call
-  lit &_call
-  call
-  ret
-:eq?
-  lit &_eq
-  call
-  ret
-:-eq?
-  lit &_neq
-  call
-  ret
-:lt?
-  lit &_lt
-  call
-  ret
-:gt?
-  lit &_gt
-  call
-  ret
-:fetch
-  lit &_fetch
-  call
-  ret
-:store
-  lit &_store
-  call
-  ret
-:+
-  lit &_add
-  call
-  ret
-:-
-  lit &_sub
-  call
-  ret
-:*
-  lit &_mul
-  call
-  ret
-:/mod
-  lit &_divmod
-  call
-  ret
-:and
-  lit &_and
-  call
-  ret
-:or
-  lit &_or
-  call
-  ret
-:xor
-  lit &_xor
-  call
-  ret
-:shift
-  lit &_shift
-  call
-  ret
-````
-
 ## Stack Shufflers
 
 These add additional operations on the stack elements that'll keep later code much more readable.
@@ -532,7 +453,6 @@ Rx handles functions via handlers called *word classes*. Each of these is a func
   lit &67<1_e>
   jump
 :67<1_s>
-  lit &call
   call
   ret
 :67<1_e>
@@ -540,7 +460,6 @@ Rx handles functions via handlers called *word classes*. Each of these is a func
   call
   ret
 :.macro
-  lit &call
   call
   ret
 ````
@@ -689,8 +608,7 @@ At this time Rx only supports decimal numbers.
   lit &asnumber:Acc
   fetch
   lit 10
-  lit &*
-  call
+  mul
   ret
 :asnumber:convert
   lit &fetch-next
@@ -715,8 +633,7 @@ At this time Rx only supports decimal numbers.
   dup
   fetch
   lit 45
-  lit &eq?
-  call
+  eq?
   lit &100<1_s>
   lit &100<1_e>
   jump
@@ -900,8 +817,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   call
   lit &here
   call
-  lit &swap
-  call
+  swap
   lit &_lit
   lit &comma:opcode
   call
@@ -1044,92 +960,92 @@ The dictionary is a linked list.
 ````
 :0000
   .data 0
-  .ref dup
+  .ref _dup
   .ref .word
   .string dup
 :0001
   .ref 0000
-  .ref drop
+  .ref _drop
   .ref .word
   .string drop
 :0002
   .ref 0001
-  .ref swap
+  .ref _swap
   .ref .word
   .string swap
 :0003
   .ref 0002
-  .ref call
+  .ref _call
   .ref .word
   .string call
 :0004
   .ref 0003
-  .ref eq?
+  .ref _eq
   .ref .word
   .string eq?
 :0005
   .ref 0004
-  .ref -eq?
+  .ref _neq
   .ref .word
   .string -eq?
 :0006
   .ref 0005
-  .ref lt?
+  .ref _lt
   .ref .word
   .string lt?
 :0007
   .ref 0006
-  .ref gt?
+  .ref _gt
   .ref .word
   .string gt?
 :0008
   .ref 0007
-  .ref fetch
+  .ref _fetch
   .ref .word
   .string fetch
 :0009
   .ref 0008
-  .ref store
+  .ref _store
   .ref .word
   .string store
 :0010
   .ref 0009
-  .ref +
+  .ref _add
   .ref .word
   .string +
 :0011
   .ref 0010
-  .ref -
+  .ref _sub
   .ref .word
   .string -
 :0012
   .ref 0011
-  .ref *
+  .ref _mul
   .ref .word
   .string *
 :0013
   .ref 0012
-  .ref /mod
+  .ref _divmod
   .ref .word
   .string /mod
 :0014
   .ref 0013
-  .ref and
+  .ref _and
   .ref .word
   .string and
 :0015
   .ref 0014
-  .ref or
+  .ref _or
   .ref .word
   .string or
 :0016
   .ref 0015
-  .ref xor
+  .ref _xor
   .ref .word
   .string xor
 :0017
   .ref 0016
-  .ref shift
+  .ref _shift
   .ref .word
   .string shift
 :0018
