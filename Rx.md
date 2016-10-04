@@ -254,14 +254,11 @@ The basic memory accesses are handled via **fetch** and **store**. These two fun
 
 ````
 :store-next
-  lit &dup
-  call
+  dup
   lit 1
-  lit &+
-  call
+  add
   push
-  lit &store
-  call
+  store
   pop
   ret
 ````
@@ -288,22 +285,17 @@ First up, string length. The process here is trivial:
   lit &fetch-next
   call
   zret
-  lit &drop
-  call
+  drop
   lit &count
   jump
 :str:length
-  lit &dup
-  call
+  dup
   lit &count
   call
   lit 1
-  lit &-
-  call
-  lit &swap
-  call
-  lit &-
-  call
+  sub
+  swap
+  sub
   ret
 ````
 
@@ -317,22 +309,16 @@ String comparisons are harder.
 :compare::maxlength
   .data 0
 :getSet
-  lit &fetch
-  call
-  lit &swap
-  call
-  lit &fetch
-  call
+  fetch
+  swap
+  fetch
   ret
 :nextSet
   lit 1
-  lit &+
-  call
-  lit &swap
-  call
+  add
+  swap
   lit 1
-  lit &+
-  call
+  add
   ret
 :compare_loop
   lit &dup-pair
