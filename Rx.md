@@ -1,5 +1,8 @@
     ____  _   _
-    ||  minimalist forth for nga
+    || \\ \\ //
+    ||_//  )x(
+    || \\ // \\ 2016.10
+    a minimalist forth for nga
 
 *Rx* (*retro experimental*) is a minimal Forth implementation for the Nga virtual machine. Like Nga this is intended to be used within a larger supporting framework adding I/O and other desired functionality. Various example interface layers are included.
 
@@ -325,55 +328,41 @@ String comparisons are harder.
   call
   lit &getSet
   call
-  lit &eq?
-  call
+  eq?
   lit &compare::flag
-  lit &store
-  call
+  store
   lit &nextSet
   call
   lit &compare::maxlength
-  lit &fetch
-  call
+  fetch
   lit 1
-  lit &-
-  call
+  sub
   lit &compare::maxlength
-  lit &store
-  call
+  store
   lit &compare::maxlength
-  lit &fetch
-  call
+  fetch
   lit &compare::flag
-  lit &fetch
-  call
-  lit &and
-  call
+  fetch
+  and
   zret
-  lit &drop
-  call
+  drop
   lit &compare_loop
   jump
 :str:compare
   lit 0
   lit &compare::flag
-  lit &store
-  call
+  store
   lit &dup-pair
   call
   lit &str:length
   call
-  lit &swap
-  call
+  swap
   lit &str:length
   call
-  lit &dup
-  call
+  dup
   lit &compare::maxlength
-  lit &store
-  call
-  lit &eq?
-  call
+  store
+  eq?
   lit &48<1_s>
   lit &48<1_e>
   jump
@@ -384,13 +373,10 @@ String comparisons are harder.
 :48<1_e>
   lit &if
   call
-  lit &drop
-  call
-  lit &drop
-  call
+  drop
+  drop
   lit &compare::flag
-  lit &fetch
-  call
+  fetch
   ret
 ````
 
@@ -411,17 +397,12 @@ Implement **choose**, a conditional combinator which will execute one of two fun
   .data 0
 :choose
   lit &if::false
-  lit &store
-  call
+  store
   lit &if::true
-  lit &store
-  call
+  store
   lit &if::false
-  lit &+
-  call
-  lit &fetch
-  call
-  lit &call
+  add
+  fetch
   call
   ret
 ````
@@ -430,17 +411,14 @@ Next the two *if* forms:
 
 ````
 :if
-  lit &_ccall
-  call
+  ccall
   ret
 :-if
   push
   lit 0
-  lit &eq?
-  call
+  eq?
   pop
-  lit &_ccall
-  call
+  ccall
   ret
 ````
 
@@ -453,8 +431,7 @@ The heart of the compiler is **comma** which stores a value into memory and incr
 ````
 :here
   lit &Heap
-  lit &fetch
-  call
+  fetch
   ret
 :comma
   lit &here
@@ -462,8 +439,7 @@ The heart of the compiler is **comma** which stores a value into memory and incr
   lit &store-next
   call
   lit &Heap
-  lit &store
-  call
+  store
   ret
 ````
 
