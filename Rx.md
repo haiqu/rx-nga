@@ -435,30 +435,26 @@ Rx handles functions via handlers called *word classes*. Each of these is a func
   lit &comma
   call
   ret
-:.word
-  lit &compiling?
+
+:.word:interpret
   call
-  lit &66<1_s>
-  lit &66<1_e>
-  jump
-:66<1_s>
+  ret
+:.word:compile
   lit &_packedcall
   lit &comma:opcode
   call
   lit &comma
   call
   ret
-:66<1_e>
-  lit &67<1_s>
-  lit &67<1_e>
-  jump
-:67<1_s>
+:.word
+  lit &compiling?
   call
-  ret
-:67<1_e>
+  lit &.word:compile
+  lit &.word:interpret
   lit &choose
   call
   ret
+
 :.macro
   call
   ret
