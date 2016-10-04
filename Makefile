@@ -1,5 +1,5 @@
 CC = clang-3.5
-CFLAGS = -Wall
+CFLAGS = -Wall --static
 
 d:
 	@echo Targets: capi ngita rx sdk stl
@@ -31,8 +31,7 @@ clean-ngita:
 	rm -f ngaImage ngaImage.map ngita-extend.rx *.log
 
 rx: sdk
-	./bin/unu Rx.md >rx.nuance
-	./bin/nuance rx.nuance >rx.naje
+	./bin/unu Rx.md >rx.naje
 
 clean-rx:
 	rm -f rx.nuance rx.naje
@@ -42,7 +41,6 @@ sdk:
 	cd nga && $(CC) $(CFLAGS) nga.c -DSTANDALONE -o ../bin/nga
 	cd nga && $(CC) $(CFLAGS) -DVERBOSE ngita.c -o ../bin/ngita
 	cd nga && $(CC) $(CFLAGS) naje.c -DALLOW_FORWARD_REFS -DENABLE_MAP -o ../bin/naje
-	cd nga && $(CC) $(CFLAGS) nuance.c -o ../bin/nuance
 
 clean-sdk:
 	rm -f bin/*

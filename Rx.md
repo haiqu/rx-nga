@@ -1,8 +1,5 @@
     ____  _   _
-    || \\ \\ //
-    ||_//  )x(
-    || \\ // \\ 2016.10
-    a minimalist forth for nga
+    ||  minimalist forth for nga
 
 *Rx* (*retro experimental*) is a minimal Forth implementation for the Nga virtual machine. Like Nga this is intended to be used within a larger supporting framework adding I/O and other desired functionality. Various example interface layers are included.
 
@@ -30,8 +27,10 @@ Here's the initial memory map:
 Naje, the Nga assembler, compiles the initial instructions automatically. The two variables need to be declared next, so:
 
 ````
-:Dictionary |9999
-:Heap       `1536
+:Dictionary
+  .ref 9999
+:Heap
+  .data 1536
 ````
 
 Both of these are pointers. **Dictionary** points to the most recent dictionary entry. (See the *Dictionary* section at the end of this file.) **Heap** points to the next free memory address. This is hard coded to an address beyond the end of the Rx kernel. It'll be fine tuned as development progresses. See the *Interpreter &amp; Compiler* section for more on this.
@@ -41,13 +40,87 @@ Both of these are pointers. **Dictionary** points to the most recent dictionary 
 The core Nga instruction set consists of 27 instructions. Rx begins by assigning each to a separate function. These are not intended for direct use; in Rx the compiler will fetch the opcode values to use from these functions when compiling. Some of them will also be wrapped in normal functions later.
 
 ````
-:_nop     `0 ;   :_lit     `1 ;   :_dup     `2 ;   :_drop    `3 ;
-:_swap    `4 ;   :_push    `5 ;   :_pop     `6 ;   :_jump    `7 ;
-:_call    `8 ;   :_ccall   `9 ;   :_ret     `10 ;  :_eq      `11 ;
-:_neq     `12 ;  :_lt      `13 ;  :_gt      `14 ;  :_fetch   `15 ;
-:_store   `16 ;  :_add     `17 ;  :_sub     `18 ;  :_mul     `19 ;
-:_divmod  `20 ;  :_and     `21 ;  :_or      `22 ;  :_xor     `23 ;
-:_shift   `24 ;  :_zret    `25 ;  :_end     `26 ;
+:_nop
+  .data 0
+  ret
+:_lit
+  .data 1
+  ret
+:_dup
+  .data 2
+  ret
+:_drop
+  .data 3
+  ret
+:_swap
+  .data 4
+  ret
+:_push
+  .data 5
+  ret
+:_pop
+  .data 6
+  ret
+:_jump
+  .data 7
+  ret
+:_call
+  .data 8
+  ret
+:_ccall
+  .data 9
+  ret
+:_ret
+  .data 10
+  ret
+:_eq
+  .data 11
+  ret
+:_neq
+  .data 12
+  ret
+:_lt
+  .data 13
+  ret
+:_gt
+  .data 14
+  ret
+:_fetch
+  .data 15
+  ret
+:_store
+  .data 16
+  ret
+:_add
+  .data 17
+  ret
+:_sub
+  .data 18
+  ret
+:_mul
+  .data 19
+  ret
+:_divmod
+  .data 20
+  ret
+:_and
+  .data 21
+  ret
+:_or
+  .data 22
+  ret
+:_xor
+  .data 23
+  ret
+:_shift
+  .data 24
+  ret
+:_zret
+  .data 25
+  ret
+:_end
+  .data 26
+  ret
 ````
 
 Nga also allows for multiple instructions to be packed into a single memory location (called a *cell*). Rx doesn't take advantage of this yet, with the exception of calls. Since calls take a value from the stack, a typical call (in Naje assembly) would look like:
@@ -58,7 +131,9 @@ Nga also allows for multiple instructions to be packed into a single memory loca
 Without packing this takes three cells: one for the lit, one for the address, and one for the call. Packing drops it to two since the lit/call combination can be fit into a single cell. We define the opcode for this here so that the compiler can take advantage of the space savings.
 
 ````
-:_packedcall `2049 ;
+:_packedcall
+  .data 2049
+  ret
 ````
 
 ## Primitives
@@ -66,24 +141,78 @@ Without packing this takes three cells: one for the lit, one for the address, an
 Here I wrap the instructions into functions intended for use.
 
 ````
-:dup   "n-nn"   _dup ;
-:drop  "nx-n"   _drop ;
-:swap  "nx-xn"  _swap ;
-:call  "p-"     _call ;
-:eq?   "nn-f"   _eq ;
-:-eq?  "nn-f"   _neq ;
-:lt?   "nn-f"   _lt ;
-:gt?   "nn-f"   _gt ;
-:fetch "p-n"    _fetch ;
-:store "np-"    _store ;
-:+     "nn-n"   _add ;
-:-     "nn-n"   _sub ;
-:*     "nn-n"   _mul ;
-:/mod  "nn-mq"  _divmod ;
-:and   "nn-n"   _and ;
-:or    "nn-n"   _or ;
-:xor   "nn-n"   _xor ;
-:shift "nn-n"   _shift ;
+:dup
+  lit &_dup
+  call
+  ret
+:drop
+  lit &_drop
+  call
+  ret
+:swap
+  lit &_swap
+  call
+  ret
+:call
+  lit &_call
+  call
+  ret
+:eq?
+  lit &_eq
+  call
+  ret
+:-eq?
+  lit &_neq
+  call
+  ret
+:lt?
+  lit &_lt
+  call
+  ret
+:gt?
+  lit &_gt
+  call
+  ret
+:fetch
+  lit &_fetch
+  call
+  ret
+:store
+  lit &_store
+  call
+  ret
+:+
+  lit &_add
+  call
+  ret
+:-
+  lit &_sub
+  call
+  ret
+:*
+  lit &_mul
+  call
+  ret
+:/mod
+  lit &_divmod
+  call
+  ret
+:and
+  lit &_and
+  call
+  ret
+:or
+  lit &_or
+  call
+  ret
+:xor
+  lit &_xor
+  call
+  ret
+:shift
+  lit &_shift
+  call
+  ret
 ````
 
 ## Stack Shufflers
@@ -91,8 +220,20 @@ Here I wrap the instructions into functions intended for use.
 These add additional operations on the stack elements that'll keep later code much more readable.
 
 ````
-:over      "xy-xyx"   push dup pop swap ;
-:dup-pair  "xy-xyxy"  over over ;
+:over
+  push
+  lit &dup
+  call
+  pop
+  lit &swap
+  call
+  ret
+:dup-pair
+  lit &over
+  call
+  lit &over
+  call
+  ret
 ````
 
 ## Memory
@@ -102,13 +243,33 @@ The basic memory accesses are handled via **fetch** and **store**. These two fun
 **fetch-next** takes an address and fetches the stored value. It returns the next address and the stored value.
 
 ````
-:fetch-next "a-An"  dup #1 + swap fetch ;
+:fetch-next
+  lit &dup
+  call
+  lit 1
+  lit &+
+  call
+  lit &swap
+  call
+  lit &fetch
+  call
+  ret
 ````
 
 **store-next** takes a value and an address. It stores the value to the address and returns the next address.
 
 ````
-:store-next "na-A"  dup #1 + push store pop ;
+:store-next
+  lit &dup
+  call
+  lit 1
+  lit &+
+  call
+  push
+  lit &store
+  call
+  pop
+  ret
 ````
 
 ## Strings
@@ -129,8 +290,27 @@ First up, string length. The process here is trivial:
 * Then subtract one (to account for the zero terminator)
 
 ````
-:count fetch-next 0; drop ^count
-:str:length dup count #1 - swap - ;
+:count
+  lit &fetch-next
+  call
+  zret
+  lit &drop
+  call
+  lit &count
+  jump
+:str:length
+  lit &dup
+  call
+  lit &count
+  call
+  lit 1
+  lit &-
+  call
+  lit &swap
+  call
+  lit &-
+  call
+  ret
 ````
 
 String comparisons are harder.
@@ -138,28 +318,100 @@ String comparisons are harder.
 **This is not an optimal approach.**
 
 ````
-:compare::flag `0
-:compare::maxlength `0
-
-:getSet fetch swap fetch ;
-:nextSet #1 + swap #1 + ;
-
+:compare::flag
+  .data 0
+:compare::maxlength
+  .data 0
+:getSet
+  lit &fetch
+  call
+  lit &swap
+  call
+  lit &fetch
+  call
+  ret
+:nextSet
+  lit 1
+  lit &+
+  call
+  lit &swap
+  call
+  lit 1
+  lit &+
+  call
+  ret
 :compare_loop
-  dup-pair
-  getSet eq? &compare::flag store nextSet
-  &compare::maxlength fetch #1 - &compare::maxlength store
-
-  "Exit conditions"
-  &compare::maxlength fetch &compare::flag fetch and 0; drop
-  ^compare_loop
-
+  lit &dup-pair
+  call
+  lit &getSet
+  call
+  lit &eq?
+  call
+  lit &compare::flag
+  lit &store
+  call
+  lit &nextSet
+  call
+  lit &compare::maxlength
+  lit &fetch
+  call
+  lit 1
+  lit &-
+  call
+  lit &compare::maxlength
+  lit &store
+  call
+  lit &compare::maxlength
+  lit &fetch
+  call
+  lit &compare::flag
+  lit &fetch
+  call
+  lit &and
+  call
+  zret
+  lit &drop
+  call
+  lit &compare_loop
+  jump
 :str:compare
-  #0 &compare::flag store
-  dup-pair str:length swap str:length dup &compare::maxlength store eq?
-  [ compare_loop ] if
-  drop drop
-  &compare::flag fetch
-  ;
+  lit 0
+  lit &compare::flag
+  lit &store
+  call
+  lit &dup-pair
+  call
+  lit &str:length
+  call
+  lit &swap
+  call
+  lit &str:length
+  call
+  lit &dup
+  call
+  lit &compare::maxlength
+  lit &store
+  call
+  lit &eq?
+  call
+  lit &48<1_s>
+  lit &48<1_e>
+  jump
+:48<1_s>
+  lit &compare_loop
+  call
+  ret
+:48<1_e>
+  lit &if
+  call
+  lit &drop
+  call
+  lit &drop
+  call
+  lit &compare::flag
+  lit &fetch
+  call
+  ret
 ````
 
 ## Conditionals
@@ -173,16 +425,43 @@ The Rx kernel provides three conditional forms:
 Implement **choose**, a conditional combinator which will execute one of two functions, depending on the state of a flag. We take advantage of a little hack here. Store the pointers into a jump table with two fields, and use the flag as the index. Default to the *false* entry, since a *true* flag is -1.
 
 ````
-:if::true  `0
-:if::false `0
-:choose "bpp-" &if::false store &if::true store &if::false + fetch call ;
+:if::true
+  .data 0
+:if::false
+  .data 0
+:choose
+  lit &if::false
+  lit &store
+  call
+  lit &if::true
+  lit &store
+  call
+  lit &if::false
+  lit &+
+  call
+  lit &fetch
+  call
+  lit &call
+  call
+  ret
 ````
 
 Next the two *if* forms:
 
 ````
-:if   "bp-"  _ccall ;
-:-if  "bp-"  push #0 eq? pop _ccall ;
+:if
+  lit &_ccall
+  call
+  ret
+:-if
+  push
+  lit 0
+  lit &eq?
+  call
+  pop
+  lit &_ccall
+  call
+  ret
 ````
 
 ## Interpreter & Compiler
@@ -192,21 +471,53 @@ Next the two *if* forms:
 The heart of the compiler is **comma** which stores a value into memory and increments a variable (**heap**) pointing to the next free address. **here** is a helper function that returns the address stored in **heap**.
 
 ````
-:here   "-n"  &Heap fetch ;
-:comma  "n-"  here store-next &Heap store ;
+:here
+  lit &Heap
+  lit &fetch
+  call
+  ret
+:comma
+  lit &here
+  call
+  lit &store-next
+  call
+  lit &Heap
+  lit &store
+  call
+  ret
 ````
 
 With these we can add a couple of additional forms. **comma:opcode** is used to compile VM instructions into the current defintion. This is where those functions starting with an underscore come into play. Each wraps a single instruction. Using this we can avoid hard coding the opcodes.
 
 ````
-:comma:opcode  "p-"  fetch comma ;
+:comma:opcode
+  lit &fetch
+  call
+  lit &comma
+  call
+  ret
 ````
 
 **comma:string** is used to compile a string into the current definition.
 
 ````
-:($)           "a-a"  fetch-next 0; comma ^($)
-:comma:string  "a-"  ($) drop #0 comma ;
+:($)
+  lit &fetch-next
+  call
+  zret
+  lit &comma
+  call
+  lit &($)
+  jump
+:comma:string
+  lit &($)
+  call
+  lit &drop
+  call
+  lit 0
+  lit &comma
+  call
+  ret
 ````
 
 With the core functions above it's now possible to setup a few more things that make compilation at runtime more practical.
@@ -214,12 +525,25 @@ With the core functions above it's now possible to setup a few more things that 
 First, a variable indicating whether we should compile or run a function. This will be used by the *word classes*. I also define an accessor function named **compiling?** to aid in readability later on.
 
 ````
-:Compiler `0
-:compiling?  "-f"  &Compiler fetch ;
+:Compiler
+  .data 0
+:compiling?
+  lit &Compiler
+  lit &fetch
+  call
+  ret
 ````
 
 ````
-:t-;  "-"  &_ret comma:opcode #0 &Compiler store ;
+:t-;
+  lit &_ret
+  lit &comma:opcode
+  call
+  lit 0
+  lit &Compiler
+  lit &store
+  call
+  ret
 ````
 
 ### Word Classes
@@ -227,9 +551,52 @@ First, a variable indicating whether we should compile or run a function. This w
 Rx handles functions via handlers called *word classes*. Each of these is a function responsible for handling specific groupings of functions. The class handlers will either invoke the code in a function or compile the code needed to call them.
 
 ````
-:.data  compiling? [ &_lit comma:opcode comma ] if ;
-:.word  compiling? [ &_packedcall comma:opcode comma ] [ call ] choose ;
-:.macro call ;
+:.data
+  lit &compiling?
+  call
+  lit &65<1_s>
+  lit &65<1_e>
+  jump
+:65<1_s>
+  lit &_lit
+  lit &comma:opcode
+  call
+  lit &comma
+  call
+  ret
+:65<1_e>
+  lit &if
+  call
+  ret
+:.word
+  lit &compiling?
+  call
+  lit &66<1_s>
+  lit &66<1_e>
+  jump
+:66<1_s>
+  lit &_packedcall
+  lit &comma:opcode
+  call
+  lit &comma
+  call
+  ret
+:66<1_e>
+  lit &67<1_s>
+  lit &67<1_e>
+  jump
+:67<1_s>
+  lit &call
+  call
+  ret
+:67<1_e>
+  lit &choose
+  call
+  ret
+:.macro
+  lit &call
+  call
+  ret
 ````
 
 ### Dictionary
@@ -255,23 +622,51 @@ Rx will store the pointer to the most recent entry in a variable called **dictio
 Rx provides accessor functions for each field. Since the number of fields (or their ordering) may change over time, using these reduces the number of places where field offsets are hard coded.
 
 ````
-:d:link  "d-p"  #0 + ;
-:d:xt    "d-p"  #1 + ;
-:d:class "d-p"  #2 + ;
-:d:name  "d-p"  #3 + ;
+:d:link
+  lit 0
+  lit &+
+  call
+  ret
+:d:xt
+  lit 1
+  lit &+
+  call
+  ret
+:d:class
+  lit 2
+  lit &+
+  call
+  ret
+:d:name
+  lit 3
+  lit &+
+  call
+  ret
 ````
 
 A traditional Forth has **create** to make a new dictionary entry pointing to **here**. Rx has **newentry** which serves as a slightly more flexible base. You provide a string for the name, a pointer to the class handler, and a pointer to the start of the function. Rx does the rest.
 
 ````
-:newentry  "saa-"
-  here push
-    &Dictionary fetch comma  "link"
-    comma "xt"
-    comma "class"
-    comma:string  "name"
-  pop &Dictionary store
-  ;
+:newentry
+  lit &here
+  call
+  push
+  lit &Dictionary
+  lit &fetch
+  call
+  lit &comma
+  call
+  lit &comma
+  call
+  lit &comma
+  call
+  lit &comma:string
+  call
+  pop
+  lit &Dictionary
+  lit &store
+  call
+  ret
 ````
 
 Rx doesn't provide a traditional create as it's designed to avoid assuming a normal input stream and prefers to take its data from the stack.
@@ -279,17 +674,60 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
 ### Dictionary Search
 
 ````
-:Which  `0
-:Needle `0
-
+:Which
+  .data 0
+:Needle
+  .data 0
 :find
-  #0 &Which store
-  &Dictionary fetch
+  lit 0
+  lit &Which
+  lit &store
+  call
+  lit &Dictionary
+  lit &fetch
+  call
 :find_next
-  0; dup #3 + &Needle fetch str:compare [ dup &Which store drop &_nop ] if fetch
-^find_next
-
-:d:lookup  "s-n"  &Needle store find &Which fetch ;
+  zret
+  lit &dup
+  call
+  lit 3
+  lit &+
+  call
+  lit &Needle
+  lit &fetch
+  call
+  lit &str:compare
+  call
+  lit &87<1_s>
+  lit &87<1_e>
+  jump
+:87<1_s>
+  lit &dup
+  call
+  lit &Which
+  lit &store
+  call
+  lit &drop
+  call
+  lit &_nop
+  ret
+:87<1_e>
+  lit &if
+  call
+  lit &fetch
+  call
+  lit &find_next
+  jump
+:d:lookup
+  lit &Needle
+  lit &store
+  call
+  lit &find
+  call
+  lit &Which
+  lit &fetch
+  call
+  ret
 ````
 
 ### Number Conversion
@@ -310,25 +748,86 @@ This code converts a zero terminated string into a number. The approach is very 
 At this time Rx only supports decimal numbers.
 
 ````
-:asnumber:Mod `0  "modifier"
-:asnumber:Acc `0  "accumulator"
-
-:asnumber:char>digit  "c-n"  $0 - ;
-
-:asnumber:scale       "-n"  &asnumber:Acc fetch #10 * ;
-
-:asnumber:convert     "p-p"
-  fetch-next 0; asnumber:char>digit asnumber:scale + &asnumber:Acc store
-  ^asnumber:convert
-
-:asnumber:prepare     "p-p"
-  #1 &asnumber:Mod store
-  #0 &asnumber:Acc store
-  dup fetch $- eq? [ #-1 &asnumber:Mod store #1 + ] if ;
-
-:str:asnumber             "p-n"
-  asnumber:prepare asnumber:convert drop
-  &asnumber:Acc fetch &asnumber:Mod fetch * ;
+:asnumber:Mod
+  .data 0
+:asnumber:Acc
+  .data 0
+:asnumber:char>digit
+  lit 48
+  lit &-
+  call
+  ret
+:asnumber:scale
+  lit &asnumber:Acc
+  lit &fetch
+  call
+  lit 10
+  lit &*
+  call
+  ret
+:asnumber:convert
+  lit &fetch-next
+  call
+  zret
+  lit &asnumber:char>digit
+  call
+  lit &asnumber:scale
+  call
+  lit &+
+  call
+  lit &asnumber:Acc
+  lit &store
+  call
+  lit &asnumber:convert
+  jump
+:asnumber:prepare
+  lit 1
+  lit &asnumber:Mod
+  lit &store
+  call
+  lit 0
+  lit &asnumber:Acc
+  lit &store
+  call
+  lit &dup
+  call
+  lit &fetch
+  call
+  lit 45
+  lit &eq?
+  call
+  lit &100<1_s>
+  lit &100<1_e>
+  jump
+:100<1_s>
+  lit -1
+  lit &asnumber:Mod
+  lit &store
+  call
+  lit 1
+  lit &+
+  call
+  ret
+:100<1_e>
+  lit &if
+  call
+  ret
+:str:asnumber
+  lit &asnumber:prepare
+  call
+  lit &asnumber:convert
+  call
+  lit &drop
+  call
+  lit &asnumber:Acc
+  lit &fetch
+  call
+  lit &asnumber:Mod
+  lit &fetch
+  call
+  lit &*
+  call
+  ret
 ````
 
 ### Token Processing
@@ -346,43 +845,219 @@ Prefixes are handled by functions with specific naming conventions. A prefix nam
 Where *&lt;prefix-char&gt;* is the character for the prefix. These should be compiler macros (using the **.macro** class) and watch the **compiler** state to decide how to deal with the token. To find a prefix, Rx stores the prefix character into a string named **prefixed**. It then searches for this string in the dictionary. If found, it sets an internal variable (**prefix:handler**) to the dictionary entry for the handler function. If not found, **prefix:handler** is set to zero. The check, done by **prefix?**, also returns a flag.
 
 ````
-:prefix:handler `0
-:prefixed 'prefix:_'
-:prefix:prepare  "s-"  fetch &prefixed #7 + store ;
-:prefix?         "s-sb"
- prefix:prepare &prefixed d:lookup dup &prefix:handler store #0 -eq? ;
+:prefix:handler
+  .data 0
+:prefixed
+  .string prefix:_
+:prefix:prepare
+  lit &fetch
+  call
+  lit &prefixed
+  lit 7
+  lit &+
+  call
+  lit &store
+  call
+  ret
+:prefix?
+  lit &prefix:prepare
+  call
+  lit &prefixed
+  lit &d:lookup
+  call
+  lit &dup
+  call
+  lit &prefix:handler
+  lit &store
+  call
+  lit 0
+  lit &-eq?
+  call
+  ret
 ````
 
 Rx uses prefixes for important bits of functionality including parsing numbers (prefix with **#**), obtaining pointers (prefix with **&amp;**), and starting new functions (using the **:** prefix).
 
 ````
-:prefix:#  str:asnumber .data ;
-:prefix:$  fetch .data ;
-:prefix::  &.word here newentry here &Dictionary fetch d:xt store #-1 &Compiler store ;
-:prefix:&  d:lookup d:xt fetch .data ;
-:prefix:`  compiling? [ str:asnumber comma ] [ drop ] choose ;
-:prefix:(  drop ;
+:prefix:#
+  lit &str:asnumber
+  call
+  lit &.data
+  call
+  ret
+:prefix:$
+  lit &fetch
+  call
+  lit &.data
+  call
+  ret
+:prefix::
+  lit &.word
+  lit &here
+  call
+  lit &newentry
+  call
+  lit &here
+  call
+  lit &Dictionary
+  lit &fetch
+  call
+  lit &d:xt
+  call
+  lit &store
+  call
+  lit -1
+  lit &Compiler
+  lit &store
+  call
+  ret
+:prefix:&
+  lit &d:lookup
+  call
+  lit &d:xt
+  call
+  lit &fetch
+  call
+  lit &.data
+  call
+  ret
+:prefix:`
+  lit &compiling?
+  call
+  lit &113<1_s>
+  lit &113<1_e>
+  jump
+:113<1_s>
+  lit &str:asnumber
+  call
+  lit &comma
+  call
+  ret
+:113<1_e>
+  lit &114<1_s>
+  lit &114<1_e>
+  jump
+:114<1_s>
+  lit &drop
+  call
+  ret
+:114<1_e>
+  lit &choose
+  call
+  ret
+:prefix:(
+  lit &drop
+  call
+  ret
 ````
 
 ### Quotations
 
 ````
-:repeat here ;
-:again &_lit comma:opcode comma &_jump comma:opcode ;
+:repeat
+  lit &here
+  call
+  ret
+:again
+  lit &_lit
+  lit &comma:opcode
+  call
+  lit &comma
+  call
+  lit &_jump
+  lit &comma:opcode
+  call
+  ret
 :t-[
-  here #3 + &Compiler fetch
-  #-1 &Compiler store
-  &_lit comma:opcode here #0 comma &_jump comma:opcode here
-;
+  lit &here
+  call
+  lit 3
+  lit &+
+  call
+  lit &Compiler
+  lit &fetch
+  call
+  lit -1
+  lit &Compiler
+  lit &store
+  call
+  lit &_lit
+  lit &comma:opcode
+  call
+  lit &here
+  call
+  lit 0
+  lit &comma
+  call
+  lit &_jump
+  lit &comma:opcode
+  call
+  lit &here
+  call
+  ret
 :t-]
-  &_ret comma:opcode here swap &_lit comma:opcode comma swap store
-  &Compiler store
-  compiling? [ drop ] if
-;
-
-:t-0;    compiling? 0; drop &_zret comma:opcode ;
-:t-push  compiling? 0; drop &_push comma:opcode ;
-:t-pop   compiling? 0; drop &_pop  comma:opcode ;
+  lit &_ret
+  lit &comma:opcode
+  call
+  lit &here
+  call
+  lit &swap
+  call
+  lit &_lit
+  lit &comma:opcode
+  call
+  lit &comma
+  call
+  lit &swap
+  call
+  lit &store
+  call
+  lit &Compiler
+  lit &store
+  call
+  lit &compiling?
+  call
+  lit &126<1_s>
+  lit &126<1_e>
+  jump
+:126<1_s>
+  lit &drop
+  call
+  ret
+:126<1_e>
+  lit &if
+  call
+  ret
+:t-0;
+  lit &compiling?
+  call
+  zret
+  lit &drop
+  call
+  lit &_zret
+  lit &comma:opcode
+  call
+  ret
+:t-push
+  lit &compiling?
+  call
+  zret
+  lit &drop
+  call
+  lit &_push
+  lit &comma:opcode
+  call
+  ret
+:t-pop
+  lit &compiling?
+  call
+  zret
+  lit &drop
+  call
+  lit &_pop
+  lit &comma:opcode
+  call
+  ret
 ````
 
 ## Interpreter
@@ -399,21 +1074,89 @@ The *interpreter* is what processes input. What it does is:
     * Not found: report error via **err:notfound**
 
 ````
-:err:notfound "-" ^_nop ;
-
-:call:dt "d-" dup d:xt fetch swap d:class fetch call ;
-
-:input:source `0
-
-:interpret:prefix &prefix:handler fetch 0; &input:source fetch #1 + swap call:dt ;
-:interpret:word   &Which fetch call:dt ;
-
-:interpret "s-"
-  &input:source store
-  &input:source fetch prefix?
-  [ interpret:prefix ]
-  [ &input:source fetch d:lookup #0 -eq? &interpret:word &err:notfound choose ] choose
-;
+:err:notfound
+  lit &_nop
+  jump
+  ret
+:call:dt
+  lit &dup
+  call
+  lit &d:xt
+  call
+  lit &fetch
+  call
+  lit &swap
+  call
+  lit &d:class
+  call
+  lit &fetch
+  call
+  lit &call
+  call
+  ret
+:input:source
+  .data 0
+:interpret:prefix
+  lit &prefix:handler
+  lit &fetch
+  call
+  zret
+  lit &input:source
+  lit &fetch
+  call
+  lit 1
+  lit &+
+  call
+  lit &swap
+  call
+  lit &call:dt
+  call
+  ret
+:interpret:word
+  lit &Which
+  lit &fetch
+  call
+  lit &call:dt
+  call
+  ret
+:interpret
+  lit &input:source
+  lit &store
+  call
+  lit &input:source
+  lit &fetch
+  call
+  lit &prefix?
+  call
+  lit &139<1_s>
+  lit &139<1_e>
+  jump
+:139<1_s>
+  lit &interpret:prefix
+  call
+  ret
+:139<1_e>
+  lit &140<1_s>
+  lit &140<1_e>
+  jump
+:140<1_s>
+  lit &input:source
+  lit &fetch
+  call
+  lit &d:lookup
+  call
+  lit 0
+  lit &-eq?
+  call
+  lit &interpret:word
+  lit &err:notfound
+  lit &choose
+  call
+  ret
+:140<1_e>
+  lit &choose
+  call
+  ret
 ````
 
 ## Dictionary
@@ -422,72 +1165,296 @@ The dictionary is a linked list.
 
 
 ````
-:0000 `0    |dup           |.word  'dup'
-:0001 |0000 |drop          |.word  'drop'
-:0002 |0001 |swap          |.word  'swap'
-:0003 |0002 |call          |.word  'call'
-:0004 |0003 |eq?           |.word  'eq?'
-:0005 |0004 |-eq?          |.word  '-eq?'
-:0006 |0005 |lt?           |.word  'lt?'
-:0007 |0006 |gt?           |.word  'gt?'
-:0008 |0007 |fetch         |.word  'fetch'
-:0009 |0008 |store         |.word  'store'
-:0010 |0009 |+             |.word  '+'
-
-:0011 |0010 |-             |.word  '-'
-:0012 |0011 |*             |.word  '*'
-:0013 |0012 |/mod          |.word  '/mod'
-:0014 |0013 |and           |.word  'and'
-:0015 |0014 |or            |.word  'or'
-:0016 |0015 |xor           |.word  'xor'
-:0017 |0016 |shift         |.word  'shift'
-:0018 |0017 |t-push        |.macro 'push'
-:0019 |0018 |t-pop         |.macro 'pop'
-:0020 |0019 |t-0;          |.macro '0;'
-
-:0021 |0020 |dup-pair      |.word  'dup-pair'
-:0022 |0021 |fetch-next    |.word  'fetch-next'
-:0023 |0022 |store-next    |.word  'store-next'
-:0024 |0023 |str:asnumber  |.word  'str:asnumber'
-:0025 |0024 |str:compare   |.word  'str:compare'
-:0026 |0025 |str:length    |.word  'str:length'
-:0027 |0026 |choose        |.word  'choose'
-:0028 |0027 |if            |.word  'if'
-:0029 |0028 |-if           |.word  '-if'
-:0030 |0029 |Compiler      |.data  'Compiler'
-
-:0031 |0030 |Heap          |.data  'Heap'
-:0032 |0031 |comma         |.word  ','
-:0033 |0032 |comma:string  |.word  's,'
-:0034 |0033 |here          |.word  'here'
-:0035 |0034 |t-;           |.macro ';'
-:0036 |0035 |t-[           |.macro '['
-:0037 |0036 |t-]           |.macro ']'
-:0038 |0037 |Dictionary    |.data  'Dictionary'
-:0039 |0038 |d:link        |.word  'd:link'
-:0040 |0039 |d:xt          |.word  'd:xt'
-
-:0041 |0040 |d:class       |.word  'd:class'
-:0042 |0041 |d:name        |.word  'd:name'
-:0043 |0042 |.word         |.word  '.word'
-:0044 |0043 |.macro        |.word  '.macro'
-:0045 |0044 |.data         |.word  '.data'
-:0046 |0045 |newentry      |.word  'd:add-header'
-:0047 |0046 |prefix:#      |.macro 'prefix:#'
-:0048 |0047 |prefix::      |.macro 'prefix::'
-:0049 |0048 |prefix:&      |.macro 'prefix:&'
-:0050 |0049 |prefix:$      |.macro 'prefix:$'
-
-:0051 |0050 |prefix:`      |.macro 'prefix:`'
-:0052 |0051 |prefix:(      |.macro 'prefix:('
-:0053 |0052 |repeat        |.macro 'repeat'
-:0054 |0053 |again         |.macro 'again'
-:0055 |0054 |interpret     |.word  'interpret'
-:0056 |0055 |d:lookup      |.word  'd:lookup'
-:9999 |0056 |err:notfound  |.word  'err:notfound'
-
-:EOM
-````
+:0000
+  .data 0
+  .ref dup
+  .ref .word
+  .string dup
+:0001
+  .ref 0000
+  .ref drop
+  .ref .word
+  .string drop
+:0002
+  .ref 0001
+  .ref swap
+  .ref .word
+  .string swap
+:0003
+  .ref 0002
+  .ref call
+  .ref .word
+  .string call
+:0004
+  .ref 0003
+  .ref eq?
+  .ref .word
+  .string eq?
+:0005
+  .ref 0004
+  .ref -eq?
+  .ref .word
+  .string -eq?
+:0006
+  .ref 0005
+  .ref lt?
+  .ref .word
+  .string lt?
+:0007
+  .ref 0006
+  .ref gt?
+  .ref .word
+  .string gt?
+:0008
+  .ref 0007
+  .ref fetch
+  .ref .word
+  .string fetch
+:0009
+  .ref 0008
+  .ref store
+  .ref .word
+  .string store
+:0010
+  .ref 0009
+  .ref +
+  .ref .word
+  .string +
+:0011
+  .ref 0010
+  .ref -
+  .ref .word
+  .string -
+:0012
+  .ref 0011
+  .ref *
+  .ref .word
+  .string *
+:0013
+  .ref 0012
+  .ref /mod
+  .ref .word
+  .string /mod
+:0014
+  .ref 0013
+  .ref and
+  .ref .word
+  .string and
+:0015
+  .ref 0014
+  .ref or
+  .ref .word
+  .string or
+:0016
+  .ref 0015
+  .ref xor
+  .ref .word
+  .string xor
+:0017
+  .ref 0016
+  .ref shift
+  .ref .word
+  .string shift
+:0018
+  .ref 0017
+  .ref t-push
+  .ref .macro
+  .string push
+:0019
+  .ref 0018
+  .ref t-pop
+  .ref .macro
+  .string pop
+:0020
+  .ref 0019
+  .ref t-0;
+  .ref .macro
+  .string 0;
+:0021
+  .ref 0020
+  .ref dup-pair
+  .ref .word
+  .string dup-pair
+:0022
+  .ref 0021
+  .ref fetch-next
+  .ref .word
+  .string fetch-next
+:0023
+  .ref 0022
+  .ref store-next
+  .ref .word
+  .string store-next
+:0024
+  .ref 0023
+  .ref str:asnumber
+  .ref .word
+  .string str:asnumber
+:0025
+  .ref 0024
+  .ref str:compare
+  .ref .word
+  .string str:compare
+:0026
+  .ref 0025
+  .ref str:length
+  .ref .word
+  .string str:length
+:0027
+  .ref 0026
+  .ref choose
+  .ref .word
+  .string choose
+:0028
+  .ref 0027
+  .ref if
+  .ref .word
+  .string if
+:0029
+  .ref 0028
+  .ref -if
+  .ref .word
+  .string -if
+:0030
+  .ref 0029
+  .ref Compiler
+  .ref .data
+  .string Compiler
+:0031
+  .ref 0030
+  .ref Heap
+  .ref .data
+  .string Heap
+:0032
+  .ref 0031
+  .ref comma
+  .ref .word
+  .string ,
+:0033
+  .ref 0032
+  .ref comma:string
+  .ref .word
+  .string s,
+:0034
+  .ref 0033
+  .ref here
+  .ref .word
+  .string here
+:0035
+  .ref 0034
+  .ref t-;
+  .ref .macro
+  .string ;
+:0036
+  .ref 0035
+  .ref t-[
+  .ref .macro
+  .string [
+:0037
+  .ref 0036
+  .ref t-]
+  .ref .macro
+  .string ]
+:0038
+  .ref 0037
+  .ref Dictionary
+  .ref .data
+  .string Dictionary
+:0039
+  .ref 0038
+  .ref d:link
+  .ref .word
+  .string d:link
+:0040
+  .ref 0039
+  .ref d:xt
+  .ref .word
+  .string d:xt
+:0041
+  .ref 0040
+  .ref d:class
+  .ref .word
+  .string d:class
+:0042
+  .ref 0041
+  .ref d:name
+  .ref .word
+  .string d:name
+:0043
+  .ref 0042
+  .ref .word
+  .ref .word
+  .string .word
+:0044
+  .ref 0043
+  .ref .macro
+  .ref .word
+  .string .macro
+:0045
+  .ref 0044
+  .ref .data
+  .ref .word
+  .string .data
+:0046
+  .ref 0045
+  .ref newentry
+  .ref .word
+  .string d:add-header
+:0047
+  .ref 0046
+  .ref prefix:#
+  .ref .macro
+  .string prefix:#
+:0048
+  .ref 0047
+  .ref prefix::
+  .ref .macro
+  .string prefix::
+:0049
+  .ref 0048
+  .ref prefix:&
+  .ref .macro
+  .string prefix:&
+:0050
+  .ref 0049
+  .ref prefix:$
+  .ref .macro
+  .string prefix:$
+:0051
+  .ref 0050
+  .ref prefix:`
+  .ref .macro
+  .string prefix:`
+:0052
+  .ref 0051
+  .ref prefix:(
+  .ref .macro
+  .string prefix:(
+:0053
+  .ref 0052
+  .ref repeat
+  .ref .macro
+  .string repeat
+:0054
+  .ref 0053
+  .ref again
+  .ref .macro
+  .string again
+:0055
+  .ref 0054
+  .ref interpret
+  .ref .word
+  .string interpret
+:0056
+  .ref 0055
+  .ref d:lookup
+  .ref .word
+  .string d:lookup
+:9999
+  .ref 0056
+  .ref err:notfound
+  .ref .word
+  .string err:notfound
 
 ## Appendix: Words, Stack Effects, and Usage
 
@@ -560,3 +1527,4 @@ Permission to use, copy, modify, and/or distribute this software for any purpose
 THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 My thanks go out to Michal J Wallace, Luke Parrish, JGL, Marc Simpson, Oleksandr Kozachuk, Jay Skeer, Greg Copeland, Aleksej Saushev, Foucist, Erturk Kocalar, Kenneth Keating, Ashley Feniello, Peter Salvi, Christian Kellermann, Jorge Acereda, Remy Moueza, John M Harrison, and Todd Thomas. All of these great people helped in the development of Retro 10 & 11, without which Rx wouldn't have been possible.
+
