@@ -455,6 +455,20 @@ Rx handles functions via handlers called *word classes*. Each of these is a func
   call
   ret
 
+:.primitive:compile
+  fetch
+  lit &comma
+  call
+  ret
+:.primitive
+  lit &compiling?
+  call
+  lit &.primitive:compile
+  lit &.word:interpret
+  lit &choose
+  call
+  ret
+
 :.macro
   call
   ret
@@ -957,92 +971,92 @@ The dictionary is a linked list.
 :0000
   .data 0
   .ref _dup
-  .ref .word
+  .ref .primitive
   .string dup
 :0001
   .ref 0000
   .ref _drop
-  .ref .word
+  .ref .primitive
   .string drop
 :0002
   .ref 0001
   .ref _swap
-  .ref .word
+  .ref .primitive
   .string swap
 :0003
   .ref 0002
   .ref _call
-  .ref .word
+  .ref .primitive
   .string call
 :0004
   .ref 0003
   .ref _eq
-  .ref .word
+  .ref .primitive
   .string eq?
 :0005
   .ref 0004
   .ref _neq
-  .ref .word
+  .ref .primitive
   .string -eq?
 :0006
   .ref 0005
   .ref _lt
-  .ref .word
+  .ref .primitive
   .string lt?
 :0007
   .ref 0006
   .ref _gt
-  .ref .word
+  .ref .primitive
   .string gt?
 :0008
   .ref 0007
   .ref _fetch
-  .ref .word
+  .ref .primitive
   .string fetch
 :0009
   .ref 0008
   .ref _store
-  .ref .word
+  .ref .primitive
   .string store
 :0010
   .ref 0009
   .ref _add
-  .ref .word
+  .ref .primitive
   .string +
 :0011
   .ref 0010
   .ref _sub
-  .ref .word
+  .ref .primitive
   .string -
 :0012
   .ref 0011
   .ref _mul
-  .ref .word
+  .ref .primitive
   .string *
 :0013
   .ref 0012
   .ref _divmod
-  .ref .word
+  .ref .primitive
   .string /mod
 :0014
   .ref 0013
   .ref _and
-  .ref .word
+  .ref .primitive
   .string and
 :0015
   .ref 0014
   .ref _or
-  .ref .word
+  .ref .primitive
   .string or
 :0016
   .ref 0015
   .ref _xor
-  .ref .word
+  .ref .primitive
   .string xor
 :0017
   .ref 0016
   .ref _shift
-  .ref .word
+  .ref .primitive
   .string shift
 :0018
   .ref 0017
@@ -1239,8 +1253,13 @@ The dictionary is a linked list.
   .ref d:lookup
   .ref .word
   .string d:lookup
-:9999
+:0057
   .ref 0056
+  .ref .primitive
+  .ref .word
+  .string .primitive
+:9999
+  .ref 0057
   .ref err:notfound
   .ref .word
   .string err:notfound
@@ -1293,6 +1312,7 @@ The dictionary is a linked list.
 | d:class      | p-p       | Given a DT, return the address of the class field |
 | d:name       | p-p       | Given a DT, return the address of the name field  |
 | .word        | p-        | Class handler for standard functions              |
+| .primitive   | p-        | Class handler for Nga primitives                  |
 | .macro       | p-        | Class handler for immediate functions             |
 | .data        | p-        | Class handler for data                            |
 | d:add-header | saa-      | Add an item to the dictionary                     |
