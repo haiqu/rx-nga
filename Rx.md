@@ -225,54 +225,46 @@ First up, string length. The process here is trivial:
 
 String comparisons are harder.
 
-**This is not an optimal approach.**
-
 ````
-:compare::flag
-  .data 0
-:compare::maxlength
-  .data 0
-:getSet
+:get-set
   fetch
   swap
   fetch
   ret
-:nextSet
+:next-set
   lit 1
   add
   swap
   lit 1
   add
   ret
-:compare_loop
-  lit &dup-pair
-  call
-  lit &getSet
-  call
-  eq?
-  lit &compare::flag
-  store
-  lit &nextSet
-  call
-  lit &compare::maxlength
-  fetch
+:compare
+  push
+    push
+      lit &dup-pair
+      call
+      lit &get-set
+      call
+      eq?
+    pop
+    and
+    push
+      lit &next-set
+      call
+    pop
+  pop
   lit 1
   sub
-  lit &compare::maxlength
-  store
-  lit &compare::maxlength
-  fetch
-  lit &compare::flag
-  fetch
-  and
   zret
-  drop
-  lit &compare_loop
+  lit &compare
   jump
-:str:compare
+:str:compare:mismatched
+  drop
+  drop
   lit 0
-  lit &compare::flag
-  store
+  dup
+  ret
+:str:compare
   lit &dup-pair
   call
   lit &str:length
@@ -280,16 +272,21 @@ String comparisons are harder.
   swap
   lit &str:length
   call
-  dup
-  lit &compare::maxlength
-  store
-  eq?
-  lit &compare_loop
+  neq?
+  lit &str:compare:mismatched
   ccall
-  drop
-  drop
-  lit &compare::flag
-  fetch
+  zret
+  dup
+  lit &str:length
+  call
+  lit -1
+  swap
+  lit &compare
+  call
+  push
+    drop
+    drop
+  pop
   ret
 ````
 
@@ -1302,4 +1299,3 @@ Permission to use, copy, modify, and/or distribute this software for any purpose
 THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 My thanks go out to Michal J Wallace, Luke Parrish, JGL, Marc Simpson, Oleksandr Kozachuk, Jay Skeer, Greg Copeland, Aleksej Saushev, Foucist, Erturk Kocalar, Kenneth Keating, Ashley Feniello, Peter Salvi, Christian Kellermann, Jorge Acereda, Remy Moueza, John M Harrison, and Todd Thomas. All of these great people helped in the development of Retro 10 & 11, without which Rx wouldn't have been possible.
-
