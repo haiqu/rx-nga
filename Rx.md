@@ -284,16 +284,8 @@ String comparisons are harder.
   lit &compare::maxlength
   store
   eq?
-  lit &48<1_s>
-  lit &48<1_e>
-  jump
-:48<1_s>
   lit &compare_loop
-  call
-  ret
-:48<1_e>
-  lit &if
-  call
+  ccall
   drop
   drop
   lit &compare::flag
