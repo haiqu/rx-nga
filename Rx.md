@@ -902,24 +902,7 @@ The *interpreter* is what processes input. What it does is:
   lit &call:dt
   call
   ret
-:interpret
-  dup
-  lit &input:source
-  store
-  lit &prefix?
-  call
-  lit &139<1_s>
-  lit &139<1_e>
-  jump
-:139<1_s>
-  lit &interpret:prefix
-  call
-  ret
-:139<1_e>
-  lit &140<1_s>
-  lit &140<1_e>
-  jump
-:140<1_s>
+:interpret:noprefix
   lit &input:source
   fetch
   lit &d:lookup
@@ -931,7 +914,14 @@ The *interpreter* is what processes input. What it does is:
   lit &choose
   call
   ret
-:140<1_e>
+:interpret
+  dup
+  lit &input:source
+  store
+  lit &prefix?
+  call
+  lit &interpret:prefix
+  lit &interpret:noprefix
   lit &choose
   call
   ret
