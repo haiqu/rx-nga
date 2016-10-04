@@ -301,16 +301,16 @@ The Rx kernel provides three conditional forms:
 Implement **choose**, a conditional combinator which will execute one of two functions, depending on the state of a flag. We take advantage of a little hack here. Store the pointers into a jump table with two fields, and use the flag as the index. Default to the *false* entry, since a *true* flag is -1.
 
 ````
-:if::true
+:choice:true
   .data 0
-:if::false
+:choice:false
   .data 0
 :choose
-  lit &if::false
+  lit &choice:false
   store
-  lit &if::true
+  lit &choice:true
   store
-  lit &if::false
+  lit &choice:false
   add
   fetch
   call
@@ -629,19 +629,13 @@ At this time Rx only supports decimal numbers.
   fetch
   lit 45
   eq?
-  lit &100<1_s>
-  lit &100<1_e>
-  jump
-:100<1_s>
+  zret
+  drop
   lit -1
   lit &asnumber:Mod
   store
   lit 1
   add
-  ret
-:100<1_e>
-  lit &if
-  call
   ret
 :str:asnumber
   lit &asnumber:prepare
@@ -811,15 +805,9 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   store
   lit &compiling?
   call
-  lit &126<1_s>
-  lit &126<1_e>
-  jump
-:126<1_s>
+  zret
   drop
-  ret
-:126<1_e>
-  lit &if
-  call
+  drop
   ret
 :t-0;
   lit &compiling?
