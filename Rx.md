@@ -410,7 +410,13 @@ First, a variable indicating whether we should compile or run a function. This w
 
 ### Word Classes
 
-Rx handles functions via handlers called *word classes*. Each of these is a function responsible for handling specific groupings of functions. The class handlers will either invoke the code in a function or compile the code needed to call them.
+Rx is built over the concept of *word classes*. Word classes are a way to group related words, based on their compilation and execution behaviors. A special word, called a *class handler*, is defined to handle an execution token passed to it on the stack. The compiler uses a variable named class to set the default class when compiling a word. We'll take a closer look at class later. Rx provides several classes with differing behaviors:
+
+**.data** provides for dealing with data structures.
+
+| interpret            | compile                       |
+| -------------------- | ----------------------------- |
+| leave value on stack | compile value into definition |
 
 ````
 :.data
@@ -424,7 +430,15 @@ Rx handles functions via handlers called *word classes*. Each of these is a func
   lit &comma
   call
   ret
+````
 
+**.word** handles most functions.
+
+| interpret            | compile                       |
+| -------------------- | ----------------------------- |
+| call a function      | compile a call to a function  |
+
+````
 :.word:interpret
   call
   ret
@@ -443,7 +457,15 @@ Rx handles functions via handlers called *word classes*. Each of these is a func
   lit &choose
   call
   ret
+````
 
+**.primitive** is a special class handler for functions that correspond to Nga instructions.
+
+| interpret            | compile                                     |
+| -------------------- | ------------------------------------------- |
+| call the function    | compile the instruction into the definition |
+
+````
 :.primitive:compile
   fetch
   lit &comma
@@ -457,27 +479,46 @@ Rx handles functions via handlers called *word classes*. Each of these is a func
   lit &choose
   call
   ret
+````
 
+**.macro** is the class handler for *compiler macros*. These are functions that always get called. They can be used to extend the language in interesting ways.
+
+| interpret            | compile                       |
+| -------------------- | ----------------------------- |
+| call the function    | call the function             |
+
+````
 :.macro
   call
   ret
 ````
 
+The class mechanism is not limited to these classes. You can write custom classes at any time. On entry the custom handler should take the XT passed on the stack and do something with it. Generally the handler should also check the **Compiler** state to determine what to do in either interpretation or compilation.
+
 ### Dictionary
 
-The dictionary is a simple linked list, with the following format.
 
-| field | holds                                       |
-| ----- | ------------------------------------------- |
-| link  | link to the previous entry, 0 if last entry |
-| xt    | link to start of the function               |
-| class | link to the class handler function          |
-| name  | zero terminated string                      |
+Rx has a single dictionary consisting of a linked list of headers. The current form of a header is shown in the chart below. Pay special attention to the accessors. Each of these words corresponds to a field in the dictionary header. When dealing with dictionary headers, it is recommended that you use the accessors to access the fields since it is expected that the exact structure of the header will change over time.
+
+| field | holds                                       | accessor |
+| ----- | ------------------------------------------- | -------- |
+| link  | link to the previous entry, 0 if last entry | d:link   |
+| xt    | link to start of the function               | d:xt     |
+| class | link to the class handler function          | d:class  |
+| name  | zero terminated string                      | d:name   |
 
 The initial dictionary is constructed at the end of this file. It'll take a form like this:
 
-    :0000  `0    |+     |.word '+'
-    :0001  |0000 |-     |.word '-'
+    :0000
+      .ref 0
+      .ref _add
+      .ref .word
+      .string +
+    :0001
+      .ref 0000
+      .ref _sub
+      .ref .word
+      .string -
 
 Each label will contain a reference to the prior one, the internal function name, its class, and a string indicating the name to expose to the Rx interpreter.
 
