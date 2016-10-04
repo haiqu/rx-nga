@@ -222,11 +222,9 @@ These add additional operations on the stack elements that'll keep later code mu
 ````
 :over
   push
-  lit &dup
-  call
+  dup
   pop
-  lit &swap
-  call
+  swap
   ret
 :dup-pair
   lit &over
@@ -244,15 +242,11 @@ The basic memory accesses are handled via **fetch** and **store**. These two fun
 
 ````
 :fetch-next
-  lit &dup
-  call
+  dup
   lit 1
-  lit &+
-  call
-  lit &swap
-  call
-  lit &fetch
-  call
+  add
+  swap
+  fetch
   ret
 ````
 
@@ -1455,6 +1449,7 @@ The dictionary is a linked list.
   .ref err:notfound
   .ref .word
   .string err:notfound
+````
 
 ## Appendix: Words, Stack Effects, and Usage
 
