@@ -547,6 +547,13 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
   .data 0
 :Needle
   .data 0
+
+:found
+  lit &Which
+  store
+  lit &_nop
+  ret
+
 :find
   lit 0
   lit &Which
@@ -562,19 +569,8 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
   fetch
   lit &str:compare
   call
-  lit &87<1_s>
-  lit &87<1_e>
-  jump
-:87<1_s>
-  dup
-  lit &Which
-  store
-  drop
-  lit &_nop
-  ret
-:87<1_e>
-  lit &if
-  call
+  lit &found
+  ccall
   fetch
   lit &find_next
   jump
