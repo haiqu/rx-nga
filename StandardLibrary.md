@@ -211,6 +211,27 @@ The **times** combinator runs a quote (n) times.
 Hash (using DJB2)
 
 ````
-:<str:hash> repeat push #33 * pop fetch-next 0; swap push + pop again ;
-:str:hash  (s-n)  #5381 swap <str:hash> drop ;
+{{
+  :<str:hash> repeat push #33 * pop fetch-next 0; swap push + pop again ;
+---reveal---
+  :str:hash  (s-n)  #5381 swap <str:hash> drop ;
+}}
+````
+
+## Buffer
+
+````
+{{
+  :Buffer `0 ; data
+  :Ptr    `0 ; data
+  :terminate (-) #0 &Ptr fetch store ;
+---reveal---
+  :buffer:start  (-a) &Buffer fetch ;
+  :buffer:end    (-a) &Ptr fetch ;
+  :buffer:add    (c-) buffer:end store &Ptr ++ terminate ;
+  :buffer:get    (-c) &Ptr -- buffer:end fetch terminate ;
+  :buffer:empty  (-)  buffer:start &Ptr store terminate ;
+  :buffer:size   (-n) buffer:end buffer:start - ;
+  :buffer:set    (a-) &Buffer store buffer:empty ;
+}}
 ````
