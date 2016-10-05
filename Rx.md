@@ -462,15 +462,10 @@ Rx is built over the concept of *word classes*. Word classes are a way to group 
 | call the function    | compile the instruction into the definition |
 
 ````
-:.primitive:compile
-  fetch
-  lit &comma
-  call
-  ret
 :.primitive
   lit &compiling?
   call
-  lit &.primitive:compile
+  lit &comma:opcode
   lit &.word:interpret
   lit &choose
   call
