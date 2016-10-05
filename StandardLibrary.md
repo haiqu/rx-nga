@@ -6,6 +6,12 @@
 
 By itself Rx provides a very minimal Forth implementation. This, the *Rx Standard Library*, extends this into a more useful language.
 
+## Comments
+
+````
+:prefix:( drop ; &.macro &Dictionary fetch d:class store
+````
+
 ## Combinators
 
 Rx makes use of anonymous functions called *quotations* for much of the execution flow and stack control. The words that operate on these quotations are called *combinators*.

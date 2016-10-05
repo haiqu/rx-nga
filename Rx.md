@@ -781,9 +781,6 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   lit &choose
   call
   ret
-:prefix:(
-  drop
-  ret
 ````
 
 ### Quotations
@@ -1250,36 +1247,31 @@ The dictionary is a linked list. This sets up the initial dictionary. Maintenanc
   .string prefix:`
 :0051
   .ref 0050
-  .ref prefix:(
-  .ref .macro
-  .string prefix:(
-:0052
-  .ref 0051
   .ref repeat
   .ref .macro
   .string repeat
-:0053
-  .ref 0052
+:0052
+  .ref 0051
   .ref again
   .ref .macro
   .string again
-:0054
-  .ref 0053
+:0053
+  .ref 0052
   .ref interpret
   .ref .word
   .string interpret
-:0055
-  .ref 0054
+:0054
+  .ref 0053
   .ref d:lookup
   .ref .word
   .string d:lookup
-:0056
-  .ref 0055
+:0055
+  .ref 0054
   .ref .primitive
   .ref .word
   .string .primitive
 :9999
-  .ref 0056
+  .ref 0055
   .ref err:notfound
   .ref .word
   .string err:notfound
@@ -1340,7 +1332,6 @@ The dictionary is a linked list. This sets up the initial dictionary. Maintenanc
 | prefix:&     | s-        | & prefix for pointers                             |
 | prefix:$     | s-        | $ prefix for ASCII characters                     |
 | prefix:`     | s-        | ` prefix for bytecode                             |
-| prefix:(     | s-        | ( prefix for stack comments                       |
 | repeat       | -a        | Start an unconditional loop                       |
 | again        | a-        | End an unconditional loop                         |
 | interpret    | s-?       | Evaluate a token                                  |
