@@ -1168,124 +1168,123 @@ The dictionary is a linked list. This sets up the initial dictionary. Maintenanc
   .ref comma:string
   .ref .word
   .string s,
-
-:0035
+:0034
   .ref 0033
   .ref t-;
   .ref .macro
   .string ;
-:0036
-  .ref 0035
+:0035
+  .ref 0034
   .ref t-[
   .ref .macro
   .string [
-:0037
-  .ref 0036
+:0036
+  .ref 0035
   .ref t-]
   .ref .macro
   .string ]
-:0038
-  .ref 0037
+:0037
+  .ref 0036
   .ref Dictionary
   .ref .data
   .string Dictionary
-:0039
-  .ref 0038
+:0038
+  .ref 0037
   .ref d:link
   .ref .word
   .string d:link
-:0040
-  .ref 0039
+:0039
+  .ref 0038
   .ref d:xt
   .ref .word
   .string d:xt
-:0041
-  .ref 0040
+:0040
+  .ref 0039
   .ref d:class
   .ref .word
   .string d:class
-:0042
-  .ref 0041
+:0041
+  .ref 0040
   .ref d:name
   .ref .word
   .string d:name
-:0043
-  .ref 0042
+:0042
+  .ref 0041
   .ref .word
   .ref .word
   .string .word
-:0044
-  .ref 0043
+:0043
+  .ref 0042
   .ref .macro
   .ref .word
   .string .macro
-:0045
-  .ref 0044
+:0044
+  .ref 0043
   .ref .data
   .ref .word
   .string .data
-:0046
-  .ref 0045
+:0045
+  .ref 0044
   .ref newentry
   .ref .word
   .string d:add-header
-:0047
-  .ref 0046
+:0046
+  .ref 0045
   .ref prefix:#
   .ref .macro
   .string prefix:#
-:0048
-  .ref 0047
+:0047
+  .ref 0046
   .ref prefix::
   .ref .macro
   .string prefix::
-:0049
-  .ref 0048
+:0048
+  .ref 0047
   .ref prefix:&
   .ref .macro
   .string prefix:&
-:0050
-  .ref 0049
+:0049
+  .ref 0048
   .ref prefix:$
   .ref .macro
   .string prefix:$
-:0051
-  .ref 0050
+:0050
+  .ref 0049
   .ref prefix:`
   .ref .macro
   .string prefix:`
-:0052
-  .ref 0051
+:0051
+  .ref 0050
   .ref prefix:(
   .ref .macro
   .string prefix:(
-:0053
-  .ref 0052
+:0052
+  .ref 0051
   .ref repeat
   .ref .macro
   .string repeat
-:0054
-  .ref 0053
+:0053
+  .ref 0052
   .ref again
   .ref .macro
   .string again
-:0055
-  .ref 0054
+:0054
+  .ref 0053
   .ref interpret
   .ref .word
   .string interpret
-:0056
-  .ref 0055
+:0055
+  .ref 0054
   .ref d:lookup
   .ref .word
   .string d:lookup
-:0057
-  .ref 0056
+:0056
+  .ref 0055
   .ref .primitive
   .ref .word
   .string .primitive
 :9999
-  .ref 0057
+  .ref 0056
   .ref err:notfound
   .ref .word
   .string err:notfound
@@ -1328,7 +1327,6 @@ The dictionary is a linked list. This sets up the initial dictionary. Maintenanc
 | Heap         | -p        | Variable; points to next free memory address      |
 | ,            | n-        | Compile a value into memory at **here**           |
 | s,           | s-        | Compile a string into memory at **here**          |
-| here         | -p        | Return the value stored in **Heap**               |
 | ;            | -         | End compilation and compile a *return* instruction|
 | [            | -         | Begin a quotation                                 |
 | ]            | -         | End a quotation                                   |
