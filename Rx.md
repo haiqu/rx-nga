@@ -146,7 +146,7 @@ These add additional operations on the stack elements that'll keep later code mu
 ````
 :over
   push
-  dup
+    dup
   pop
   swap
   ret
@@ -182,7 +182,7 @@ The basic memory accesses are handled via **fetch** and **store**. These two fun
   lit 1
   add
   push
-  store
+    store
   pop
   ret
 ````
@@ -325,8 +325,8 @@ Next the two *if* forms:
   ret
 :-if
   push
-  lit 0
-  eq?
+    lit 0
+    eq?
   pop
   ccall
   ret
@@ -336,7 +336,7 @@ Next the two *if* forms:
 
 ### Compiler Core
 
-The heart of the compiler is **comma** which stores a value into memory and increments a variable (**heap**) pointing to the next free address. **here** is a helper function that returns the address stored in **heap**.
+The heart of the compiler is **comma** which stores a value into memory and increments a variable (**Heap**) pointing to the next free address. **here** is a helper function that returns the address stored in **Heap**.
 
 ````
 :here
@@ -552,16 +552,16 @@ A traditional Forth has **create** to make a new dictionary entry pointing to **
   lit &here
   call
   push
-  lit &Dictionary
-  fetch
-  lit &comma
-  call
-  lit &comma
-  call
-  lit &comma
-  call
-  lit &comma:string
-  call
+    lit &Dictionary
+    fetch
+    lit &comma
+    call
+    lit &comma
+    call
+    lit &comma
+    call
+    lit &comma:string
+    call
   pop
   lit &Dictionary
   store
@@ -734,6 +734,14 @@ Where *&lt;prefix-char&gt;* is the character for the prefix. These should be com
 
 Rx uses prefixes for important bits of functionality including parsing numbers (prefix with **#**), obtaining pointers (prefix with **&amp;**), and starting new functions (using the **:** prefix).
 
+| prefix | used for          | example |
+| ------ | ----------------- | ------- |
+| #      | numbers           | #100    |
+| $      | ASCII characters  | $e      |
+| &amp;  | pointers          | &swap   |
+| `      | inlining raw data | `123    |
+| (      | stack comments    | (xy-x)  |
+
 ````
 :prefix:#
   lit &str:asnumber
@@ -789,21 +797,14 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 
 ### Quotations
 
+Quotations are anonymous, nestable blocks of code. Rx uses them for control structures and some aspects of data flow. A quotation takes a form like:
+
+    [ #1 #2 ]
+    #12 [ square #144 eq? [ #123 ] [ #456 ] choose ] call
+
+Begin a quotation with **[** and end it with **]**.
+
 ````
-:repeat
-  lit &here
-  call
-  ret
-:again
-  lit &_lit
-  lit &comma:opcode
-  call
-  lit &comma
-  call
-  lit &_jump
-  lit &comma:opcode
-  call
-  ret
 :t-[
   lit &here
   call
@@ -850,6 +851,31 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   drop
   drop
   ret
+````
+
+## Lightweight Control Structures
+
+Rx provides a couple of functions for simple flow control apart from using quotations. These are **repeat**, **again**, and **0;**. An example of using them:
+
+    : str:length dup repeat @+ 0; drop again swap - #1 - ;
+
+These can only be used within a definition or quotation. If you need to use them interactively, wrap them in a quote and **call** it.
+
+````
+:repeat
+  lit &here
+  call
+  ret
+:again
+  lit &_lit
+  lit &comma:opcode
+  call
+  lit &comma
+  call
+  lit &_jump
+  lit &comma:opcode
+  call
+  ret
 :t-0;
   lit &compiling?
   call
@@ -859,6 +885,9 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   lit &comma:opcode
   call
   ret
+````
+
+````
 :t-push
   lit &compiling?
   call
@@ -892,11 +921,23 @@ The *interpreter* is what processes input. What it does is:
     * Found: pass xt of word to the class handler for processing
     * Not found: report error via **err:notfound**
 
+First up, the handler for dealing with words that are not found. This is defined here as a jump to the handler for the Nga *NOP* instruction. It is intended that this be hooked into and changed.
+
+As an example, in Rx code, assuming an I/O interface with some support for strings and output:
+
+    [ $? putc space 'word not found' puts ]
+    &err:notfound #1 + store
+
 ````
 :err:notfound
   lit &_nop
   jump
   ret
+````
+
+**call:dt** takes a dictionary token and pushes the contents of the **d:xt** field to the stack. It then calls the class handler stored in **d:class**.
+
+````
 :call:dt
   dup
   lit &d:xt
@@ -908,6 +949,9 @@ The *interpreter* is what processes input. What it does is:
   fetch
   call
   ret
+````
+
+````
 :input:source
   .data 0
 :interpret:prefix
@@ -953,10 +997,9 @@ The *interpreter* is what processes input. What it does is:
   ret
 ````
 
-## Dictionary
+## The Initial Dictionary
 
-The dictionary is a linked list.
-
+The dictionary is a linked list. This sets up the initial dictionary. Maintenance of this bit is annoying, but it generally shouldn't be necessary to change this unless you are adding new functions to the Rx kernel. 
 
 ````
 :0000
