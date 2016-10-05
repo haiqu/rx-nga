@@ -1,5 +1,5 @@
 CC = clang-3.5
-CFLAGS = -Wall --static
+CFLAGS = -Wall
 
 d:
 	@echo Targets: capi ngita rx sdk stl
