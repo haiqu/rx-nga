@@ -339,13 +339,9 @@ Next the two *if* forms:
 The heart of the compiler is **comma** which stores a value into memory and increments a variable (**Heap**) pointing to the next free address. **here** is a helper function that returns the address stored in **Heap**.
 
 ````
-:here
+:comma
   lit &Heap
   fetch
-  ret
-:comma
-  lit &here
-  call
   lit &store-next
   call
   lit &Heap
@@ -549,8 +545,8 @@ A traditional Forth has **create** to make a new dictionary entry pointing to **
 
 ````
 :newentry
-  lit &here
-  call
+  lit &Heap
+  fetch
   push
     lit &Dictionary
     fetch
@@ -756,12 +752,12 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   ret
 :prefix::
   lit &.word
-  lit &here
-  call
+  lit &Heap
+  fetch
   lit &newentry
   call
-  lit &here
-  call
+  lit &Heap
+  fetch
   lit &Dictionary
   fetch
   lit &d:xt
@@ -806,8 +802,8 @@ Begin a quotation with **[** and end it with **]**.
 
 ````
 :t-[
-  lit &here
-  call
+  lit &Heap
+  fetch
   lit 3
   add
   lit &Compiler
@@ -818,23 +814,23 @@ Begin a quotation with **[** and end it with **]**.
   lit &_lit
   lit &comma:opcode
   call
-  lit &here
-  call
+  lit &Heap
+  fetch
   lit 0
   lit &comma
   call
   lit &_jump
   lit &comma:opcode
   call
-  lit &here
-  call
+  lit &Heap
+  fetch
   ret
 :t-]
   lit &_ret
   lit &comma:opcode
   call
-  lit &here
-  call
+  lit &Heap
+  fetch
   swap
   lit &_lit
   lit &comma:opcode
@@ -863,8 +859,8 @@ These can only be used within a definition or quotation. If you need to use them
 
 ````
 :repeat
-  lit &here
-  call
+  lit &Heap
+  fetch
   ret
 :again
   lit &_lit
@@ -1172,13 +1168,9 @@ The dictionary is a linked list. This sets up the initial dictionary. Maintenanc
   .ref comma:string
   .ref .word
   .string s,
-:0034
-  .ref 0033
-  .ref here
-  .ref .word
-  .string here
+
 :0035
-  .ref 0034
+  .ref 0033
   .ref t-;
   .ref .macro
   .string ;
