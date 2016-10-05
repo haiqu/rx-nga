@@ -104,9 +104,9 @@ The core Rx language provides a few basic stack shuffling words: **push**, **pop
 :tuck      (xy-yxy)   dup push swap pop ;
 :over      (xy-xyx)   push dup pop swap ;
 :dup-pair  (xy-xyxy)  over over ;
-:nip       (xy-y) swap drop ;
-:drop-pair (nn-) drop drop ;
-:?dup dup 0; ;
+:nip       (xy-y)     swap drop ;
+:drop-pair (nn-)      drop drop ;
+:?dup      (n-nn||n-n)  dup 0; ;
 :rot [ swap ] dip swap ;
 ````
 
@@ -151,8 +151,8 @@ This adds handy **@** and **!** prefixes that can help make code more readable. 
 
 ````
 :call, .data #8 , ;
-:prefix:@ d:lookup d:xt fetch .data &fetch compiling? [ call, ] [ call ] choose ; immediate
-:prefix:! d:lookup d:xt fetch .data &store compiling? [ call, ] [ call ] choose ; immediate
+:prefix:@ d:lookup d:xt fetch .data &fetch .word ; immediate
+:prefix:! d:lookup d:xt fetch .data &store .word ; immediate
 ````
 
 ## Flow
