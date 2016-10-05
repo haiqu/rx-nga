@@ -235,3 +235,24 @@ Hash (using DJB2)
   :buffer:set    (a-) &Buffer store buffer:empty ;
 }}
 ````
+
+## Incoming
+
+````
+:later pop pop swap push push ;
+````
+
+````
+{{
+  :Needle `0 ; data
+  :Haystack `0 ; data
+---reveal---
+  :str:find-char
+   &Needle store
+   repeat
+     fetch-next
+     dup #0 eq? [ drop drop #0 #0 ] [ #-1 ] choose 0; drop
+     &Needle fetch eq? [ #-1 #0 ] [ #-1 ] choose 0; drop
+  again ;
+}}
+````
