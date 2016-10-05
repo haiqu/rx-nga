@@ -139,6 +139,28 @@ The core Rx language provides addition, subtraction, multiplication, and a combi
 :--      (n-n)   #1 swap -! ;
 ````
 
+## Lexical Scope
+
+The dictionary is a simple linked list. Rx allows for some control over what is visible using the **{{**, **---reveal---**, and **}}** words.
+
+As an example:
+
+    {{
+      :increment dup fetch #1 + swap store ;
+      :Value `0 ;
+    ---reveal---
+      :next-number &Value fetch &Value increment ;
+    }}
+
+Only the **next-number** function will remain visible once **}}** is executed.
+
+````
+:ScopeList `0 `0 ;
+:{{ &Dictionary fetch dup &ScopeList store-next store ;
+:---reveal--- &Dictionary fetch &ScopeList #1 + store ;
+:}} &ScopeList fetch-next swap fetch eq? [ &ScopeList fetch &Dictionary store ] [ &ScopeList fetch [ &Dictionary repeat fetch dup fetch &ScopeList #1 + fetch -eq? 0; drop again ] call store ] choose ;
+````
+
 ## Prefixes
 
 This adds handy **@** and **!** prefixes that can help make code more readable. E.g.,
@@ -150,9 +172,12 @@ This adds handy **@** and **!** prefixes that can help make code more readable. 
     #16 !Base
 
 ````
+{{
 :call, .data #8 , ;
+---reveal---
 :prefix:@ d:lookup d:xt fetch .data &fetch .word ; immediate
 :prefix:! d:lookup d:xt fetch .data &store .word ; immediate
+}}
 ````
 
 ## Flow
