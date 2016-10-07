@@ -12,6 +12,21 @@ By itself Rx provides a very minimal Forth implementation. This, the *Rx Standar
 :prefix:( drop ; &.macro &Dictionary fetch d:class store
 ````
 
+## Constants
+
+````
+:true  (-n) #-1 ;
+:false (-n)  #0 ;
+````
+
+## Comparators
+
+````
+:zero? #0 eq? ;
+:negative #0 lt? ;
+:positive #0 gt? ;
+````
+
 ## Combinators
 
 Rx makes use of anonymous functions called *quotations* for much of the execution flow and stack control. The words that operate on these quotations are called *combinators*.
@@ -134,17 +149,17 @@ The core Rx language provides addition, subtraction, multiplication, and a combi
 :square  (n-n)   dup * ;
 :min     (nn-n)  dup-pair lt? [ drop ] [ nip ] choose ;
 :max     (nn-n)  dup-pair gt? [ drop ] [ nip ] choose ;
-:minmax swap push min pop max ;
-:v:minmax push push dup fetch pop pop minmax swap store ;
+:limit   (nlu-n) swap push min pop max ;
 ````
 
 ## Memory
 
 ````
-:+!  (na-)  [ fetch + ] sip store ;
-:-!  (na-)  [ fetch swap - ] sip store ;
-:++      (n-n)   #1 swap +! ;
-:--      (n-n)   #1 swap -! ;
+:v:inc-by  (na-)   [ fetch + ] sip store ;
+:v:dec-by  (na-)   [ fetch swap - ] sip store ;
+:v:inc     (n-n)   #1 swap v:inc-by ;
+:v:dec     (n-n)   #1 swap v:dec-by ;
+:v:limit   (alu-)  push push dup fetch pop pop limit swap store ;
 ````
 
 ## Lexical Scope
@@ -167,25 +182,6 @@ Only the **next-number** function will remain visible once **}}** is executed.
 :{{ &Dictionary fetch dup &ScopeList store-next store ;
 :---reveal--- &Dictionary fetch &ScopeList #1 + store ;
 :}} &ScopeList fetch-next swap fetch eq? [ &ScopeList fetch &Dictionary store ] [ &ScopeList fetch [ &Dictionary repeat fetch dup fetch &ScopeList #1 + fetch -eq? 0; drop again ] call store ] choose ;
-````
-
-## Prefixes
-
-This adds handy **@** and **!** prefixes that can help make code more readable. E.g.,
-
-    &Base fetch
-    @Base
-
-    #16 &Base store
-    #16 !Base
-
-````
-{{
-:call, .data #8 , ;
----reveal---
-:prefix:@ d:lookup d:xt fetch .data &fetch .word ; immediate
-:prefix:! d:lookup d:xt fetch .data &store .word ; immediate
-}}
 ````
 
 ## Flow
@@ -230,8 +226,8 @@ Hash (using DJB2)
 ---reveal---
   :buffer:start  (-a) &Buffer fetch ;
   :buffer:end    (-a) &Ptr fetch ;
-  :buffer:add    (c-) buffer:end store &Ptr ++ terminate ;
-  :buffer:get    (-c) &Ptr -- buffer:end fetch terminate ;
+  :buffer:add    (c-) buffer:end store &Ptr v:inc terminate ;
+  :buffer:get    (-c) &Ptr v:dec buffer:end fetch terminate ;
   :buffer:empty  (-)  buffer:start &Ptr store terminate ;
   :buffer:size   (-n) buffer:end buffer:start - ;
   :buffer:set    (a-) &Buffer store buffer:empty ;
