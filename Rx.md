@@ -264,7 +264,7 @@ String comparisons are harder.
   lit 0
   dup
   ret
-:str:compare
+:str:eq
   lit &dup-pair
   call
   lit &str:length
@@ -588,7 +588,7 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
   call
   lit &Needle
   fetch
-  lit &str:compare
+  lit &str:eq
   call
   lit &found
   ccall
@@ -1117,9 +1117,9 @@ The dictionary is a linked list. This sets up the initial dictionary. Maintenanc
   .string str:asnumber
 :0025
   .ref 0024
-  .ref str:compare
+  .ref str:eq
   .ref .word
-  .string str:compare
+  .string str:eq?
 :0026
   .ref 0025
   .ref str:length
