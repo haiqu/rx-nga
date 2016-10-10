@@ -255,6 +255,11 @@ Hash (using DJB2)
 }}
 ````
 
+````
+:skip-string pop [ fetch-next #0 -eq? ] while #1 - push ;
+:prefix:' compiling? [ &skip-string .word ] if &Heap fetch [ s, ] dip .data ; immediate
+````
+
 ## Legalities
 
 Permission to use, copy, modify, and/or distribute this software for
@@ -290,3 +295,4 @@ PERFORMANCE OF THIS SOFTWARE.
     Copyright (c) 2011,        Remy Moueza
     Copyright (c) 2012,        John M Harrison
     Copyright (c) 2012,        Todd Thomas
+
