@@ -1,49 +1,39 @@
 CC = clang-3.5
 CFLAGS = -Wall
 
-d:
-	@echo Targets: capi ngita rx sdk stl
+c: t i s o l
 
-stl: sdk
+i:
+	./bin/unu Rx.md >rx.naje
+	./bin/naje rx.naje >rx.log
+
+s:
+	./bin/unu interfaces/C-Rx.md > c-rx.c
+	./bin/unu Editor.md >editor.c
+	./bin/unu Extend.md >extend.c
+	./bin/unu Listener.md >listener.c
 	./bin/unu StandardLibrary.md > startup.rx
 
-capi: clean sdk stl rx
-	./bin/naje rx.naje
-	./bin/unu interfaces/C-Rx.md > c-rx.c
-	cp nga/nga.c .
-	$(CC) $(CFLAGS) c-rx.c -DINTERACTIVE -o c-rx
-	rm nga.c
+o:
+	$(CC) $(CFLAGS) -c nga/nga.c -o nga.o
+	$(CC) $(CFLAGS) -c listener.c -o listener.o
+	$(CC) $(CFLAGS) -c extend.c -o extend.o
+	$(CC) $(CFLAGS) -c editor.c -o editor.o
 
-clean-capi:
+l:
+	$(CC) nga.o listener.o -o listener
+	$(CC) nga.o extend.o -o extend
+	$(CC) nga.o editor.o -o editor
+
+x:
+	rm -f rx.naje ngaImage ngaImage.map rx.log
+	rm -f bin/*
 	rm -f c-rx.c c-rx *.log
+	rm -f *.c
+	rm -f *.o
 
-ngita: clean sdk rx stl
-	./bin/unu interfaces/Ngita-Rx.md >ngita-rx.nuance
-	./bin/unu Ngita-Extend.md >ngita-extend.rx
-	./bin/nuance ngita-rx.nuance >ngita-rx.naje
-	cat rx.naje ngita-rx.naje >_.naje
-	./bin/naje _.naje > build_ngita.log
-	rm -f _.naje ngita-rx.nuance ngita-rx.naje
-	cat startup.rx ngita-extend.rx | ./bin/ngita
-	mv rx.nga ngaImage
-
-clean-ngita:
-	rm -f ngaImage ngaImage.map ngita-extend.rx *.log
-
-rx: sdk
-	./bin/unu Rx.md >rx.naje
-
-clean-rx:
-	rm -f rx.nuance rx.naje
-
-sdk:
+t:
 	cd nga && $(CC) $(CFLAGS) unu.c -o ../bin/unu
 	cd nga && $(CC) $(CFLAGS) nga.c -DSTANDALONE -o ../bin/nga
 	cd nga && $(CC) $(CFLAGS) -DVERBOSE ngita.c -o ../bin/ngita
 	cd nga && $(CC) $(CFLAGS) naje.c -DALLOW_FORWARD_REFS -DENABLE_MAP -o ../bin/naje
-
-clean-sdk:
-	rm -f bin/*
-
-clean: clean-capi clean-ngita clean-rx clean-sdk
-	rm -f ngaImage ngaImage.map

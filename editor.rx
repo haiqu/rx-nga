@@ -1,0 +1,22 @@
+:red:Current `13 ; data
+:red:Row `3 ; data
+:red:Col `54 ; data
+
+{{
+:red:coords &red:Col fetch &red:Row fetch &red:Current fetch ;
+---reveal---
+:red:index red:coords #512 * swap #64 * + + ;
+}}
+
+:red:constrain &red:Row #0 #7 v:limit &red:Col #0 #63 v:limit &red:Current #0 #4095 v:limit ;
+
+:red:next-block &red:Current v:inc v:constrain ;
+:red:prior-block &red:Current v:dec v:constain ;
+:red:cursor-up &red:Row v:dec red:constrain ;
+:red:cursor-down &red:Row v:inc red:constrain ;
+:red:cursor-left &red:Col v:dec red:constrain ;
+:red:cursor-right &red:Col v:inc red:constrain ;
+
+:red:Mode `0 ; data
+:red:command:\ #1 &mode store ;
+:red:editor:\ #0 &mode store ;
