@@ -1083,12 +1083,9 @@ The dictionary is a linked list. This sets up the initial dictionary. Maintenanc
   .ref class:macro
   .string 0;
 :0021
-  .ref 0020
-  .ref dup-pair
-  .ref class:word
-  .string dup-pair
+
 :0022
-  .ref 0021
+  .ref 0020
   .ref fetch-next
   .ref class:word
   .string fetch-next
