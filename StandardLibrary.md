@@ -9,7 +9,13 @@ By itself Rx provides a very minimal Forth implementation. This, the *Rx Standar
 ## Comments
 
 ````
-:prefix:( drop ; &.macro &Dictionary fetch d:class store
+:prefix:( drop ; &class:macro &Dictionary fetch d:class store
+````
+
+## Inlining
+
+````
+:prefix:` &Compiler fetch [ str:asnumber , ] [ drop ] choose ; &class:macro &Dictionary fetch d:class store
 ````
 
 ## Constants
@@ -91,16 +97,16 @@ Apply q to x, y, and z
 
 Rx uses word classes to determine the behavior of functions. There are three primary classes:
 
-* .word
-* .macro
-* .data
+* class:word
+* class:macro
+* class:data
 
-The compiler defaults to using **.word**. The functions below add support for marking words as using other classses.
+The compiler defaults to using **class:word**. The functions below add support for marking words as using other classses.
 
 ````
 :reclass (a-) &Dictionary fetch d:class store ;
-:immediate &.macro reclass ;
-:data &.data reclass ;
+:immediate &class:macro reclass ;
+:data &class:data reclass ;
 ````
 
 Now we can do useful things like:
@@ -257,7 +263,7 @@ Hash (using DJB2)
 
 ````
 :skip-string pop [ fetch-next #0 -eq? ] while #1 - push ;
-:prefix:' compiling? [ &skip-string .word ] if &Heap fetch [ s, ] dip .data ; immediate
+:prefix:' compiling? [ &skip-string class:word ] if &Heap fetch [ s, ] dip class:data ; immediate
 ````
 
 ## Legalities

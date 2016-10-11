@@ -408,14 +408,14 @@ First, a variable indicating whether we should compile or run a function. This w
 
 Rx is built over the concept of *word classes*. Word classes are a way to group related words, based on their compilation and execution behaviors. A special word, called a *class handler*, is defined to handle an execution token passed to it on the stack. The compiler uses a variable named class to set the default class when compiling a word. We'll take a closer look at class later. Rx provides several classes with differing behaviors:
 
-**.data** provides for dealing with data structures.
+**class:data** provides for dealing with data structures.
 
 | interpret            | compile                       |
 | -------------------- | ----------------------------- |
 | leave value on stack | compile value into definition |
 
 ````
-:.data
+:class:data
   lit &compiling?
   call
   zret
@@ -428,58 +428,58 @@ Rx is built over the concept of *word classes*. Word classes are a way to group 
   ret
 ````
 
-**.word** handles most functions.
+**class:word** handles most functions.
 
 | interpret            | compile                       |
 | -------------------- | ----------------------------- |
 | call a function      | compile a call to a function  |
 
 ````
-:.word:interpret
+:class:word:interpret
   call
   ret
-:.word:compile
+:class:word:compile
   lit &_packedcall
   lit &comma:opcode
   call
   lit &comma
   call
   ret
-:.word
+:class:word
   lit &compiling?
   call
-  lit &.word:compile
-  lit &.word:interpret
+  lit &class:word:compile
+  lit &class:word:interpret
   lit &choose
   call
   ret
 ````
 
-**.primitive** is a special class handler for functions that correspond to Nga instructions.
+**class:primitive** is a special class handler for functions that correspond to Nga instructions.
 
 | interpret            | compile                                     |
 | -------------------- | ------------------------------------------- |
 | call the function    | compile the instruction into the definition |
 
 ````
-:.primitive
+:class:primitive
   lit &compiling?
   call
   lit &comma:opcode
-  lit &.word:interpret
+  lit &class:word:interpret
   lit &choose
   call
   ret
 ````
 
-**.macro** is the class handler for *compiler macros*. These are functions that always get called. They can be used to extend the language in interesting ways.
+**class:macro** is the class handler for *compiler macros*. These are functions that always get called. They can be used to extend the language in interesting ways.
 
 | interpret            | compile                       |
 | -------------------- | ----------------------------- |
 | call the function    | call the function             |
 
 ````
-:.macro
+:class:macro
   call
   ret
 ````
@@ -503,12 +503,12 @@ The initial dictionary is constructed at the end of this file. It'll take a form
     :0000
       .ref 0
       .ref _add
-      .ref .word
+      .ref class:word
       .string +
     :0001
       .ref 0000
       .ref _sub
-      .ref .word
+      .ref class:word
       .string -
 
 Each label will contain a reference to the prior one, the internal function name, its class, and a string indicating the name to expose to the Rx interpreter.
@@ -695,7 +695,7 @@ Prefixes are handled by functions with specific naming conventions. A prefix nam
 
     prefix:<prefix-char>
 
-Where *&lt;prefix-char&gt;* is the character for the prefix. These should be compiler macros (using the **.macro** class) and watch the **compiler** state to decide how to deal with the token. To find a prefix, Rx stores the prefix character into a string named **prefixed**. It then searches for this string in the dictionary. If found, it sets an internal variable (**prefix:handler**) to the dictionary entry for the handler function. If not found, **prefix:handler** is set to zero. The check, done by **prefix?**, also returns a flag.
+Where *&lt;prefix-char&gt;* is the character for the prefix. These should be compiler macros (using the **class:macro** class) and watch the **compiler** state to decide how to deal with the token. To find a prefix, Rx stores the prefix character into a string named **prefixed**. It then searches for this string in the dictionary. If found, it sets an internal variable (**prefix:handler**) to the dictionary entry for the handler function. If not found, **prefix:handler** is set to zero. The check, done by **prefix?**, also returns a flag.
 
 ````
 :prefix:handler
@@ -730,23 +730,22 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 | #      | numbers           | #100    |
 | $      | ASCII characters  | $e      |
 | &amp;  | pointers          | &swap   |
-| `      | inlining raw data | `123    |
-| (      | stack comments    | (xy-x)  |
+| :      | definitions       | :foo    |
 
 ````
 :prefix:#
   lit &str:asnumber
   call
-  lit &.data
+  lit &class:data
   call
   ret
 :prefix:$
   fetch
-  lit &.data
+  lit &class:data
   call
   ret
 :prefix::
-  lit &.word
+  lit &class:word
   lit &Heap
   fetch
   lit &newentry
@@ -768,17 +767,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
   lit &d:xt
   call
   fetch
-  lit &.data
-  call
-  ret
-:prefix:`
-  lit &str:asnumber
-  call
-  lit &compiling?
-  call
-  lit &comma
-  lit &_drop
-  lit &choose
+  lit &class:data
   call
   ret
 ````
@@ -993,350 +982,344 @@ The dictionary is a linked list. This sets up the initial dictionary. Maintenanc
 :0000
   .data 0
   .ref _dup
-  .ref .primitive
+  .ref class:primitive
   .string dup
 :0001
   .ref 0000
   .ref _drop
-  .ref .primitive
+  .ref class:primitive
   .string drop
 :0002
   .ref 0001
   .ref _swap
-  .ref .primitive
+  .ref class:primitive
   .string swap
 :0003
   .ref 0002
   .ref _call
-  .ref .primitive
+  .ref class:primitive
   .string call
 :0004
   .ref 0003
   .ref _eq
-  .ref .primitive
+  .ref class:primitive
   .string eq?
 :0005
   .ref 0004
   .ref _neq
-  .ref .primitive
+  .ref class:primitive
   .string -eq?
 :0006
   .ref 0005
   .ref _lt
-  .ref .primitive
+  .ref class:primitive
   .string lt?
 :0007
   .ref 0006
   .ref _gt
-  .ref .primitive
+  .ref class:primitive
   .string gt?
 :0008
   .ref 0007
   .ref _fetch
-  .ref .primitive
+  .ref class:primitive
   .string fetch
 :0009
   .ref 0008
   .ref _store
-  .ref .primitive
+  .ref class:primitive
   .string store
 :0010
   .ref 0009
   .ref _add
-  .ref .primitive
+  .ref class:primitive
   .string +
 :0011
   .ref 0010
   .ref _sub
-  .ref .primitive
+  .ref class:primitive
   .string -
 :0012
   .ref 0011
   .ref _mul
-  .ref .primitive
+  .ref class:primitive
   .string *
 :0013
   .ref 0012
   .ref _divmod
-  .ref .primitive
+  .ref class:primitive
   .string /mod
 :0014
   .ref 0013
   .ref _and
-  .ref .primitive
+  .ref class:primitive
   .string and
 :0015
   .ref 0014
   .ref _or
-  .ref .primitive
+  .ref class:primitive
   .string or
 :0016
   .ref 0015
   .ref _xor
-  .ref .primitive
+  .ref class:primitive
   .string xor
 :0017
   .ref 0016
   .ref _shift
-  .ref .primitive
+  .ref class:primitive
   .string shift
 :0018
   .ref 0017
   .ref t-push
-  .ref .macro
+  .ref class:macro
   .string push
 :0019
   .ref 0018
   .ref t-pop
-  .ref .macro
+  .ref class:macro
   .string pop
 :0020
   .ref 0019
   .ref t-0;
-  .ref .macro
+  .ref class:macro
   .string 0;
 :0021
   .ref 0020
   .ref dup-pair
-  .ref .word
+  .ref class:word
   .string dup-pair
 :0022
   .ref 0021
   .ref fetch-next
-  .ref .word
+  .ref class:word
   .string fetch-next
 :0023
   .ref 0022
   .ref store-next
-  .ref .word
+  .ref class:word
   .string store-next
 :0024
   .ref 0023
   .ref str:asnumber
-  .ref .word
+  .ref class:word
   .string str:asnumber
 :0025
   .ref 0024
   .ref str:eq
-  .ref .word
+  .ref class:word
   .string str:eq?
 :0026
   .ref 0025
   .ref str:length
-  .ref .word
+  .ref class:word
   .string str:length
 :0027
   .ref 0026
   .ref choose
-  .ref .word
+  .ref class:word
   .string choose
 :0028
   .ref 0027
   .ref if
-  .ref .word
+  .ref class:word
   .string if
 :0029
   .ref 0028
   .ref -if
-  .ref .word
+  .ref class:word
   .string -if
 :0030
   .ref 0029
   .ref Compiler
-  .ref .data
+  .ref class:data
   .string Compiler
 :0031
   .ref 0030
   .ref Heap
-  .ref .data
+  .ref class:data
   .string Heap
 :0032
   .ref 0031
   .ref comma
-  .ref .word
+  .ref class:word
   .string ,
 :0033
   .ref 0032
   .ref comma:string
-  .ref .word
+  .ref class:word
   .string s,
 :0034
   .ref 0033
   .ref t-;
-  .ref .macro
+  .ref class:macro
   .string ;
 :0035
   .ref 0034
   .ref t-[
-  .ref .macro
+  .ref class:macro
   .string [
 :0036
   .ref 0035
   .ref t-]
-  .ref .macro
+  .ref class:macro
   .string ]
 :0037
   .ref 0036
   .ref Dictionary
-  .ref .data
+  .ref class:data
   .string Dictionary
 :0038
   .ref 0037
   .ref d:link
-  .ref .word
+  .ref class:word
   .string d:link
 :0039
   .ref 0038
   .ref d:xt
-  .ref .word
+  .ref class:word
   .string d:xt
 :0040
   .ref 0039
   .ref d:class
-  .ref .word
+  .ref class:word
   .string d:class
 :0041
   .ref 0040
   .ref d:name
-  .ref .word
+  .ref class:word
   .string d:name
 :0042
   .ref 0041
-  .ref .word
-  .ref .word
-  .string .word
+  .ref class:word
+  .ref class:word
+  .string class:word
 :0043
   .ref 0042
-  .ref .macro
-  .ref .word
-  .string .macro
+  .ref class:macro
+  .ref class:word
+  .string class:macro
 :0044
   .ref 0043
-  .ref .data
-  .ref .word
-  .string .data
+  .ref class:data
+  .ref class:word
+  .string class:data
 :0045
   .ref 0044
   .ref newentry
-  .ref .word
+  .ref class:word
   .string d:add-header
 :0046
   .ref 0045
   .ref prefix:#
-  .ref .macro
+  .ref class:macro
   .string prefix:#
 :0047
   .ref 0046
   .ref prefix::
-  .ref .macro
+  .ref class:macro
   .string prefix::
 :0048
   .ref 0047
   .ref prefix:&
-  .ref .macro
+  .ref class:macro
   .string prefix:&
 :0049
   .ref 0048
   .ref prefix:$
-  .ref .macro
+  .ref class:macro
   .string prefix:$
 :0050
   .ref 0049
-  .ref prefix:`
-  .ref .macro
-  .string prefix:`
+  .ref repeat
+  .ref class:macro
+  .string repeat
 :0051
   .ref 0050
-  .ref repeat
-  .ref .macro
-  .string repeat
+  .ref again
+  .ref class:macro
+  .string again
 :0052
   .ref 0051
-  .ref again
-  .ref .macro
-  .string again
+  .ref interpret
+  .ref class:word
+  .string interpret
 :0053
   .ref 0052
-  .ref interpret
-  .ref .word
-  .string interpret
+  .ref d:lookup
+  .ref class:word
+  .string d:lookup
 :0054
   .ref 0053
-  .ref d:lookup
-  .ref .word
-  .string d:lookup
-:0055
-  .ref 0054
-  .ref .primitive
-  .ref .word
-  .string .primitive
+  .ref class:primitive
+  .ref class:word
+  .string class:primitive
 :9999
-  .ref 0055
+  .ref 0054
   .ref err:notfound
-  .ref .word
+  .ref class:word
   .string err:notfound
 ````
 
 ## Appendix: Words, Stack Effects, and Usage
 
-| Word         | Stack     | Notes                                             |
-| ------------ | --------- | ------------------------------------------------- |
-| dup          | n-nn      | Duplicate the top item on the stack               |
-| drop         | nx-n      | Discard the top item on the stack                 |
-| swap         | nx-xn     | Switch the top two items on the stack             |
-| call         | p-        | Call a function (via pointer)                     |
-| eq?          | nn-f      | Compare two values for equality                   |
-| -eq?         | nn-f      | Compare two values for inequality                 |
-| lt?          | nn-f      | Compare two values for less than                  |
-| gt?          | nn-f      | Compare two values for greater than               |
-| fetch        | p-n       | Fetch a value stored at the pointer               |
-| store        | np-       | Store a value into the address at pointer         |
-| +            | nn-n      | Add two numbers                                   |
-| -            | nn-n      | Subtract two numbers                              |
-| *            | nn-n      | Multiply two numbers                              |
-| /mod         | nn-mq     | Divide two numbers, return quotient and remainder |
-| and          | nn-n      | Perform bitwise AND operation                     |
-| or           | nn-n      | Perform bitwise OR operation                      |
-| xor          | nn-n      | Perform bitwise XOR operation                     |
-| shift        | nn-n      | Perform bitwise shift                             |
-| fetch-next   | a-an      | Fetch a value and return next address             |
-| store-next   | na-a      | Store a value to address and return next address  |
-| push         | n-        | Move value from data stack to address stack       |
-| pop          | -n        | Move value from address stack to data stack       |
-| 0;           | n-n OR n- | Exit word (and **drop**) if TOS is zero           |
-| str:asnumber | s-n       | Convert a string to a number                      |
-| str:compare  | ss-f      | Compare two strings for equality                  |
-| str:length   | s-n       | Return length of string                           |
-| choose       | fpp-?     | Execute *p1* if *f* is -1, or *p2* if *f* is 0    |
-| if           | fp-?      | Execute *p* if flag *f* is true (-1)              |
-| -if          | fp-?      | Execute *p* if flag *f* is false (0)              |
-| Compiler     | -p        | Variable; holds compiler state                    |
-| Heap         | -p        | Variable; points to next free memory address      |
-| ,            | n-        | Compile a value into memory at **here**           |
-| s,           | s-        | Compile a string into memory at **here**          |
-| ;            | -         | End compilation and compile a *return* instruction|
-| [            | -         | Begin a quotation                                 |
-| ]            | -         | End a quotation                                   |
-| Dictionary   | -p        | Variable; points to most recent header            |
-| d:link       | p-p       | Given a DT, return the address of the link field  |
-| d:xt         | p-p       | Given a DT, return the address of the xt field    |
-| d:class      | p-p       | Given a DT, return the address of the class field |
-| d:name       | p-p       | Given a DT, return the address of the name field  |
-| .word        | p-        | Class handler for standard functions              |
-| .primitive   | p-        | Class handler for Nga primitives                  |
-| .macro       | p-        | Class handler for immediate functions             |
-| .data        | p-        | Class handler for data                            |
-| d:add-header | saa-      | Add an item to the dictionary                     |
-| prefix:#     | s-        | # prefix for numbers                              |
-| prefix::     | s-        | : prefix for definitions                          |
-| prefix:&     | s-        | & prefix for pointers                             |
-| prefix:$     | s-        | $ prefix for ASCII characters                     |
-| prefix:`     | s-        | ` prefix for bytecode                             |
-| repeat       | -a        | Start an unconditional loop                       |
-| again        | a-        | End an unconditional loop                         |
-| interpret    | s-?       | Evaluate a token                                  |
-| d:lookup     | s-p       | Given a string, return the DT (or 0 if undefined) |
-| err:notfound | -         | Handler for token not found errors                |
+| Word            | Stack     | Notes                                             |
+| --------------- | --------- | ------------------------------------------------- |
+| dup             | n-nn      | Duplicate the top item on the stack               |
+| drop            | nx-n      | Discard the top item on the stack                 |
+| swap            | nx-xn     | Switch the top two items on the stack             |
+| call            | p-        | Call a function (via pointer)                     |
+| eq?             | nn-f      | Compare two values for equality                   |
+| -eq?            | nn-f      | Compare two values for inequality                 |
+| lt?             | nn-f      | Compare two values for less than                  |
+| gt?             | nn-f      | Compare two values for greater than               |
+| fetch           | p-n       | Fetch a value stored at the pointer               |
+| store           | np-       | Store a value into the address at pointer         |
+| +               | nn-n      | Add two numbers                                   |
+| -               | nn-n      | Subtract two numbers                              |
+| *               | nn-n      | Multiply two numbers                              |
+| /mod            | nn-mq     | Divide two numbers, return quotient and remainder |
+| and             | nn-n      | Perform bitwise AND operation                     |
+| or              | nn-n      | Perform bitwise OR operation                      |
+| xor             | nn-n      | Perform bitwise XOR operation                     |
+| shift           | nn-n      | Perform bitwise shift                             |
+| fetch-next      | a-an      | Fetch a value and return next address             |
+| store-next      | na-a      | Store a value to address and return next address  |
+| push            | n-        | Move value from data stack to address stack       |
+| pop             | -n        | Move value from address stack to data stack       |
+| 0;              | n-n OR n- | Exit word (and **drop**) if TOS is zero           |
+| str:asnumber    | s-n       | Convert a string to a number                      |
+| str:compare     | ss-f      | Compare two strings for equality                  |
+| str:length      | s-n       | Return length of string                           |
+| choose          | fpp-?     | Execute *p1* if *f* is -1, or *p2* if *f* is 0    |
+| if              | fp-?      | Execute *p* if flag *f* is true (-1)              |
+| -if             | fp-?      | Execute *p* if flag *f* is false (0)              |
+| Compiler        | -p        | Variable; holds compiler state                    |
+| Heap            | -p        | Variable; points to next free memory address      |
+| ,               | n-        | Compile a value into memory at **here**           |
+| s,              | s-        | Compile a string into memory at **here**          |
+| ;               | -         | End compilation and compile a *return* instruction|
+| [               | -         | Begin a quotation                                 |
+| ]               | -         | End a quotation                                   |
+| Dictionary      | -p        | Variable; points to most recent header            |
+| d:link          | p-p       | Given a DT, return the address of the link field  |
+| d:xt            | p-p       | Given a DT, return the address of the xt field    |
+| d:class         | p-p       | Given a DT, return the address of the class field |
+| d:name          | p-p       | Given a DT, return the address of the name field  |
+| class:word      | p-        | Class handler for standard functions              |
+| class:primitive | p-        | Class handler for Nga primitives                  |
+| class:macro     | p-        | Class handler for immediate functions             |
+| class:data      | p-        | Class handler for data                            |
+| d:add-header    | saa-      | Add an item to the dictionary                     |
+| prefix:#        | s-        | # prefix for numbers                              |
+| prefix::        | s-        | : prefix for definitions                          |
+| prefix:&        | s-        | & prefix for pointers                             |
+| prefix:$        | s-        | $ prefix for ASCII characters                     |
+| repeat          | -a        | Start an unconditional loop                       |
+| again           | a-        | End an unconditional loop                         |
+| interpret       | s-?       | Evaluate a token                                  |
+| d:lookup        | s-p       | Given a string, return the DT (or 0 if undefined) |
+| err:notfound    | -         | Handler for token not found errors                |
 
 ## Legalities
 
