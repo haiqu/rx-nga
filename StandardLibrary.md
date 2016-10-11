@@ -268,11 +268,9 @@ Temporary strings are allocated in a circular pool.
   &str:Current fetch str:MAX-LENGTH * &str:Pool + ;
 :str:next (-) #1 &str:Current v:inc-by &str:Current fetch #12 eq? [ #0 &str:Current store ] if ;
 :str:temp (s-s) dup str:length str:pointer swap copy str:pointer str:next ;
-````
-
-````
-:skip-string pop [ fetch-next #0 -eq? ] while #1 - push ;
-:prefix:' compiling? [ &skip-string class:word ] if &Heap fetch [ s, ] dip class:data ; immediate
+:str:<skip> pop [ fetch-next #0 -eq? ] while #1 - push ;
+:str:keep compiling? [ &str:<skip> class:word ] if &Heap fetch [ s, ] dip class:data ;
+:prefix:' compiling? [ str:keep ] [ str:temp ] choose ; immediate
 ````
 
 ````
