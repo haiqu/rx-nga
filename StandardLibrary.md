@@ -111,9 +111,9 @@ The compiler defaults to using **class:word**. The functions below add support f
 
 Now we can do useful things like:
 
-    :Red   #0 ; data
-    :Green #1 ; data
-    :Blue  #2 ; data
+    :Red   `0 ; data
+    :Green `1 ; data
+    :Blue  `2 ; data
 
     :inline-100 &Compiler fetch [ #1 , #100 , ] [ #100 ] choose ; immediate
 
@@ -268,14 +268,14 @@ Temporary strings are allocated in a circular pool.
   &str:Current fetch str:MAX-LENGTH * &str:Pool + ;
 :str:next (-) #1 &str:Current v:inc-by &str:Current fetch #12 eq? [ #0 &str:Current store ] if ;
 :str:temp (s-s) dup str:length str:pointer swap copy str:pointer str:next ;
-:str:<skip> pop [ fetch-next #0 -eq? ] while #1 - push ;
+:str:<skip> pop [ fetch-next #0 -eq? ] while dec push ;
 :str:keep compiling? [ &str:<skip> class:word ] if &Heap fetch [ s, ] dip class:data ;
 :prefix:' compiling? [ str:keep ] [ str:temp ] choose ; immediate
-:str:chop (s-s) str:temp dup str:length over + #1 - #0 swap store ;
+:str:chop (s-s) str:temp dup str:length over + dec #0 swap store ;
 :str:reverse (s-s)
-  dup str:temp buffer:set &str:length [ dup str:length + #1 - ] bi swap
-  [ dup fetch buffer:add #1 - ] times drop buffer:start str:temp ;
-:str:trim-left (s-s) str:temp [ fetch-next [ #32 eq? ] [ #0 -eq? ] bi and ] while #1 - ;
+  dup str:temp buffer:set &str:length [ dup str:length + dec ] bi swap
+  [ dup fetch buffer:add dec ] times drop buffer:start str:temp ;
+:str:trim-left (s-s) str:temp [ fetch-next [ #32 eq? ] [ #0 -eq? ] bi and ] while dec ;
 :str:trim-right (s-s) str:temp str:reverse str:trim-left str:reverse ;
 :str:trim (s-s) str:trim-right str:trim-left ;
 ````
