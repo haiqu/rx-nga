@@ -156,6 +156,8 @@ The core Rx language provides addition, subtraction, multiplication, and a combi
 :min     (nn-n)  dup-pair lt? [ drop ] [ nip ] choose ;
 :max     (nn-n)  dup-pair gt? [ drop ] [ nip ] choose ;
 :limit   (nlu-n) swap push min pop max ;
+:inc     (n-n)   #1 + ;
+:dec     (n-n)   #1 - ;
 ````
 
 ## Memory
@@ -176,7 +178,7 @@ The dictionary is a simple linked list. Rx allows for some control over what is 
 As an example:
 
     {{
-      :increment dup fetch #1 + swap store ;
+      :increment dup fetch inc swap store ;
       :Value `0 ;
     ---reveal---
       :next-number &Value fetch &Value increment ;
@@ -187,8 +189,8 @@ Only the **next-number** function will remain visible once **}}** is executed.
 ````
 :ScopeList `0 `0 ;
 :{{ &Dictionary fetch dup &ScopeList store-next store ;
-:---reveal--- &Dictionary fetch &ScopeList #1 + store ;
-:}} &ScopeList fetch-next swap fetch eq? [ &ScopeList fetch &Dictionary store ] [ &ScopeList fetch [ &Dictionary repeat fetch dup fetch &ScopeList #1 + fetch -eq? 0; drop again ] call store ] choose ;
+:---reveal--- &Dictionary fetch &ScopeList inc store ;
+:}} &ScopeList fetch-next swap fetch eq? [ &ScopeList fetch &Dictionary store ] [ &ScopeList fetch [ &Dictionary repeat fetch dup fetch &ScopeList inc fetch -eq? 0; drop again ] call store ] choose ;
 ````
 
 ## Flow
@@ -208,7 +210,7 @@ Execute quote until quote returns a flag of -1.
 The **times** combinator runs a quote (n) times.
 
 ````
-:times swap [ repeat 0; #1 - push &call sip pop again ] call drop ;
+:times swap [ repeat 0; dec push &call sip pop again ] call drop ;
 ````
 
 ## Strings
@@ -247,6 +249,10 @@ Hash (using DJB2)
 :later pop pop swap push push ;
 ````
 
+````
+:copy   (aan-) [ &fetch-next dip store-next ] times drop drop ;
+````
+
 ## Strings
 
 Strings are zero terminated.
@@ -254,14 +260,10 @@ Strings are zero terminated.
 Temporary strings are allocated in a circular pool.
 
 ````
-:copy   (aan-) [ &fetch-next dip store-next ] times drop drop ;
-````
-
-````
 :str:MAX-LENGTH #128 ;
 :str:POOL-SIZE  #12 ;
-:str:Current `0 ;
-:str:Pool `0 ;
+:str:Current `0 ; data
+:str:Pool `0 ; data
   str:MAX-LENGTH str:POOL-SIZE * allot
 
 :str:pointer (-p)
@@ -278,6 +280,11 @@ Temporary strings are allocated in a circular pool.
 :str:trim-left (s-s) str:temp [ fetch-next [ #32 eq? ] [ #0 -eq? ] bi and ] while dec ;
 :str:trim-right (s-s) str:temp str:reverse str:trim-left str:reverse ;
 :str:trim (s-s) str:trim-right str:trim-left ;
+:str:Buffer `0 ; data #128 allot
+:str:prepend (ss-s)
+  dup str:length &str:Buffer swap &copy sip
+  [ dup str:length ] dip &str:Buffer + swap copy &str:Buffer str:temp ;
+:str:append (ss-s) swap str:prepend ;
 ````
 
 ````
