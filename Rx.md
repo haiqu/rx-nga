@@ -10,9 +10,7 @@
 
 Rx is developed using a literate tool called *unu*. This allows extraction of fenced code blocks into a separate file for later compilation. Developing in a literate approach is beneficial as it makes it easier for me to keep documentation current and lets me approach the code in a more structured manner.
 
-Since this targets Nga, it makes use of the Nga toolchain for building. The code is written in *nuance*. Nuance is a small preprocessor that converts a simple Forth-style language into assembly. I chose to do it this way to reduce the time needed to build and maintain this. Generally the syntax of Nuance is similar to the Rx language, though it adds some useful things like support for forward references. Nuance generates assembly language. This is built with *naje*, the standard Nga assembler.
-
-The entire process of using *unu*, *nuance*, and *naje* to build an image for Nga takes around 0.1s on my Linode.
+The source is written in Naje, the standard assembler for Nga.
 
 ## In the Beginning..
 
