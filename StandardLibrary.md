@@ -245,6 +245,20 @@ Hash (using DJB2)
 
 ## Incoming
 
+**later** is a small tool for interleaving code execution paths. This is somewhat difficult to explain.
+
+Let's look at an example:
+
+    :a #1 later #3 ;
+    :b a #2 ;
+
+When *b* executes it begins by calling *a* which pushes #1 to the stack. **later** then returns control to *b*, which pushes #2 to the stack. When execution of *b* ends at the *;*, control returns to *a* which finishes executing by pushing the #3 to the stack.
+
+You can use **later** to pass control back and forth:
+
+    :a #1 later #2 ;
+    :b a #33 * later + ;
+
 ````
 :later pop pop swap push push ;
 ````
@@ -260,26 +274,68 @@ Strings are zero terminated.
 Temporary strings are allocated in a circular pool.
 
 ````
-:str:MAX-LENGTH #128 ;
-:str:POOL-SIZE  #12 ;
-:str:Current `0 ; data
-:str:Pool `0 ; data
-  str:MAX-LENGTH str:POOL-SIZE * allot
+{{
+  :str:MAX-LENGTH #128 ;
+  :str:POOL-SIZE  #12 ;
+  :str:Current `0 ; data
+  :str:Pool `0 ; data  str:MAX-LENGTH str:POOL-SIZE * allot
 
-:str:pointer (-p)
-  &str:Current fetch str:MAX-LENGTH * &str:Pool + ;
-:str:next (-) #1 &str:Current v:inc-by &str:Current fetch #12 eq? [ #0 &str:Current store ] if ;
-:str:temp (s-s) dup str:length str:pointer swap copy str:pointer str:next ;
-:str:<skip> pop [ fetch-next #0 -eq? ] while dec push ;
-:str:keep compiling? [ &str:<skip> class:word ] if &Heap fetch [ s, ] dip class:data ;
+  :str:pointer (-p)  &str:Current fetch str:MAX-LENGTH * &str:Pool + ;
+  :str:next (-) #1 &str:Current v:inc-by &str:Current fetch #12 eq? [ #0 &str:Current store ] if ;
+---reveal---
+  :str:temp (s-s) dup str:length str:pointer swap copy str:pointer str:next ;
+}}
+````
+
+Permanent strings are compiled into memory. To skip over them a helper function is used. When compiled into a definition this will look like:
+
+    lit &str:skip
+    call
+    :stringbegins
+    .data 98
+    .data 99
+    .data 100
+    .data 0
+    lit &stringbegins
+
+The **str:skip** adjusts the Nga instruction pointer to skip to the code following the stored string.
+
+````
+:str:skip pop [ fetch-next #0 -eq? ] while dec push ;
+:str:keep compiling? [ &str:skip class:word ] if &Heap fetch [ s, ] dip class:data ;
+````
+
+````
 :prefix:' compiling? [ str:keep ] [ str:temp ] choose ; immediate
+````
+
+**str:chop** removes the last character from a string.
+
+````
 :str:chop (s-s) str:temp dup str:length over + dec #0 swap store ;
+````
+
+**str:reverse** reverses the order of a string. E.g.,
+
+    'hello'  ->  'olleh'
+
+````
 :str:reverse (s-s)
   dup str:temp buffer:set &str:length [ dup str:length + dec ] bi swap
   [ dup fetch buffer:add dec ] times drop buffer:start str:temp ;
+````
+
+Trimming removes leading (**str:trim-left**) or trailing (**str:trim-right**) spaces from a string. **str:trim** removes both leading and trailing spaces.
+
+````
 :str:trim-left (s-s) str:temp [ fetch-next [ #32 eq? ] [ #0 -eq? ] bi and ] while dec ;
 :str:trim-right (s-s) str:temp str:reverse str:trim-left str:reverse ;
 :str:trim (s-s) str:trim-right str:trim-left ;
+````
+
+**str:prepend** and **str:append** for concatenating strings together.
+
+````
 :str:Buffer `0 ; data #128 allot
 :str:prepend (ss-s)
   dup str:length &str:Buffer swap &copy sip
