@@ -272,7 +272,12 @@ Temporary strings are allocated in a circular pool.
 :str:keep compiling? [ &str:<skip> class:word ] if &Heap fetch [ s, ] dip class:data ;
 :prefix:' compiling? [ str:keep ] [ str:temp ] choose ; immediate
 :str:chop (s-s) str:temp dup str:length over + #1 - #0 swap store ;
+:str:reverse (s-s)
+  dup str:temp buffer:set &str:length [ dup str:length + #1 - ] bi swap
+  [ dup fetch buffer:add #1 - ] times drop buffer:start str:temp ;
 :str:trim-left (s-s) str:temp [ fetch-next [ #32 eq? ] [ #0 -eq? ] bi and ] while #1 - ;
+:str:trim-right (s-s) str:temp str:reverse str:trim-left str:reverse ;
+:str:trim (s-s) str:trim-right str:trim-left ;
 ````
 
 ````
