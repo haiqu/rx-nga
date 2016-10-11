@@ -166,6 +166,7 @@ The core Rx language provides addition, subtraction, multiplication, and a combi
 :v:inc     (n-n)   #1 swap v:inc-by ;
 :v:dec     (n-n)   #1 swap v:dec-by ;
 :v:limit   (alu-)  push push dup fetch pop pop limit swap store ;
+:allot     (n-)    &Heap v:inc-by ;
 ````
 
 ## Lexical Scope
@@ -246,6 +247,34 @@ Hash (using DJB2)
 :later pop pop swap push push ;
 ````
 
+## Strings
+
+Strings are zero terminated.
+
+Temporary strings are allocated in a circular pool.
+
+````
+:copy   (aan-) [ &fetch-next dip store-next ] times drop drop ;
+````
+
+````
+:str:MAX-LENGTH #128 ;
+:str:POOL-SIZE  #12 ;
+:str:Current `0 ;
+:str:Pool `0 ;
+  str:MAX-LENGTH str:POOL-SIZE * allot
+
+:str:pointer (-p)
+  &str:Current fetch str:MAX-LENGTH * &str:Pool + ;
+:str:next (-) #1 &str:Current v:inc-by &str:Current fetch #12 eq? [ #0 &str:Current store ] if ;
+:str:temp (s-s) dup str:length str:pointer swap copy str:pointer str:next ;
+````
+
+````
+:skip-string pop [ fetch-next #0 -eq? ] while #1 - push ;
+:prefix:' compiling? [ &skip-string class:word ] if &Heap fetch [ s, ] dip class:data ; immediate
+````
+
 ````
 {{
   :Needle `0 ; data
@@ -259,11 +288,6 @@ Hash (using DJB2)
      &Needle fetch eq? [ #-1 #0 ] [ #-1 ] choose 0; drop
   again ;
 }}
-````
-
-````
-:skip-string pop [ fetch-next #0 -eq? ] while #1 - push ;
-:prefix:' compiling? [ &skip-string class:word ] if &Heap fetch [ s, ] dip class:data ; immediate
 ````
 
 ## Legalities
