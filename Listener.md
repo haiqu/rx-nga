@@ -28,27 +28,6 @@ Just a quick copyright notice.
 ##
 
 ````
-void read_token(FILE *file, char *token_buffer) {
-  char ch = getc(file);
-  int count = 0;
-  if (ch == '\'') {
-    token_buffer[count++] = ch;
-    ch = getc(file);
-    while ((ch != '\'') && (ch != EOF))
-    {
-      token_buffer[count++] = ch;
-      ch = getc(file);
-    }
-  } else {
-    while ((ch != '\n') && (ch != ' ') && (ch != EOF))
-    {
-      token_buffer[count++] = ch;
-      ch = getc(file);
-    }
-  }
-  token_buffer[count] = '\0';
-}
-
 void include_file(char *fname) {
   char source[64000];
   FILE *fp;

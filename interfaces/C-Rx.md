@@ -2,10 +2,6 @@
 
 As with Nga, Rx is designed to be embedded and customized. This is a C language API for interacting with an Rx system. It includes an example *listener* which provides a minimal means of interacting with Rx, using the API and standard C libraries.
 
-NOTE: this is *very* early. Expect a lot of changes to occur in the near future.
-
-Compile with **-DINTERACTIVE** for the embedded listener.
-
 ## Notes
 
 Finished:
@@ -237,41 +233,14 @@ void evaluate(char *s) {
 }
 ````
 
-````
-#ifdef INTERACTIVE
+## Read a Token
 
-void dump_stack() {
-  printf("Stack: ");
-  for (CELL i = 1; i <= sp; i++) {
-    if (i == sp)
-      printf("< %d >", data[i]);
-    else
-      printf("%d ", data[i]);
-  }
-  printf("\n");
-}
-````
-
-The prompt should only show if the compiler is off.
-
-````
-void prompt() {
-  if (memory[Compiler] == 0)
-    printf(" ok  ");
-}
-````
+Read a token from an input source into a specified buffer. The token ends with a space or newline. If the first character is a single quote (') then the token ends with a second ' instead. (The string parsing using quotes needs the stdlib to be useful, as the base Rx system doesn't provide for the ' prefix.)
 
 ````
 void read_token(FILE *file, char *token_buffer) {
-  if (file == NULL)
-  {
-    printf("Error: file pointer is null.");
-    exit(1);
-  }
-
   char ch = getc(file);
   int count = 0;
-
   if (ch == '\'') {
     token_buffer[count++] = ch;
     ch = getc(file);
@@ -289,62 +258,4 @@ void read_token(FILE *file, char *token_buffer) {
   }
   token_buffer[count] = '\0';
 }
-
-
-void include_file(char *fname) {
-  char source[64000];
-  FILE *fp;
-
-  fp = fopen(fname, "r");
-  if (fp == NULL)
-    return;
-
-  while (!feof(fp))
-  {
-    read_token(fp, source);
-    evaluate(source);
-  }
-
-  fclose(fp);
-}
-````
-
-````
-int main(int argc, char **argv) {
-  printf("rx-2016.10 [C-Rx Listener]\n");
-  ngaPrepare();
-  ngaLoadImage("ngaImage");
-
-  update_rx();
-
-  printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, TIB, Heap);
-
-  char input[1024];
-
-  include_file("startup.rx");
-
-  while(1) {
-    prompt();
-    Dictionary = memory[2];
-    scanf("%s", input);
-    if (strcmp(input, "bye") == 0)
-      exit(0);
-    else if (strcmp(input, "words") == 0) {
-      CELL i = Dictionary;
-      while (i != 0) {
-        string_extract(d_name(i));
-        printf("%s  ", string_data);
-        i = memory[i];
-      }
-      printf("(%d entries)\n", d_count_entries(Dictionary));
-    }
-    else if (strcmp(input, ".s") == 0) {
-      dump_stack();
-    }
-    else
-      evaluate(input);
-  }
-  exit(0);
-}
-#endif
 ````

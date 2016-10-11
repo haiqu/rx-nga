@@ -1,3 +1,5 @@
+# C-Rx Image Extender
+
 ````
 /* c-rx.c, copyright (c) 2016 charles childers */
 
@@ -6,34 +8,6 @@
 #include <unistd.h>
 #include <string.h>
 #include "c-rx.c"
-
-
-
-void read_token(FILE *file, char *token_buffer) {
-  if (file == NULL)
-  {
-    printf("Error: file pointer is null.");
-    exit(1);
-  }
-  char ch = getc(file);
-  int count = 0;
-  if (ch == '\'') {
-    token_buffer[count++] = ch;
-    ch = getc(file);
-    while ((ch != '\'') && (ch != EOF))
-    {
-      token_buffer[count++] = ch;
-      ch = getc(file);
-    }
-  } else {
-    while ((ch != '\n') && (ch != ' ') && (ch != EOF))
-    {
-      token_buffer[count++] = ch;
-      ch = getc(file);
-    }
-  }
-  token_buffer[count] = '\0';
-}
 
 void include_file(char *fname) {
   char source[64000];

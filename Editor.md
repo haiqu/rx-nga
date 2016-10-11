@@ -148,7 +148,7 @@ void display_stack() {
   }
   printf("\n");
 }
-int read_token(int offset, char *token_buffer) {
+int next_token(int offset, char *token_buffer) {
   int end = offset;
   int count = 0;
   char ch = blocks[(block *512) + end];
@@ -167,7 +167,7 @@ void evaluate_block() {
   int offset = 0;
   while (offset < 512)
   {
-    offset = read_token(offset, source);
+    offset = next_token(offset, source);
     evaluate(source);
   }
 }
