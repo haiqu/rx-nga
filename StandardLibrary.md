@@ -44,7 +44,7 @@ This is used to change the class from **class:word** to **class:macro**. Doing t
 ## Inlining
 
 ````
-:prefix:` (s-) &Compiler fetch [ str:as-number , ] [ drop ] choose ; &class:macro &Dictionary fetch d:class store
+:prefix:` (s-) &Compiler fetch [ str:to-number , ] [ drop ] choose ; &class:macro &Dictionary fetch d:class store
 ````
 
 ## Constants
