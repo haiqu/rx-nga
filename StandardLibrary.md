@@ -40,7 +40,6 @@ This is used to change the class from **class:word** to **class:macro**. Doing t
 :compile:call (a-) compile:lit #8 , ;
 ````
 
-
 ## Inlining
 
 ````
@@ -57,10 +56,10 @@ This is used to change the class from **class:word** to **class:macro**. Doing t
 ## Comparators
 
 ````
-:zero?     (n-f)  #0 eq? ;
-:-zero?    (n-f)  #0 -eq? ;
-:negative  (n-f)  #0 lt? ;
-:positive  (n-f)  #0 gt? ;
+:n:zero?     (n-f)  #0 eq? ;
+:n:-zero?    (n-f)  #0 -eq? ;
+:n:negative?  (n-f)  #0 lt? ;
+:n:positive?  (n-f)  #0 gt? ;
 ````
 
 ## Combinators
@@ -147,14 +146,14 @@ The core Rx language provides a few basic stack shuffling words: **push**, **pop
 :dup-pair  (xy-xyxy)  over over ;
 :nip       (xy-y)     swap drop ;
 :drop-pair (nn-)      drop drop ;
-:?dup      (n-nn||n-n)  dup 0; ;
-:rot [ swap ] dip swap ;
+:?dup      (n-nn||n-n) dup 0; ;
+:rot       (abc-bca)   [ swap ] dip swap ;
 ````
 
 Short for *top of return stack*, this returns the top item on the address stack. As an analog to traditional Forth, this is equivilent to **R@**.
 
 ````
-:tors pop pop dup push swap push ;
+:tors (-n)  pop pop dup push swap push ;
 ````
 
 ## Math
@@ -165,14 +164,14 @@ The core Rx language provides addition, subtraction, multiplication, and a combi
 :/       (nq-d)  /mod swap drop ;
 :mod     (nq-r)  /mod drop ;
 :not     (n-n)   #-1 xor ;
-:negate  (n-n)   #-1 * ;
-:square  (n-n)   dup * ;
-:min     (nn-n)  dup-pair lt? [ drop ] [ nip ] choose ;
-:max     (nn-n)  dup-pair gt? [ drop ] [ nip ] choose ;
-:abs     (n-n)   dup negate max ;
-:limit   (nlu-n) swap push min pop max ;
-:inc     (n-n)   #1 + ;
-:dec     (n-n)   #1 - ;
+:n:negate  (n-n)   #-1 * ;
+:n:square  (n-n)   dup * ;
+:n:min     (nn-n)  dup-pair lt? [ drop ] [ nip ] choose ;
+:n:max     (nn-n)  dup-pair gt? [ drop ] [ nip ] choose ;
+:n:abs     (n-n)   dup n:negate n:max ;
+:n:limit   (nlu-n) swap push n:min pop n:max ;
+:n:inc     (n-n)   #1 + ;
+:n:dec     (n-n)   #1 - ;
 ````
 
 ## Memory
@@ -182,7 +181,7 @@ The core Rx language provides addition, subtraction, multiplication, and a combi
 :v:dec-by  (na-)   [ fetch swap - ] sip store ;
 :v:inc     (n-n)   #1 swap v:inc-by ;
 :v:dec     (n-n)   #1 swap v:dec-by ;
-:v:limit   (alu-)  push push dup fetch pop pop limit swap store ;
+:v:limit   (alu-)  push push dup fetch pop pop n:limit swap store ;
 :allot     (n-)    &Heap v:inc-by ;
 ````
 
@@ -193,7 +192,7 @@ The dictionary is a simple linked list. Rx allows for some control over what is 
 As an example:
 
     {{
-      :increment dup fetch inc swap store ;
+      :increment dup fetch n:inc swap store ;
       :Value `0 ;
     ---reveal---
       :next-number &Value fetch &Value increment ;
@@ -204,8 +203,8 @@ Only the **next-number** function will remain visible once **}}** is executed.
 ````
 :ScopeList `0 `0 ;
 :{{ &Dictionary fetch dup &ScopeList store-next store ;
-:---reveal--- &Dictionary fetch &ScopeList inc store ;
-:}} &ScopeList fetch-next swap fetch eq? [ &ScopeList fetch &Dictionary store ] [ &ScopeList fetch [ &Dictionary repeat fetch dup fetch &ScopeList inc fetch -eq? 0; drop again ] call store ] choose ;
+:---reveal--- &Dictionary fetch &ScopeList n:inc store ;
+:}} &ScopeList fetch-next swap fetch eq? [ &ScopeList fetch &Dictionary store ] [ &ScopeList fetch [ &Dictionary repeat fetch dup fetch &ScopeList n:inc fetch -eq? 0; drop again ] call store ] choose ;
 ````
 
 ## Flow
@@ -213,19 +212,19 @@ Only the **next-number** function will remain visible once **}}** is executed.
 Execute quote until quote returns a flag of 0.
 
 ````
-:while [ repeat dup dip swap 0; drop again ] call drop ;
+:while  (q-)  [ repeat dup dip swap 0; drop again ] call drop ;
 ````
 
 Execute quote until quote returns a flag of -1.
 
 ````
-:until [ repeat dup dip swap not 0; drop again ] call drop ;
+:until  (q-)  [ repeat dup dip swap not 0; drop again ] call drop ;
 ````
 
 The **times** combinator runs a quote (n) times.
 
 ````
-:times swap [ repeat 0; dec push &call sip pop again ] call drop ;
+:times  (q-)  swap [ repeat 0; n:dec push &call sip pop again ] call drop ;
 ````
 
 ## Strings
@@ -316,7 +315,7 @@ Permanent strings are compiled into memory. To skip over them a helper function 
 The **str:skip** adjusts the Nga instruction pointer to skip to the code following the stored string.
 
 ````
-:str:skip pop [ fetch-next #0 -eq? ] while dec push ;
+:str:skip pop [ fetch-next #0 -eq? ] while n:dec push ;
 :str:keep compiling? [ &str:skip class:word ] if &Heap fetch [ s, ] dip class:data ;
 ````
 
@@ -327,7 +326,7 @@ The **str:skip** adjusts the Nga instruction pointer to skip to the code followi
 **str:chop** removes the last character from a string.
 
 ````
-:str:chop (s-s) str:temp dup str:length over + dec #0 swap store ;
+:str:chop (s-s) str:temp dup str:length over + n:dec #0 swap store ;
 ````
 
 **str:reverse** reverses the order of a string. E.g.,
@@ -336,14 +335,14 @@ The **str:skip** adjusts the Nga instruction pointer to skip to the code followi
 
 ````
 :str:reverse (s-s)
-  dup str:temp buffer:set &str:length [ dup str:length + dec ] bi swap
-  [ dup fetch buffer:add dec ] times drop buffer:start str:temp ;
+  dup str:temp buffer:set &str:length [ dup str:length + n:dec ] bi swap
+  [ dup fetch buffer:add n:dec ] times drop buffer:start str:temp ;
 ````
 
 Trimming removes leading (**str:trim-left**) or trailing (**str:trim-right**) spaces from a string. **str:trim** removes both leading and trailing spaces.
 
 ````
-:str:trim-left (s-s) str:temp [ fetch-next [ #32 eq? ] [ #0 -eq? ] bi and ] while dec ;
+:str:trim-left (s-s) str:temp [ fetch-next [ #32 eq? ] [ #0 -eq? ] bi and ] while n:dec ;
 :str:trim-right (s-s) str:temp str:reverse str:trim-left str:reverse ;
 :str:trim (s-s) str:trim-right str:trim-left ;
 ````
@@ -380,8 +379,14 @@ Convert a decimal (base 10) number to a string.
 ````
 :n:to-string  (n-s)
   &Heap fetch buffer:set
-  [ #10 /mod swap $0 + buffer:add dup -zero? ] while drop
+  [ #10 /mod swap $0 + buffer:add dup n:-zero? ] while drop
   buffer:start str:reverse str:temp ;
+````
+
+## Unsorted
+
+````
+:n:pow  (bp-n)  #1 swap [ over * ] times nip ;
 ````
 
 ## Legalities
