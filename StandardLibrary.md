@@ -387,6 +387,21 @@ Convert a decimal (base 10) number to a string.
 
 ````
 :n:pow  (bp-n)  #1 swap [ over * ] times nip ;
+:n:between? (nul-) rot [ rot rot n:limit ] sip eq? ;
+````
+
+## Characters
+
+````
+:chr:letter?      (c-f) $A $z n:between? ;
+:chr:lowercase?   (c-f) $a $z n:between? ;
+:chr:uppercase?   (c-f) $A $Z n:between? ;
+:chr:digit?       (c-f) $0 $9 n:between? ;
+:chr:whitespace?  (c-f) [ #32 eq? ] [ #9 eq? ] [ [ #10 eq? ] [ #13 eq? ] bi or ] tri or or ;
+:chr:to-upper     (c-f) #32 - ;
+:chr:to-lower     (c-f) #32 + ;
+:chr:to-string    (c-f) '.' dup store str:temp ;
+:chr:visible?     (c-f) #31 #126 n:between? ;
 ````
 
 ## Legalities
