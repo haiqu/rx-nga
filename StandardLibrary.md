@@ -169,6 +169,7 @@ The core Rx language provides addition, subtraction, multiplication, and a combi
 :square  (n-n)   dup * ;
 :min     (nn-n)  dup-pair lt? [ drop ] [ nip ] choose ;
 :max     (nn-n)  dup-pair gt? [ drop ] [ nip ] choose ;
+:abs     (n-n)   dup negate max ;
 :limit   (nlu-n) swap push min pop max ;
 :inc     (n-n)   #1 + ;
 :dec     (n-n)   #1 - ;
