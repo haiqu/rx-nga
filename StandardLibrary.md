@@ -6,31 +6,52 @@
 
 By itself Rx provides a very minimal Forth implementation. This, the *Rx Standard Library*, extends this into a more useful language.
 
-## Comments
+## Stack Comments
+
+The standard library provides a **(** prefix for stack comments. This will be used by all subsequent words so it comes first.
+
+Example:
+
+    (n-)
 
 ````
 :prefix:( drop ; &class:macro &Dictionary fetch d:class store
 ````
 
+## Changing Word Classes
+
+In implementing **prefix:(** a messy sequence follows the definition:
+
+    &class:macro &Dictionary fetch d:class store
+
+This is used to change the class from **class:word** to **class:macro**. Doing this is ugly and not very readable. The next few words provide easier means of changing the class of the most recently defined word.
+
+````
+:reclass    (a-) &Dictionary fetch d:class store ;
+:immediate  (-)  &class:macro reclass ;
+:data       (-)  &class:data reclass ;
+````
+
 ## Inlining
 
 ````
-:prefix:` &Compiler fetch [ str:asnumber , ] [ drop ] choose ; &class:macro &Dictionary fetch d:class store
+:prefix:` (s-) &Compiler fetch [ str:asnumber , ] [ drop ] choose ; &class:macro &Dictionary fetch d:class store
 ````
 
 ## Constants
 
 ````
-:true  (-n) #-1 ;
-:false (-n)  #0 ;
+:TRUE  (-n) #-1 ;
+:FALSE (-n)  #0 ;
 ````
 
 ## Comparators
 
 ````
-:zero? #0 eq? ;
-:negative #0 lt? ;
-:positive #0 gt? ;
+:zero?     (n-f)  #0 eq? ;
+:-zero?    (n-f)  #0 -eq? ;
+:negative  (n-f)  #0 lt? ;
+:positive  (n-f)  #0 gt? ;
 ````
 
 ## Combinators
@@ -91,22 +112,6 @@ Apply q to x, y, and z
 
 ````
 :tri@ dup dup tri* ;
-````
-
-## Word Classes
-
-Rx uses word classes to determine the behavior of functions. There are three primary classes:
-
-* class:word
-* class:macro
-* class:data
-
-The compiler defaults to using **class:word**. The functions below add support for marking words as using other classses.
-
-````
-:reclass (a-) &Dictionary fetch d:class store ;
-:immediate &class:macro reclass ;
-:data &class:data reclass ;
 ````
 
 Now we can do useful things like:
@@ -393,4 +398,3 @@ PERFORMANCE OF THIS SOFTWARE.
     Copyright (c) 2011,        Remy Moueza
     Copyright (c) 2012,        John M Harrison
     Copyright (c) 2012,        Todd Thomas
-
