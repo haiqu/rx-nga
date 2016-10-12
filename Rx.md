@@ -621,39 +621,39 @@ This code converts a zero terminated string into a number. The approach is very 
 At this time Rx only supports decimal numbers.
 
 ````
-:asnumber:Mod
+:as-number:Mod
   .data 0
-:asnumber:Acc
+:as-number:Acc
   .data 0
-:asnumber:char>digit
+:as-number:char>digit
   lit 48
   sub
   ret
-:asnumber:scale
-  lit &asnumber:Acc
+:as-number:scale
+  lit &as-number:Acc
   fetch
   lit 10
   mul
   ret
-:asnumber:convert
+:as-number:convert
   lit &fetch-next
   call
   zret
-  lit &asnumber:char>digit
+  lit &as-number:char>digit
   call
-  lit &asnumber:scale
+  lit &as-number:scale
   call
   add
-  lit &asnumber:Acc
+  lit &as-number:Acc
   store
-  lit &asnumber:convert
+  lit &as-number:convert
   jump
-:asnumber:prepare
+:as-number:prepare
   lit 1
-  lit &asnumber:Mod
+  lit &as-number:Mod
   store
   lit 0
-  lit &asnumber:Acc
+  lit &as-number:Acc
   store
   dup
   fetch
@@ -662,20 +662,20 @@ At this time Rx only supports decimal numbers.
   zret
   drop
   lit -1
-  lit &asnumber:Mod
+  lit &as-number:Mod
   store
   lit 1
   add
   ret
-:str:asnumber
-  lit &asnumber:prepare
+:str:as-number
+  lit &as-number:prepare
   call
-  lit &asnumber:convert
+  lit &as-number:convert
   call
   drop
-  lit &asnumber:Acc
+  lit &as-number:Acc
   fetch
-  lit &asnumber:Mod
+  lit &as-number:Mod
   fetch
   mul
   ret
@@ -732,7 +732,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 
 ````
 :prefix:#
-  lit &str:asnumber
+  lit &str:as-number
   call
   lit &class:data
   call
@@ -1096,9 +1096,9 @@ The dictionary is a linked list. This sets up the initial dictionary. Maintenanc
   .string store-next
 :0024
   .ref 0023
-  .ref str:asnumber
+  .ref str:as-number
   .ref class:word
-  .string str:asnumber
+  .string str:as-number
 :0025
   .ref 0024
   .ref str:eq
@@ -1283,7 +1283,7 @@ The dictionary is a linked list. This sets up the initial dictionary. Maintenanc
 | push            | n-        | Move value from data stack to address stack       |
 | pop             | -n        | Move value from address stack to data stack       |
 | 0;              | n-n OR n- | Exit word (and **drop**) if TOS is zero           |
-| str:asnumber    | s-n       | Convert a string to a number                      |
+| str:as-number   | s-n       | Convert a string to a number                      |
 | str:compare     | ss-f      | Compare two strings for equality                  |
 | str:length      | s-n       | Return length of string                           |
 | choose          | fpp-?     | Execute *p1* if *f* is -1, or *p2* if *f* is 0    |

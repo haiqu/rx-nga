@@ -32,10 +32,19 @@ This is used to change the class from **class:word** to **class:macro**. Doing t
 :data       (-)  &class:data reclass ;
 ````
 
+## Compiler
+
+````
+:compile:lit  (a-) #1 , , ;
+:compile:jump (a-) compile:lit #7 , ;
+:compile:call (a-) compile:lit #8 , ;
+````
+
+
 ## Inlining
 
 ````
-:prefix:` (s-) &Compiler fetch [ str:asnumber , ] [ drop ] choose ; &class:macro &Dictionary fetch d:class store
+:prefix:` (s-) &Compiler fetch [ str:as-number , ] [ drop ] choose ; &class:macro &Dictionary fetch d:class store
 ````
 
 ## Constants
@@ -120,7 +129,7 @@ Now we can do useful things like:
     :Green `1 ; data
     :Blue  `2 ; data
 
-    :inline-100 &Compiler fetch [ #1 , #100 , ] [ #100 ] choose ; immediate
+    :inline-100 &Compiler fetch [ #100 compile:lit ] [ #100 ] choose ; immediate
 
 ## ...
 
@@ -361,6 +370,17 @@ Trimming removes leading (**str:trim-left**) or trailing (**str:trim-right**) sp
      &Needle fetch eq? [ #-1 #0 ] [ #-1 ] choose 0; drop
   again ;
 }}
+````
+
+## Number to String
+
+Convert a decimal (base 10) number to a string.
+
+````
+:n:to-string  (n-s)
+  &Heap fetch buffer:set
+  [ #10 /mod swap $0 + buffer:add dup -zero? ] while drop
+  buffer:start str:reverse str:temp ;
 ````
 
 ## Legalities
