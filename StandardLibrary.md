@@ -38,6 +38,7 @@ This is used to change the class from **class:word** to **class:macro**. Doing t
 :compile:lit  (a-) #1 , , ;
 :compile:jump (a-) compile:lit #7 , ;
 :compile:call (a-) compile:lit #8 , ;
+:compile:ret  (-)  #10 , ;
 ````
 
 ## Inlining
@@ -402,6 +403,13 @@ Convert a decimal (base 10) number to a string.
 :chr:to-lower     (c-f) #32 + ;
 :chr:to-string    (c-f) '.' dup store str:temp ;
 :chr:visible?     (c-f) #31 #126 n:between? ;
+````
+
+## Unsorted
+
+````
+:cons (nn-p) &Heap fetch [ swap , , ] dip ;
+:curry (vp-p) &Heap fetch [ swap compile:lit compile:call compile:ret ] dip ;
 ````
 
 ## Legalities
