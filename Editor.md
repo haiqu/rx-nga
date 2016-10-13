@@ -109,7 +109,7 @@ void block_display(int n) {
   while (line < 8) {
     printf("\n");
     for (int i = 0; i < 64; i++)
-      printf("%c", blocks[start + i]);
+      printf("%c", memory[62464 + start + i]);
     start += 64;
     line++;
   }
@@ -131,13 +131,13 @@ void bounds() {
 void red_save() {
   FILE *fd;
   fd = fopen("blockfile", "w");
-  for (int i = 0; i < (512*4096); i++)
-    fprintf(fd, "%c", blocks[i]);
+  for (int i = 0; i < (512*120); i++)
+    fprintf(fd, "%c", (char)memory[62464 + i]);
   fclose(fd);
 }
 void red_enter(int ch) {
-  blocks[(Current * 512)+Column+(Row * 64)] = ch;
-  memory[d_xt_for("red:Col", Dictionary)]++;
+  stack_push((CELL)ch);
+  evaluate("red:insert-char");
 }
 void display_stack() {
   for (CELL i = 1; i <= sp; i++) {
@@ -151,16 +151,25 @@ void display_stack() {
 int next_token(int offset, char *token_buffer) {
   int end = offset;
   int count = 0;
-  char ch = blocks[(Current *512) + end];
+  char ch = memory[62464 + (Current *512) + end];
   end++;
   while ((ch != ' ') && (end < 512))
   {
     token_buffer[count++] = ch;
-    ch = blocks[(Current * 512) + end];
+    ch = memory[62464 + (Current * 512) + end];
     end++;
   }
   token_buffer[count] = '\0';
   return end;
+}
+void save() {
+  FILE *fp;
+  if ((fp = fopen("ngaImage", "wb")) == NULL) {
+    printf("Unable to save the ngaImage!\n");
+    exit(2);
+  }
+  fwrite(&memory, sizeof(CELL), Heap, fp);
+  fclose(fp);
 }
 void evaluate_block() {
   char source[512];
@@ -172,18 +181,21 @@ void evaluate_block() {
   }
 }
 int main() {
+/*
   FILE *fp;
   fp = fopen("blockfile", "r");
-  for (int i = 0; i < (4096*512); i++)
-    blocks[i] = 32;
+  for (int i = 0; i < (120*512); i++)
+    memory[62464 + i] = 32;
   if (fp == NULL)
     return -1;
   int j = 0;
   while (!feof(fp))
   {
-    blocks[j++] = getc(fp);
+    memory[62464 + j] = (CELL)getc(fp);
+    j++;
   }
   fclose(fp);
+*/
   term_setup();
   ngaPrepare();
   ngaLoadImage("ngaImage");
@@ -204,7 +216,7 @@ int main() {
     ch = getchar();
     if (Mode == 0) {
       switch ((char)ch) {
-        case 'q': term_move_cursor(1, 15); term_cleanup(); exit(0); break;
+        case 'q': term_move_cursor(1, 15); term_cleanup(); save(); exit(0); break;
         default:
           c[6] = ch;
           CELL dt = d_lookup(Dictionary, c);
@@ -220,12 +232,12 @@ int main() {
         default:
           i[6] = ch;
           CELL dt = d_lookup(Dictionary, i);
-          if (dt != 0) evaluate(i); else red_enter(ch);
+          if (dt != 0) evaluate(i); else { red_enter(ch); save(); }
           break;
       }
     }
     bounds();
-    if (Current > 4096) Current = 4096;
+    if (Current > 120) Current = 120;
     if (Current < 0) Current = 0;
   }
   return 0;

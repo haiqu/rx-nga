@@ -1,6 +1,7 @@
-:red:Current `1 ; data
-:red:Row `1 ; data
-:red:Col `1 ; data
+:red:BlockBuffer #62464 ;
+:red:Current `0 ; data
+:red:Row `0 ; data
+:red:Col `0 ; data
 :red:Mode `0 ; data
 
 {{
@@ -19,6 +20,7 @@
 :red:cursor-right &red:Col v:inc red:constrain ;
 :red:command-mode #0 &red:Mode store ;
 :red:insert-mode #1 &red:Mode store ;
+:red:insert-char red:index red:BlockBuffer + store red:cursor-right ;
 
 :red:c_n red:next-block ;
 :red:c_p red:prior-block ;
@@ -28,3 +30,5 @@
 :red:c_l red:cursor-right ;
 :red:c_/ red:insert-mode ;
 :red:i_/ red:command-mode ;
+
+&Heap fetch red:BlockBuffer &Heap store #120 #512 * [ #32 , ] repeat &Heap store
