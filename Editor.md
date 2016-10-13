@@ -77,17 +77,19 @@ void term_move_cursor(int x, int y) {
 CELL Current;
 CELL Column;
 CELL Row;
+CELL Mode;
 
-void update_internals() {
+void update_state() {
   update_rx();
   Current = memory[d_xt_for("red:Current", Dictionary)];
   Column = memory[d_xt_for("red:Col", Dictionary)];
   Row = memory[d_xt_for("red:Row", Dictionary)];
+  Mode = memory[d_xt_for("red:Mode", Dictionary)];
 }
 
 int get_index() {
   CELL index;
-  update_internals();
+  update_state();
   index = memory[d_xt_for("red:index", Dictionary)];
   execute(index);
   return stack_pop();
@@ -97,8 +99,6 @@ int get_index() {
 
 ````
 char blocks[1024*4096];
-int mode;
-int block, col, row;
 
 void block_display(int n) {
   for (int i = 0; i < 8; i++)
@@ -116,17 +116,17 @@ void block_display(int n) {
   printf("\n");
   for (int i = 0; i < 8; i++)
     printf("--------");
-  printf(" %d:%d %c\n", col, row, (mode ? 'i' : 'c'));
+  printf(" %d:%d %c\n", Column, Row, (Mode ? 'i' : 'c'));
 }
 void bounds() {
-  if (col < 0)
-    col = 0;
-  if (col > 63)
-    col = 63;
-  if (row < 0)
-    row = 0;
-  if (row > 7)
-    row = 7;
+  if (Column < 0)
+    Column = 0;
+  if (Column > 63)
+    Column = 63;
+  if (Row < 0)
+    Row = 0;
+  if (Row > 7)
+    Row = 7;
 }
 void red_save() {
   FILE *fd;
@@ -136,8 +136,8 @@ void red_save() {
   fclose(fd);
 }
 void red_enter(int ch) {
-  blocks[(block * 512)+col+(row * 64)] = ch;
-  col++;
+  blocks[(Current * 512)+Column+(Row * 64)] = ch;
+  memory[d_xt_for("red:Col", Dictionary)]++;
 }
 void display_stack() {
   for (CELL i = 1; i <= sp; i++) {
@@ -151,12 +151,12 @@ void display_stack() {
 int next_token(int offset, char *token_buffer) {
   int end = offset;
   int count = 0;
-  char ch = blocks[(block *512) + end];
+  char ch = blocks[(Current *512) + end];
   end++;
   while ((ch != ' ') && (end < 512))
   {
     token_buffer[count++] = ch;
-    ch = blocks[(block * 512) + end];
+    ch = blocks[(Current * 512) + end];
     end++;
   }
   token_buffer[count] = '\0';
@@ -178,55 +178,55 @@ int main() {
     blocks[i] = 32;
   if (fp == NULL)
     return -1;
-  int i = 0;
+  int j = 0;
   while (!feof(fp))
   {
-    blocks[i++] = getc(fp);
+    blocks[j++] = getc(fp);
   }
   fclose(fp);
-  col = 0;
-  row = 0;
-  mode = 0;
   term_setup();
   ngaPrepare();
   ngaLoadImage("ngaImage");
   update_rx();
-  block = 0;
+  update_state();
   int ch;
+  char c[] = "red:c_?";
+  char i[] = "red:i_?";
   while (1) {
     update_rx();
+    update_state();
     term_clear();
-    block_display(block);
+    block_display(Current);
     printf("%d Free, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE - Heap, TIB, Heap);
     printf("\ni up | j left | k down | l right | n next | p prev | \\ mode | q quit | e eval");
     display_stack();
-    term_move_cursor(col + 1, row + 2);
+    term_move_cursor(Column + 1, Row + 2);
     ch = getchar();
-    if (mode == 0) {
+    if (Mode == 0) {
       switch ((char)ch) {
         case 'q': term_move_cursor(1, 15); term_cleanup(); exit(0); break;
-        case 'n': block++; break;
-        case 'p': block--; break;
-        case 'i': row--; break;
-        case 'j': col--; break;
-        case 'k': row++; break;
-        case 'l': col++; break;
-        case 'e': evaluate_block(); break;
-        case '\\': mode = 1; break;
+        default:
+          c[6] = ch;
+          CELL dt = d_lookup(Dictionary, c);
+          if (dt != 0) evaluate(c);
+          break;
       }
     } else {
       switch ((char)ch) {
-        case '\\': mode = 0; red_save(); break;
         case  8:
-        case 127: col--; break;
+        case 127: Column--; break;
         case 10:
         case 13: ch = 32;
-        default: red_enter(ch); break;
+        default:
+          i[6] = ch;
+          CELL dt = d_lookup(Dictionary, i);
+          if (dt != 0) evaluate(i); else red_enter(ch);
+          break;
       }
     }
     bounds();
-    if (block > 4096) block = 4096;
-    if (block < 0) block = 0;
+    if (Current > 4096) Current = 4096;
+    if (Current < 0) Current = 0;
   }
   return 0;
 }
