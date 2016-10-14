@@ -151,9 +151,11 @@ void save() {
     printf("Unable to save the ngaImage!\n");
     exit(2);
   }
+  memory[d_xt_for("red:Mode", Dictionary)] = 0;
   fwrite(&memory, sizeof(CELL), IMAGE_SIZE, fp);
   fclose(fp);
 }
+
 void evaluate_block() {
   char source[512];
   int offset = 0;
@@ -167,7 +169,6 @@ int main() {
   term_setup();
   ngaPrepare();
   ngaLoadImage("ngaImage");
-  update_rx();
   update_state();
   int ch;
   char c[] = "red:c_?";
@@ -180,18 +181,20 @@ int main() {
     term_move_cursor(Column + 1, Row + 1);
     ch = getchar();
     if (Mode == 0) {
-      switch ((char)ch) {
-        case 'q': term_move_cursor(1, 15); term_cleanup(); save(); exit(0); break;
-        default:
-          c[6] = ch;
-          CELL dt = d_lookup(Dictionary, c);
-          if (dt != 0) evaluate(c);
-          break;
-      }
-    } else {
+      c[6] = ch;
+      CELL dt = d_lookup(Dictionary, c);
+      if (dt != 0) evaluate(c);
+    } else if (Mode == 1) {
       i[6] = ch;
       CELL dt = d_lookup(Dictionary, i);
       (dt != 0) ? evaluate(i) : red_enter(ch);
+    }
+    update_state();
+    if (Mode == 2) {
+      term_move_cursor(1, 15);
+      term_cleanup();
+      save();
+      exit(0);
     }
   }
   return 0;

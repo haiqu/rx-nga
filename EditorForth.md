@@ -51,6 +51,7 @@ The editor has two modes: command and insertion. These words switch between them
 ````
 :red:command-mode #0 &red:Mode store ;
 :red:insert-mode  #1 &red:Mode store ;
+:red:quit-mode    #2 &red:Mode store ;
 ````
 
 **red:Current** contains the current block. These commands allow switching between blocks.
@@ -99,6 +100,7 @@ The cursor (insertion point) is determined by the **red:Row** and **red:Col** va
 :red:c_l red:cursor-right ;
 :red:c_/ red:insert-mode ;
 :red:i_/ red:command-mode ;
+:red:c_q red:quit-mode ;
 ````
 
 ````
