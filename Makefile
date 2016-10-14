@@ -41,6 +41,6 @@ t:
 	cd nga && $(CC) $(CFLAGS) naje.c -DALLOW_FORWARD_REFS -DENABLE_MAP -o ../bin/naje
 
 ex:
-	cat editor.rx >>startup.rx
+	cat editor.forth >> retro.forth
 	./extend
 
