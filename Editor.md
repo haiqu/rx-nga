@@ -1,19 +1,12 @@
-# Editor
+# Retro Block Editor
 
-Classic Forth systems often had a *block editor* for storing code. This is an interface layer for Rx built around this concept.
+This is one part of the Retro Block Editor. See *EditorForth.md* for the other portion.
+
+The implementation is split into two parts: an *interface layer*, written in C, and the editor logic, which is written in Retro. The code here contains the interface layer.
 
 ## Implementation Overview
 
 Blocks are 512 cells in length. They are displayed as 8 rows with 64 cells per row.
-
-This editor is a hybrid implementation. Blocks are stored in the image memory and Rx code is used to control the active block, input point, and insertion of code. The C code in this interface layer provides the *view* and *evaluation* of code.
-
-The implementation also takes some hints from VIBE, a VI inspired Block Editor fom Sam Falvo II. It uses the Rx dictionary to provide key handlers. This makes it possible to extend the interactions beyond the standard set without rebuilding everything.
-
-    :red:command-27 #1 &red:Mode store ;
-    :red:insert-27 #0 &red:Mode store ;
-
-The **-27** is the ASCII value for the key (ESC in this case). The **red:command** prefix is for the command mode version; the **red:insert** prefix for entry time remapping of the keys to actions.
 
 ## Standard Headers
 
@@ -73,6 +66,10 @@ void term_move_cursor(int x, int y) {
 }
 ````
 
+## Editor State
+
+The editor state is handled by the Retro portion of the code. The interface layer does need to be aware of it though so this defines a few global variables and a function for keeping them in sync with the underlying code.
+
 ````
 CELL Current;
 CELL Column;
@@ -86,54 +83,53 @@ void update_state() {
   Row = memory[d_xt_for("red:Row", Dictionary)];
   Mode = memory[d_xt_for("red:Mode", Dictionary)];
 }
+````
 
-int get_index() {
-  CELL index;
-  update_state();
-  index = memory[d_xt_for("red:index", Dictionary)];
-  execute(index);
-  return stack_pop();
+## Display a Block
+
+These functions are used to display a block.
+
+````
+void sep() {
+  for (int i = 0; i < 8; i++)
+    printf("--------");
+  printf("\n");
 }
-````
 
+void row(int block, int n) {
+  int start = (block * 512) + (n * 64);
+  for (int i = 0; i < 64; i++)
+    printf("%c", (char) (memory[62464 + start + i] & 0xFF));
+  printf("\n");
+}
 
-````
-char blocks[1024*4096];
+void stats() {
+  printf("Free: %d | Heap: %d | ", IMAGE_SIZE - Heap - 62464, Heap);
+  printf("%d : %d : %d | %c\n", Current, Row, Column, (Mode ? 'I' : 'C'));
+}
 
 void block_display(int n) {
-  for (int i = 0; i < 8; i++)
-    printf("--------");
-  printf(" #%d", n);
-  int line = 0;
-  int start = n * 512;
-  while (line < 8) {
-    printf("\n");
-    for (int i = 0; i < 64; i++) {
-      printf("%c", (char)(memory[62464 + start + i] & 0xFF));
-    }
-    start += 64;
-    line++;
-  }
-  printf("\n");
-  for (int i = 0; i < 8; i++)
-    printf("--------");
-  printf(" %d:%d %c || %d\n", Column, Row, (Mode ? 'i' : 'c'), memory[62464 + (Current * 512) + Column + (Row * 64)]);
+  for (int line = 0; line < 8; line++)
+    row(n, line);
+  sep();
+  stats();
 }
+````
 
+## Unsorted
+
+````
 void red_enter(int ch) {
   stack_push(ch);
   evaluate("red:insert-char");
 }
 
 void display_stack() {
-  for (CELL i = 1; i <= sp; i++) {
-    if (i == sp)
-      printf("< %d >", data[i]);
-    else
-      printf("%d ", data[i]);
-  }
+  for (CELL i = 1; i <= sp; i++)
+    (i == sp) ? printf("< %d >", data[i]) : printf("%d ", data[i]);
   printf("\n");
 }
+
 int next_token(int offset, char *token_buffer) {
   int end = offset;
   int count = 0;
@@ -148,6 +144,7 @@ int next_token(int offset, char *token_buffer) {
   token_buffer[count] = '\0';
   return end;
 }
+
 void save() {
   FILE *fp;
   if ((fp = fopen("ngaImage", "wb")) == NULL) {
@@ -176,14 +173,11 @@ int main() {
   char c[] = "red:c_?";
   char i[] = "red:i_?";
   while (1) {
-    update_rx();
     update_state();
     term_clear();
     block_display(Current);
-    printf("%d Free, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE - Heap, TIB, Heap);
-    printf("\ni up | j left | k down | l right | n next | p prev | / mode | q quit | e eval");
     display_stack();
-    term_move_cursor(Column + 1, Row + 2);
+    term_move_cursor(Column + 1, Row + 1);
     ch = getchar();
     if (Mode == 0) {
       switch ((char)ch) {
@@ -195,15 +189,9 @@ int main() {
           break;
       }
     } else {
-      switch ((char)ch) {
-        case 10:
-        case 13: ch = 32;
-        default:
-          i[6] = ch;
-          CELL dt = d_lookup(Dictionary, i);
-          if (dt != 0) evaluate(i); else { red_enter(ch); }
-          break;
-      }
+      i[6] = ch;
+      CELL dt = d_lookup(Dictionary, i);
+      (dt != 0) ? evaluate(i) : red_enter(ch);
     }
   }
   return 0;

@@ -27,10 +27,10 @@ Two constants: the start of the block buffer and the number of blocks.
 There are a few global variables. These will hold the few pieces of state that we need.
 
 ````
-:red:Current `0 ; data
-:red:Row `0 ; data
-:red:Col `0 ; data
-:red:Mode `0 ; data
+:red:Current `0 ;
+:red:Row `0 ;
+:red:Col `0 ;
+:red:Mode `0 ;
 ````
 
 ## Constraints
@@ -103,4 +103,26 @@ The cursor (insertion point) is determined by the **red:Row** and **red:Col** va
 
 ````
 red:BLOCKS #120 #512 * [ #32 swap store-next ] times drop
+````
+
+````
+:red:TB `0 ; #65 allot ;
+
+:red:End `0 ;
+:red:Count `0 ;
+:red:getc
+  red:BLOCKS
+  &red:Current fetch #512 * +
+  &red:End fetch +
+  fetch
+  &red:End v:inc ;
+
+:red:append (c-) &red:Count fetch &red:TB + store &red:Count v:inc ;
+
+:red:token
+  #0 &red:Count store
+  [ red:getc dup red:append #32 -eq? &red:End fetch #512 lt? and ] while
+  #0 &red:TB &red:Count fetch + n:dec store &red:TB ;
+
+:red:c_e #0 &red:End store [ red:token dup str:length n:positive? [ interpret ] [ drop ] choose &red:End fetch #512 lt? ] while ;
 ````
