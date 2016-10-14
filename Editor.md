@@ -108,37 +108,23 @@ void block_display(int n) {
   int start = n * 512;
   while (line < 8) {
     printf("\n");
-    for (int i = 0; i < 64; i++)
-      printf("%c", memory[62464 + start + i]);
+    for (int i = 0; i < 64; i++) {
+      printf("%c", (char)(memory[62464 + start + i] & 0xFF));
+    }
     start += 64;
     line++;
   }
   printf("\n");
   for (int i = 0; i < 8; i++)
     printf("--------");
-  printf(" %d:%d %c\n", Column, Row, (Mode ? 'i' : 'c'));
+  printf(" %d:%d %c || %d\n", Column, Row, (Mode ? 'i' : 'c'), memory[62464 + (Current * 512) + Column + (Row * 64)]);
 }
-void bounds() {
-  if (Column < 0)
-    Column = 0;
-  if (Column > 63)
-    Column = 63;
-  if (Row < 0)
-    Row = 0;
-  if (Row > 7)
-    Row = 7;
-}
-void red_save() {
-  FILE *fd;
-  fd = fopen("blockfile", "w");
-  for (int i = 0; i < (512*120); i++)
-    fprintf(fd, "%c", (char)memory[62464 + i]);
-  fclose(fd);
-}
+
 void red_enter(int ch) {
-  stack_push((CELL)ch);
+  stack_push(ch);
   evaluate("red:insert-char");
 }
+
 void display_stack() {
   for (CELL i = 1; i <= sp; i++) {
     if (i == sp)
@@ -168,7 +154,7 @@ void save() {
     printf("Unable to save the ngaImage!\n");
     exit(2);
   }
-  fwrite(&memory, sizeof(CELL), Heap, fp);
+  fwrite(&memory, sizeof(CELL), IMAGE_SIZE, fp);
   fclose(fp);
 }
 void evaluate_block() {
@@ -181,21 +167,6 @@ void evaluate_block() {
   }
 }
 int main() {
-/*
-  FILE *fp;
-  fp = fopen("blockfile", "r");
-  for (int i = 0; i < (120*512); i++)
-    memory[62464 + i] = 32;
-  if (fp == NULL)
-    return -1;
-  int j = 0;
-  while (!feof(fp))
-  {
-    memory[62464 + j] = (CELL)getc(fp);
-    j++;
-  }
-  fclose(fp);
-*/
   term_setup();
   ngaPrepare();
   ngaLoadImage("ngaImage");
@@ -210,7 +181,7 @@ int main() {
     term_clear();
     block_display(Current);
     printf("%d Free, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE - Heap, TIB, Heap);
-    printf("\ni up | j left | k down | l right | n next | p prev | \\ mode | q quit | e eval");
+    printf("\ni up | j left | k down | l right | n next | p prev | / mode | q quit | e eval");
     display_stack();
     term_move_cursor(Column + 1, Row + 2);
     ch = getchar();
@@ -225,20 +196,15 @@ int main() {
       }
     } else {
       switch ((char)ch) {
-        case  8:
-        case 127: Column--; break;
         case 10:
         case 13: ch = 32;
         default:
           i[6] = ch;
           CELL dt = d_lookup(Dictionary, i);
-          if (dt != 0) evaluate(i); else { red_enter(ch); save(); }
+          if (dt != 0) evaluate(i); else { red_enter(ch); }
           break;
       }
     }
-    bounds();
-    if (Current > 120) Current = 120;
-    if (Current < 0) Current = 0;
   }
   return 0;
 }

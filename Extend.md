@@ -31,13 +31,14 @@ int main(int argc, char **argv) {
   printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, TIB, Heap);
   include_file("startup.rx");
   update_rx();
+  printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, TIB, Heap);
 
   FILE *fp;
   if ((fp = fopen("ngaImage", "wb")) == NULL) {
     printf("Unable to save the ngaImage!\n");
     exit(2);
   }
-  fwrite(&memory, sizeof(CELL), Heap, fp);
+  fwrite(&memory, sizeof(CELL), IMAGE_SIZE, fp);
   fclose(fp);
 
   return 0;
