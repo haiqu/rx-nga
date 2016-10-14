@@ -130,21 +130,6 @@ void display_stack() {
   printf("\n");
 }
 
-int next_token(int offset, char *token_buffer) {
-  int end = offset;
-  int count = 0;
-  char ch = memory[62464 + (Current *512) + end];
-  end++;
-  while ((ch != ' ') && (end < 512))
-  {
-    token_buffer[count++] = ch;
-    ch = memory[62464 + (Current * 512) + end];
-    end++;
-  }
-  token_buffer[count] = '\0';
-  return end;
-}
-
 void save() {
   FILE *fp;
   if ((fp = fopen("ngaImage", "wb")) == NULL) {
@@ -156,15 +141,6 @@ void save() {
   fclose(fp);
 }
 
-void evaluate_block() {
-  char source[512];
-  int offset = 0;
-  while (offset < 512)
-  {
-    offset = next_token(offset, source);
-    evaluate(source);
-  }
-}
 int main() {
   term_setup();
   ngaPrepare();
