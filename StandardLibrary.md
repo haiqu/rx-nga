@@ -410,6 +410,9 @@ Convert a decimal (base 10) number to a string.
 ````
 :cons (nn-p) &Heap fetch [ swap , , ] dip ;
 :curry (vp-p) &Heap fetch [ swap compile:lit compile:call compile:ret ] dip ;
+:case
+  [ over eq? ] dip swap
+  [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;
 ````
 
 ## Legalities
