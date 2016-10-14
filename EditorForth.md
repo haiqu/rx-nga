@@ -77,16 +77,17 @@ The cursor (insertion point) is determined by the **red:Row** and **red:Col** va
   &red:Row fetch #64 * +
   &red:Col fetch + ;
 
-
-
-:red:insert-controls
+:red:control
    #8 [ red:cursor-left ] case
+  #10 [ #0 &red:Col store &red:Row v:inc ] case
+  #13 [ #0 &red:Col store &red:Row v:inc ] case
  #127 [ red:cursor-left ] case
  drop ;
+
 :red:insert-char
   dup chr:visible?
   [ red:index red:BLOCKS + store red:cursor-right ]
-  [ red:insert-controls ] choose ;
+  [ red:control red:constrain ] choose ;
 ````
 
 ````
