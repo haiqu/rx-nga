@@ -4,7 +4,10 @@
 :red:Col `0 ; data
 :red:Mode `0 ; data
 
-:red:index &red:Current fetch #512 * &red:Row fetch #64 * + &red:Col fetch + ;
+:red:index
+  &red:Current fetch #512 *
+  &red:Row fetch #64 * +
+  &red:Col fetch + ;
 
 :red:constrain &red:Row #0 #7 v:limit &red:Col #0 #63 v:limit &red:Current #0 #119 v:limit ;
 
@@ -16,7 +19,14 @@
 :red:cursor-right &red:Col v:inc red:constrain ;
 :red:command-mode #0 &red:Mode store ;
 :red:insert-mode  #1 &red:Mode store ;
-:red:insert-char  dup chr:visible? [ red:index red:BlockBuffer + store red:cursor-right ] [ drop ] choose ;
+:red:insert-controls
+   #8 [ red:cursor-left ] case
+ #127 [ red:cursor-left ] case
+ drop ;
+:red:insert-char
+  dup chr:visible?
+  [ red:index red:BlockBuffer + store red:cursor-right ]
+  [ red:insert-controls ] choose ;
 
 :red:c_n red:next-block ;
 :red:c_p red:prior-block ;

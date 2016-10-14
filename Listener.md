@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
   update_rx();
   printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, TIB, Heap);
   char input[1024];
-  include_file("startup.rx");
+  include_file("retro.forth");
   while(1) {
     prompt();
     Dictionary = memory[2];
@@ -83,6 +83,9 @@ int main(int argc, char **argv) {
         i = memory[i];
       }
       printf("(%d entries)\n", d_count_entries(Dictionary));
+    }
+    else if (strcmp(input, ".p") == 0) {
+      printf("__%s__", string_extract(data[sp]));
     }
     else if (strcmp(input, ".s") == 0) {
       dump_stack();

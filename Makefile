@@ -12,7 +12,8 @@ s:
 	./bin/unu Editor.md >editor.c
 	./bin/unu Extend.md >extend.c
 	./bin/unu Listener.md >listener.c
-	./bin/unu StandardLibrary.md > startup.rx
+	./bin/unu RetroForth.md > retro.forth
+	./bin/unu EditorForth.md > editor.forth
 
 o:
 	$(CC) $(CFLAGS) -c nga/nga.c -o nga.o
@@ -31,9 +32,15 @@ x:
 	rm -f c-rx.c c-rx *.log
 	rm -f *.c
 	rm -f *.o
+	rm -f *.forth
 
 t:
 	cd nga && $(CC) $(CFLAGS) unu.c -o ../bin/unu
 	cd nga && $(CC) $(CFLAGS) nga.c -DSTANDALONE -o ../bin/nga
 	cd nga && $(CC) $(CFLAGS) -DVERBOSE ngita.c -o ../bin/ngita
 	cd nga && $(CC) $(CFLAGS) naje.c -DALLOW_FORWARD_REFS -DENABLE_MAP -o ../bin/naje
+
+ex:
+	cat editor.rx >>startup.rx
+	./extend
+

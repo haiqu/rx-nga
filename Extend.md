@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
   ngaLoadImage("ngaImage");
   update_rx();
   printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, TIB, Heap);
-  include_file("startup.rx");
+  include_file("retro.forth");
   update_rx();
   printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, TIB, Heap);
 
