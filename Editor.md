@@ -104,7 +104,7 @@ void row(int block, int n) {
 }
 
 void stats() {
-  printf("Free: %d | Heap: %d | ", IMAGE_SIZE - Heap - 62464, Heap);
+  printf("Free: %d | Heap: %d | ", 62463 - Heap, Heap);
   printf("%d : %d : %d | %c\n", Current, Row, Column, (Mode ? 'I' : 'C'));
 }
 

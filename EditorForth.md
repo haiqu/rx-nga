@@ -41,7 +41,7 @@ The cursor position (determined by **red:Row** and **red:Col**) needs to be with
 :red:constrain
   &red:Row #0 #7 v:limit
   &red:Col #0 #63 v:limit
-  &red:Current #0 #119 v:limit ;
+  &red:Current #0 red:#BLOCKS n:dec v:limit ;
 ````
 
 ## Commands
@@ -70,10 +70,10 @@ The cursor (insertion point) is determined by the **red:Row** and **red:Col** va
 :red:cursor-right &red:Col v:inc red:constrain ;
 ````
 
-## Unsorted
+## Input
 
 ````
-:red:index
+:red:index (-a)
   &red:Current fetch #512 *
   &red:Row fetch #64 * +
   &red:Col fetch + ;
@@ -91,6 +91,59 @@ The cursor (insertion point) is determined by the **red:Row** and **red:Col** va
   [ red:control red:constrain ] choose ;
 ````
 
+## Block Evaluation
+
+The strategy here:
+
+* Copy a token (ending with a space or end of block) to a buffer
+* Interpret the buffer
+* Repeat until the end of the block
+
+````
+{{
+  :red:TB `0 ; #65 allot ;
+  :red:End `0 ;
+  :red:Count `0 ;
+
+  :getc
+    red:BLOCKS
+    &red:Current fetch #512 * +
+    &red:End fetch +
+    fetch
+    &red:End v:inc ;
+
+  :append   (c-)  &red:Count fetch &red:TB + store &red:Count v:inc ;
+  :-empty? (s-sf) dup str:length n:positive? ;
+  :-end?    (-f)  &red:End fetch #512 lt? ;
+---reveal---
+  :red:token
+    #0 &red:Count store
+    [ getc dup append #32 -eq? -end? and ] while
+    #0 &red:TB &red:Count fetch + n:dec store &red:TB ;
+  :red:evaluate-block
+    #0 &red:End store
+    [ red:token -empty? [ interpret ] [ drop ] choose -end? ] while ;
+}}
+````
+
+## Key Handlers
+
+### Command Mode
+
+Command mode has a number of handlers since it's where most interactions take place.
+
+| Key | Usage                  |
+| --- | ---------------------- |
+| n   | switch to next block   |
+| p   | switch to prior block  |
+| i   | move cursor up         |
+| j   | move cursor left       |
+| k   | move cusor down        |
+| l   | move cursor right      |
+| q   | exit the editor        |
+| e   | evaluate the block     |
+| \   | switch to insert mode  |
+
 ````
 :red:c_n red:next-block ;
 :red:c_p red:prior-block ;
@@ -98,33 +151,27 @@ The cursor (insertion point) is determined by the **red:Row** and **red:Col** va
 :red:c_j red:cursor-left ;
 :red:c_k red:cursor-down ;
 :red:c_l red:cursor-right ;
-:red:c_/ red:insert-mode ;
-:red:i_/ red:command-mode ;
+:red:c_\ red:insert-mode ;
 :red:c_q red:quit-mode ;
+:red:c_e red:evaluate-block red:constrain ;
 ````
 
-````
-red:BLOCKS #120 #512 * [ #32 swap store-next ] times drop
-````
+### Insertion Mode
+
+This is intentionally kept to a minimal list as I don't want to restrict what can be input. Just one command, **\**, which returns to command mode.
+
+| Key | Usage                  |
+| --- | ---------------------- |
+| \   | switch to insert mode  |
 
 ````
-:red:TB `0 ; #65 allot ;
+:red:i_\ red:command-mode ;
+````
 
-:red:End `0 ;
-:red:Count `0 ;
-:red:getc
-  red:BLOCKS
-  &red:Current fetch #512 * +
-  &red:End fetch +
-  fetch
-  &red:End v:inc ;
+## Initialize Block Buffer
 
-:red:append (c-) &red:Count fetch &red:TB + store &red:Count v:inc ;
+Fills all the block space with ASCII 32 (spaces)
 
-:red:token
-  #0 &red:Count store
-  [ red:getc dup red:append #32 -eq? &red:End fetch #512 lt? and ] while
-  #0 &red:TB &red:Count fetch + n:dec store &red:TB ;
-
-:red:c_e #0 &red:End store [ red:token dup str:length n:positive? [ interpret ] [ drop ] choose &red:End fetch #512 lt? ] while ;
+````
+red:BLOCKS red:#BLOCKS #512 * [ #32 swap store-next ] times drop
 ````
