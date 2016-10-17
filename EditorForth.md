@@ -101,7 +101,7 @@ The strategy here:
 
 ````
 {{
-  :red:TB `0 ; #65 allot ;
+  :TIB #1471 ;
   :red:End `0 ;
   :red:Count `0 ;
 
@@ -112,14 +112,14 @@ The strategy here:
     fetch
     &red:End v:inc ;
 
-  :append   (c-)  &red:Count fetch &red:TB + store &red:Count v:inc ;
+  :append   (c-)  &red:Count fetch TIB + store &red:Count v:inc ;
   :-empty? (s-sf) dup str:length n:positive? ;
   :-end?    (-f)  &red:End fetch #512 lt? ;
 ---reveal---
   :red:token
     #0 &red:Count store
     [ getc dup append #32 -eq? -end? and ] while
-    #0 &red:TB &red:Count fetch + n:dec store &red:TB ;
+    #0 TIB &red:Count fetch + n:dec store TIB ;
   :red:evaluate-block
     #0 &red:End store
     [ red:token -empty? [ interpret ] [ drop ] choose -end? ] while ;
