@@ -299,6 +299,7 @@ Temporary strings are allocated in a circular pool.
   :str:next (-) #1 &str:Current v:inc-by &str:Current fetch #12 eq? [ #0 &str:Current store ] if ;
 ---reveal---
   :str:temp (s-s) dup str:length str:pointer swap copy str:pointer str:next ;
+  :str:empty (-s) str:pointer str:next ;
 }}
 ````
 
@@ -351,11 +352,16 @@ Trimming removes leading (**str:trim-left**) or trailing (**str:trim-right**) sp
 **str:prepend** and **str:append** for concatenating strings together.
 
 ````
-:str:Buffer `0 ; data #128 allot
-:str:prepend (ss-s)
-  dup str:length &str:Buffer swap &copy sip
-  [ dup str:length ] dip &str:Buffer + swap copy &str:Buffer str:temp ;
-:str:append (ss-s) swap str:prepend ;
+{{
+  :Buffer `0 ;
+  :@Buffer &Buffer fetch ;
+---reveal---
+  :str:prepend (ss-s)
+    str:empty &Buffer store
+    dup str:length @Buffer swap &copy sip
+    [ dup str:length ] dip @Buffer + swap copy @Buffer str:temp ;
+  :str:append (ss-s) swap str:prepend ;
+}}
 ````
 
 ````
