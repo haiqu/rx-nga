@@ -159,11 +159,11 @@ int main() {
     if (Mode == 0) {
       c[6] = ch;
       CELL dt = d_lookup(Dictionary, c);
-      if (dt != 0) evaluate(c);
+      if (dt != 0) execute(memory[d_xt(dt)]);
     } else if (Mode == 1) {
       i[6] = ch;
       CELL dt = d_lookup(Dictionary, i);
-      (dt != 0) ? evaluate(i) : red_enter(ch);
+      (dt != 0) ? execute(memory[d_xt(dt)]) : red_enter(ch);
     }
     update_state();
     if (Mode == 2) {
