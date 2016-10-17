@@ -62,13 +62,13 @@ void prompt() {
 }
 
 int main(int argc, char **argv) {
-  printf("rx-2016.10 [C-Rx Listener]\n");
+  printf("RETRO 12 (rx-2016.10)\n");
   ngaPrepare();
   ngaLoadImage("ngaImage");
   update_rx();
-  printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, TIB, Heap);
   char input[1024];
   include_file("retro.forth");
+  printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, TIB, Heap);
   while(1) {
     prompt();
     Dictionary = memory[2];
