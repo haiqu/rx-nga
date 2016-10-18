@@ -38,7 +38,14 @@ There are a few global variables. These will hold the few pieces of state that w
 The cursor position (determined by **red:Row** and **red:Col**) needs to be within the block coordinates. Blocks are 8 rows of 64 characters. Additionally, the current block (**red:Current**) needs to be in the range of valid blocks so we can avoid memory corruption. This word is used to keep these values within the necessary boundaries. Any words that modify these bits of state should call this to keep things orderly.
 
 ````
+:red:wrap (-)
+  &red:Col fetch #63 gt? [  #0 &red:Col store &red:Row v:inc ] if
+  &red:Col fetch  #0 lt? [ #63 &red:Col store &red:Row v:dec ] if
+  &red:Row fetch  #7 gt? [  #0 &red:Row store  #0 &red:Col store ] if
+  &red:Row fetch  #0 lt? [  #7 &red:Row store #63 &red:Col store ] if ;
+
 :red:constrain
+  red:wrap
   &red:Row #0 #7 v:limit
   &red:Col #0 #63 v:limit
   &red:Current #0 red:#BLOCKS n:dec v:limit ;
@@ -132,28 +139,36 @@ The strategy here:
 
 Command mode has a number of handlers since it's where most interactions take place.
 
-| Key | Usage                  |
-| --- | ---------------------- |
-| n   | switch to next block   |
-| p   | switch to prior block  |
-| i   | move cursor up         |
-| j   | move cursor left       |
-| k   | move cusor down        |
-| l   | move cursor right      |
-| q   | exit the editor        |
-| e   | evaluate the block     |
-| \   | switch to insert mode  |
+| Key | Usage                           |
+| --- | ------------------------------- |
+| [   | switch to prior block           |
+| ]   | switch to next block            |
+| h   | move cursor left                |
+| j   | move cusor down                 |
+| k   | move cursor up                  |
+| l   | move cursor right               |
+| H   | move cursor to leftmost column  |
+| J   | move cursor to last row         |
+| K   | move cursor to top row          |
+| L   | move cursor to rightmost column |
+| q   | exit the editor                 |
+| e   | evaluate the block              |
+| \   | switch to insert mode           |
 
 ````
-:red:c_n red:next-block ;
-:red:c_p red:prior-block ;
-:red:c_i red:cursor-up ;
-:red:c_j red:cursor-left ;
-:red:c_k red:cursor-down ;
-:red:c_l red:cursor-right ;
-:red:c_\ red:insert-mode ;
-:red:c_q red:quit-mode ;
-:red:c_e red:evaluate-block red:constrain ;
+:red:c_[ (-) red:prior-block ;
+:red:c_] (-) red:next-block ;
+:red:c_h (-) red:cursor-left ;
+:red:c_j (-) red:cursor-down ;
+:red:c_k (-) red:cursor-up ;
+:red:c_l (-) red:cursor-right ;
+:red:c_\ (-) red:insert-mode ;
+:red:c_q (-) red:quit-mode ;
+:red:c_e (-) red:evaluate-block red:constrain ;
+:red:c_H (-) #0 &red:Col store ;
+:red:c_J (-) #7 &red:Row store ;
+:red:c_K (-) #0 &red:Row store ;
+:red:c_L (-) #63 &red:Col store ;
 ````
 
 ### Insertion Mode
@@ -174,4 +189,17 @@ Fills all the block space with ASCII 32 (spaces)
 
 ````
 red:BLOCKS red:#BLOCKS #512 * [ #32 swap store-next ] times drop
+````
+
+````
+:red:c_# (n-)
+  $# red:insert-char
+  n:to-string
+  dup str:length [ fetch-next red:insert-char ] times drop
+  red:cursor-right ;
+:red:c_$ (c-) $$ red:insert-char red:insert-char red:cursor-right ;
+:red:c_' (s-)
+  $' red:insert-char
+  dup str:length [ fetch-next red:insert-char ] times drop
+  red:cursor-right ;
 ````
