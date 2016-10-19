@@ -141,10 +141,37 @@ void save() {
   fclose(fp);
 }
 
+void write_blocks() {
+  FILE *fp;
+  if ((fp = fopen("retro.blocks", "wb")) == NULL) {
+    printf("Unable to save the blocks!\n");
+    exit(2);
+  }
+  CELL slot[4];
+  for(int i = 62464; i < IMAGE_SIZE; i++) {
+    slot[0] = memory[i];
+    fwrite(&slot, sizeof(CELL), 1, fp);
+  }
+  fclose(fp);
+}
+
+void read_blocks() {
+  FILE *fp;
+  if ((fp = fopen("retro.blocks", "rb")) != NULL) {
+    CELL slot[4];
+    for (int i = 62464; i < IMAGE_SIZE; i++) {
+      fread(&slot, sizeof(CELL), 1, fp);
+      memory[i] = slot[0];
+    }
+    fclose(fp);
+  }
+}
+
 int main() {
   term_setup();
   ngaPrepare();
   ngaLoadImage("ngaImage");
+  read_blocks();
   update_state();
   int ch;
   char c[] = "red:c_?";
@@ -170,6 +197,7 @@ int main() {
       term_move_cursor(1, 15);
       term_cleanup();
       save();
+      write_blocks();
       exit(0);
     }
   }
