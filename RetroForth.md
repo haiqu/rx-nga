@@ -200,9 +200,10 @@ Short for *top of return stack*, this returns the top item on the address stack.
 The core Rx language provides addition, subtraction, multiplication, and a combined division/remainder. Retro expands on this.
 
 ````
-:/       (nq-d)  /mod swap drop ;
-:mod     (nq-r)  /mod drop ;
-:not     (n-n)   #-1 xor ;
+:/         (nq-d)  /mod swap drop ;
+:mod       (nq-r)  /mod drop ;
+:*/        (nnn-n) push * pop / ;
+:not       (n-n)   #-1 xor ;
 :n:negate  (n-n)   #-1 * ;
 :n:square  (n-n)   dup * ;
 :n:sqrt    (n-n) #1 [ repeat dup-pair / over - #2 / 0; + again ] call nip ;
