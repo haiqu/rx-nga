@@ -1,14 +1,54 @@
-    ____  _   _
-    || \\ \\ //
-    ||_//  )x(
-    || \\ // \\ 2016.10
-    a minimalist forth for nga
+    ____   ____ ______ ____    ___
+    || \\ ||    | || | || \\  // \\
+    ||_// ||==    ||   ||_// ((   ))
+    || \\ ||___   ||   || \\  \\_//
+    a personal, minimalistic forth
 
-By itself Rx provides a very minimal Forth implementation. This, the *Rx Standard Library*, extends this into a more useful language.
+## Background
+
+Retro is a dialect of Forth. It builds on the barebones Rx core, providing a much more flexible and useful language.
+
+Retro has a history going back many years. It began as a 16-bit assembly implementation for x86 hardware, evolved into a 32-bit system with cmForth and ColorForth influences, and eventually started supporting mainstream OSes. Later it was rewritten for a small, portable virtual machine. Over the years the language implementation has varied substantially. This is the twelfth generation of Retro. It now targets a new virtual machine (called Nga), and is built over a barebones Forth kernel (called Rx).
+
+### Namespaces
+
+Various past releases have had different methods of dealing with the dictionary. Retro 12 has a single global dictionary, with a convention of using a namespace prefix for grouping related words.
+
+| namespace  | words related to   |
+| ---------- | ------------------ |
+| chr        | characters         |
+| compile    | compiler functions |
+| d          | dictionary headers |
+| err        | error handlers     |
+| n          | numbers            |
+| str        | strings            |
+| v          | variables          |
+
+### Prefixes
+
+Prefixes are an integral part of Retro. These are single characters added to the start of a word which indicate to Retro how it should execute the word. These are processed at the start of interpreting a token.
+
+| prefix | used for               |
+| ------ | ---------------------- |
+| :      | starting a definition  |
+| &amp;  | obtaining pointers     |
+| (      | stack comments         |
+| `      | inlining bytecodes     |
+| '      | strings                |
+
+### Naming &amp; Style Conventions
+
+* Names should start with their namespace (if appropriate)
+* Word names should be lowercase
+* Variable names should be Title case
+* Constants should be UPPERCASE
+* Names may not start with a prefix character
+* Names returning a flag should end with a ?
+* Words with an effect on the stack should have a stack comment
 
 ## Stack Comments
 
-The standard library provides a **(** prefix for stack comments. This will be used by all subsequent words so it comes first.
+Retro provides a **(** prefix for stack comments. This will be used by all subsequent words so it comes first.
 
 Example:
 
@@ -65,9 +105,7 @@ This is used to change the class from **class:word** to **class:macro**. Doing t
 
 ## Combinators
 
-Rx makes use of anonymous functions called *quotations* for much of the execution flow and stack control. The words that operate on these quotations are called *combinators*.
-
-The standard library provides a number of these.
+Retro makes use of anonymous functions called *quotations* for much of the execution flow and stack control. The words that operate on these quotations are called *combinators*.
 
 **dip** executes a quotation after moving a value off the stack. The value is restored after execution completes. These are equivilent:
 
@@ -159,7 +197,7 @@ Short for *top of return stack*, this returns the top item on the address stack.
 
 ## Math
 
-The core Rx language provides addition, subtraction, multiplication, and a combined division/remainder. The standard library expands on this.
+The core Rx language provides addition, subtraction, multiplication, and a combined division/remainder. Retro expands on this.
 
 ````
 :/       (nq-d)  /mod swap drop ;
@@ -173,6 +211,7 @@ The core Rx language provides addition, subtraction, multiplication, and a combi
 :n:limit   (nlu-n) swap push n:min pop n:max ;
 :n:inc     (n-n)   #1 + ;
 :n:dec     (n-n)   #1 - ;
+:n:between? (nul-) rot [ rot rot n:limit ] sip eq? ;
 ````
 
 ## Memory
@@ -188,7 +227,7 @@ The core Rx language provides addition, subtraction, multiplication, and a combi
 
 ## Lexical Scope
 
-The dictionary is a simple linked list. Rx allows for some control over what is visible using the **{{**, **---reveal---**, and **}}** words.
+The dictionary is a simple linked list. Retro allows for some control over what is visible using the **{{**, **---reveal---**, and **}}** words.
 
 As an example:
 
@@ -228,16 +267,10 @@ The **times** combinator runs a quote (n) times.
 :times  (q-)  swap [ repeat 0; n:dec push &call sip pop again ] call drop ;
 ````
 
-## Strings
-
-Hash (using DJB2)
+## Numbers
 
 ````
-{{
-  :<str:hash> repeat push #33 * pop fetch-next 0; swap push + pop again ;
----reveal---
-  :str:hash  (s-n)  #5381 swap <str:hash> drop ;
-}}
+:n:pow  (bp-n)  #1 swap [ over * ] times nip ;
 ````
 
 ## Buffer
@@ -290,13 +323,13 @@ Temporary strings are allocated in a circular pool.
 
 ````
 {{
-  :str:MAX-LENGTH #128 ;
-  :str:POOL-SIZE  #12 ;
+  :MAX-LENGTH #128 ;
+  :POOL-SIZE  #12 ;
   :str:Current `0 ; data
-  :str:Pool `0 ; data  str:MAX-LENGTH str:POOL-SIZE * allot
+  :str:Pool `0 ; data  MAX-LENGTH POOL-SIZE * allot
 
-  :str:pointer (-p)  &str:Current fetch str:MAX-LENGTH * &str:Pool + ;
-  :str:next (-) #1 &str:Current v:inc-by &str:Current fetch #12 eq? [ #0 &str:Current store ] if ;
+  :str:pointer (-p)  &str:Current fetch MAX-LENGTH * &str:Pool + ;
+  :str:next (-) &str:Current v:inc &str:Current fetch #12 eq? [ #0 &str:Current store ] if ;
 ---reveal---
   :str:temp (s-s) dup str:length str:pointer swap copy str:pointer str:next ;
   :str:empty (-s) str:pointer str:next ;
@@ -317,8 +350,8 @@ Permanent strings are compiled into memory. To skip over them a helper function 
 The **str:skip** adjusts the Nga instruction pointer to skip to the code following the stored string.
 
 ````
-:str:skip pop [ fetch-next #0 -eq? ] while n:dec push ;
-:str:keep compiling? [ &str:skip class:word ] if &Heap fetch [ s, ] dip class:data ;
+:str:skip (-) pop [ fetch-next #0 -eq? ] while n:dec push ;
+:str:keep (s-s) compiling? [ &str:skip class:word ] if &Heap fetch [ s, ] dip class:data ;
 ````
 
 ````
@@ -379,6 +412,36 @@ Trimming removes leading (**str:trim-left**) or trailing (**str:trim-right**) sp
 }}
 ````
 
+Hash (using DJB2)
+
+````
+{{
+  :<str:hash> repeat push #33 * pop fetch-next 0; swap push + pop again ;
+---reveal---
+  :str:hash  (s-n)  #5381 swap <str:hash> drop ;
+}}
+````
+
+## Characters
+
+````
+:chr:SPACE        (-c)  #32 ;
+:chr:ESC          (-c)  #27 ;
+:chr:TAB          (-c)  #9 ;
+:chr:CR           (-c)  #13 ;
+:chr:LF           (-c)  #10 ;
+:chr:letter?      (c-f) $A $z n:between? ;
+:chr:lowercase?   (c-f) $a $z n:between? ;
+:chr:uppercase?   (c-f) $A $Z n:between? ;
+:chr:digit?       (c-f) $0 $9 n:between? ;
+:chr:whitespace?  (c-f) [ chr:SPACE eq? ] [ #9 eq? ] [ [ #10 eq? ] [ #13 eq? ] bi or ] tri or or ;
+:chr:to-upper     (c-c) chr:SPACE - ;
+:chr:to-lower     (c-c) chr:SPACE + ;
+:chr:toggle-case  (c-c) dup chr:lowercase? [ chr:to-upper ] [ chr:to-lower ] choose ;
+:chr:to-string    (c-s) '.' dup store str:temp ;
+:chr:visible?     (c-f) #31 #126 n:between? ;
+````
+
 ## Number to String
 
 Convert a decimal (base 10) number to a string.
@@ -388,27 +451,6 @@ Convert a decimal (base 10) number to a string.
   &Heap fetch buffer:set
   [ #10 /mod swap $0 + buffer:add dup n:-zero? ] while drop
   buffer:start str:reverse str:temp ;
-````
-
-## Unsorted
-
-````
-:n:pow  (bp-n)  #1 swap [ over * ] times nip ;
-:n:between? (nul-) rot [ rot rot n:limit ] sip eq? ;
-````
-
-## Characters
-
-````
-:chr:letter?      (c-f) $A $z n:between? ;
-:chr:lowercase?   (c-f) $a $z n:between? ;
-:chr:uppercase?   (c-f) $A $Z n:between? ;
-:chr:digit?       (c-f) $0 $9 n:between? ;
-:chr:whitespace?  (c-f) [ #32 eq? ] [ #9 eq? ] [ [ #10 eq? ] [ #13 eq? ] bi or ] tri or or ;
-:chr:to-upper     (c-f) #32 - ;
-:chr:to-lower     (c-f) #32 + ;
-:chr:to-string    (c-f) '.' dup store str:temp ;
-:chr:visible?     (c-f) #31 #126 n:between? ;
 ````
 
 ## Unsorted
@@ -425,8 +467,7 @@ Convert a decimal (base 10) number to a string.
 
 Permission to use, copy, modify, and/or distribute this software for
 any purpose with or without fee is hereby granted, provided that the
-above     Copyright notice and this permission notice appear in all
-copies.
+copyright notice and this permission notice appear in all copies.
 
 THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
 WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
