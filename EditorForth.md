@@ -13,15 +13,6 @@ This has been influenced by Sam Falvo II's VIBE. Key handlers are words in the d
 
 Replace the *?* with the ASCII symbol for the key you are handling.
 
-## Configuration
-
-Two constants: the start of the block buffer and the number of blocks.
-
-````
-:red:BLOCKS #62464 ;
-:red:#BLOCKS  #120 ;
-````
-
 ## Variables
 
 There are a few global variables. These will hold the few pieces of state that we need.
@@ -48,7 +39,7 @@ The cursor position (determined by **red:Row** and **red:Col**) needs to be with
   red:wrap
   &red:Row #0 #7 v:limit
   &red:Col #0 #63 v:limit
-  &red:Current #0 red:#BLOCKS n:dec v:limit ;
+  &red:Current #0 LASTBLOCK n:dec v:limit ;
 ````
 
 ## Commands
@@ -94,7 +85,7 @@ The cursor (insertion point) is determined by the **red:Row** and **red:Col** va
 
 :red:insert-char
   dup chr:visible?
-  [ red:index red:BLOCKS + store red:cursor-right ]
+  [ red:index BLOCKS + store red:cursor-right ]
   [ red:control red:constrain ] choose ;
 ````
 
@@ -113,7 +104,7 @@ The strategy here:
   :red:Count `0 ;
 
   :getc
-    red:BLOCKS
+    BLOCKS
     &red:Current fetch #512 * +
     &red:End fetch +
     fetch
@@ -188,7 +179,7 @@ This is intentionally kept to a minimal list as I don't want to restrict what ca
 Fills all the block space with ASCII 32 (spaces)
 
 ````
-red:BLOCKS red:#BLOCKS #512 * [ #32 swap store-next ] times drop
+BLOCKS LASTBLOCK #512 * [ #32 swap store-next ] times drop
 ````
 
 ````

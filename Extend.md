@@ -18,6 +18,7 @@ void include_file(char *fname) {
   while (!feof(fp))
   {
     read_token(fp, source);
+    printf("compiling ___ %s ___\n", source);
     evaluate(source);
   }
   fclose(fp);

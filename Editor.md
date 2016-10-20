@@ -99,12 +99,12 @@ void sep() {
 void row(int block, int n) {
   int start = (block * 512) + (n * 64);
   for (int i = 0; i < 64; i++)
-    printf("%c", (char) (memory[62464 + start + i] & 0xFF));
+    printf("%c", (char) (memory[327680 + start + i] & 0xFF));
   printf("\n");
 }
 
 void stats() {
-  printf("Free: %d | Heap: %d | ", 62463 - Heap, Heap);
+  printf("Free: %d | Heap: %d | ", 326140 - Heap, Heap);
   printf("%d : %d : %d | %c\n", Current, Row, Column, (Mode ? 'I' : 'C'));
 }
 
@@ -148,7 +148,7 @@ void write_blocks() {
     exit(2);
   }
   CELL slot[4];
-  for(int i = 62464; i < IMAGE_SIZE; i++) {
+  for(int i = 327680; i < IMAGE_SIZE; i++) {
     slot[0] = memory[i];
     fwrite(&slot, sizeof(CELL), 1, fp);
   }
@@ -159,7 +159,7 @@ void read_blocks() {
   FILE *fp;
   if ((fp = fopen("retro.blocks", "rb")) != NULL) {
     CELL slot[4];
-    for (int i = 62464; i < IMAGE_SIZE; i++) {
+    for (int i = 327680; i < IMAGE_SIZE; i++) {
       fread(&slot, sizeof(CELL), 1, fp);
       memory[i] = slot[0];
     }

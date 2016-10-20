@@ -46,6 +46,26 @@ Prefixes are an integral part of Retro. These are single characters added to the
 * Names returning a flag should end with a ?
 * Words with an effect on the stack should have a stack comment
 
+## Constants
+
+Memory Map
+
+| range           | contains                     |
+| --------------- | ---------------------------- |
+| 0 - 1470        | rx kernel                    |
+| 1471 - 1535     | token input buffer           |
+| 1536 +          | start of heap space          |
+| 326140 - 327679 | temporary strings (12 * 128) |
+| 327680 - 524287 | blocks (384 * 512 cells)     |
+| 524287          | end of memory                |
+
+````
+:EOM       #524287 ;
+:STRINGS   #326140 ;
+:BLOCKS    #327680 ;
+:LASTBLOCK #384 ;
+````
+
 ## Stack Comments
 
 Retro provides a **(** prefix for stack comments. This will be used by all subsequent words so it comes first.
@@ -321,16 +341,14 @@ You can use **later** to pass control back and forth:
 
 Strings are zero terminated.
 
-Temporary strings are allocated in a circular pool.
+Temporary strings are allocated in a circular pool (at STRINGS).
 
 ````
 {{
   :MAX-LENGTH #128 ;
-  :POOL-SIZE  #12 ;
   :str:Current `0 ; data
-  :str:Pool `0 ; data  MAX-LENGTH POOL-SIZE * allot
 
-  :str:pointer (-p)  &str:Current fetch MAX-LENGTH * &str:Pool + ;
+  :str:pointer (-p)  &str:Current fetch MAX-LENGTH * STRINGS + ;
   :str:next (-) &str:Current v:inc &str:Current fetch #12 eq? [ #0 &str:Current store ] if ;
 ---reveal---
   :str:temp (s-s) dup str:length str:pointer swap copy str:pointer str:next ;
