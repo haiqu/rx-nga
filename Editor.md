@@ -78,10 +78,10 @@ CELL Mode;
 
 void update_state() {
   update_rx();
-  Current = memory[d_xt_for("red:Current", Dictionary)];
-  Column = memory[d_xt_for("red:Col", Dictionary)];
-  Row = memory[d_xt_for("red:Row", Dictionary)];
-  Mode = memory[d_xt_for("red:Mode", Dictionary)];
+  Current = memory[d_xt_for("ed:Current", Dictionary)];
+  Column = memory[d_xt_for("ed:Col", Dictionary)];
+  Row = memory[d_xt_for("ed:Row", Dictionary)];
+  Mode = memory[d_xt_for("ed:Mode", Dictionary)];
 }
 ````
 
@@ -121,7 +121,7 @@ void block_display(int n) {
 ````
 void red_enter(int ch) {
   stack_push(ch);
-  evaluate("red:insert-char");
+  evaluate("ed:insert-char");
 }
 
 void display_stack() {
@@ -136,7 +136,7 @@ void save() {
     printf("Unable to save the ngaImage!\n");
     exit(2);
   }
-  memory[d_xt_for("red:Mode", Dictionary)] = 0;
+  memory[d_xt_for("ed:Mode", Dictionary)] = 0;
   fwrite(&memory, sizeof(CELL), IMAGE_SIZE, fp);
   fclose(fp);
 }
@@ -174,8 +174,8 @@ int main() {
   read_blocks();
   update_state();
   int ch;
-  char c[] = "red:c_?";
-  char i[] = "red:i_?";
+  char c[] = "ed:c_?";
+  char i[] = "ed:i_?";
   while (1) {
     update_state();
     term_clear();
@@ -184,11 +184,11 @@ int main() {
     term_move_cursor(Column + 1, Row + 1);
     ch = getchar();
     if (Mode == 0) {
-      c[6] = ch;
+      c[5] = ch;
       CELL dt = d_lookup(Dictionary, c);
       if (dt != 0) execute(memory[d_xt(dt)]);
     } else if (Mode == 1) {
-      i[6] = ch;
+      i[5] = ch;
       CELL dt = d_lookup(Dictionary, i);
       (dt != 0) ? execute(memory[d_xt(dt)]) : red_enter(ch);
     }

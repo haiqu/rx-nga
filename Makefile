@@ -13,7 +13,6 @@ s:
 	./bin/unu Extend.md >extend.c
 	./bin/unu Listener.md >listener.c
 	./bin/unu RetroForth.md > retro.forth
-	./bin/unu EditorForth.md > editor.forth
 
 o:
 	$(CC) $(CFLAGS) -c nga/nga.c -o nga.o
@@ -41,6 +40,5 @@ t:
 	cd nga && $(CC) $(CFLAGS) naje.c -DALLOW_FORWARD_REFS -DENABLE_MAP -o ../bin/naje
 
 ex:
-	cat editor.forth >> retro.forth
 	./extend
 
