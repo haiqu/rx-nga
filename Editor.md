@@ -1,6 +1,12 @@
-# Retro Block Editor
+    ____   ____ ______ ____    ___
+    || \\ ||    | || | || \\  // \\
+    ||_// ||==    ||   ||_// ((   ))
+    || \\ ||___   ||   || \\  \\_//
+    a personal, minimalistic forth
 
-This is one part of the Retro Block Editor. See *EditorForth.md* for the other portion.
+# Block Editor
+
+This is one part of the Retro Block Editor. See the **ed:** namespace in *RetroForth.md* for the other portion.
 
 The implementation is split into two parts: an *interface layer*, written in C, and the editor logic, which is written in Retro. The code here contains the interface layer.
 
@@ -19,6 +25,15 @@ Blocks are 512 cells in length. They are displayed as 8 rows with 64 cells per r
 
 ````
 #include "c-rx.c"
+````
+
+## Configuration
+
+These values need to match the ones in *RetroForth.md*.
+
+````
+#define ED_BUFFER 327680
+#define ED_BLOCKS 384
 ````
 
 ## Terminal
@@ -99,7 +114,7 @@ void sep() {
 void row(int block, int n) {
   int start = (block * 512) + (n * 64);
   for (int i = 0; i < 64; i++)
-    printf("%c", (char) (memory[327680 + start + i] & 0xFF));
+    printf("%c", (char) (memory[ED_BUFFER + start + i] & 0xFF));
   printf("\n");
 }
 
@@ -129,50 +144,65 @@ void display_stack() {
     (i == sp) ? printf("< %d >", data[i]) : printf("%d ", data[i]);
   printf("\n");
 }
+````
 
+````
 void save() {
   FILE *fp;
+  memory[d_xt_for("ed:Mode", Dictionary)] = 0;
   if ((fp = fopen("ngaImage", "wb")) == NULL) {
     printf("Unable to save the ngaImage!\n");
     exit(2);
   }
-  memory[d_xt_for("ed:Mode", Dictionary)] = 0;
   fwrite(&memory, sizeof(CELL), IMAGE_SIZE, fp);
   fclose(fp);
 }
+````
 
-void write_blocks() {
+## Block Storage
+
+The editor keeps copies of the blocks in the block buffer. It also saves/reads them from mass storage (a file named *retro.blocks* in this implementation) for long term persistance and easier updating when switching to a new image.
+
+````
+void write_BUFFER() {
   FILE *fp;
-  if ((fp = fopen("retro.blocks", "wb")) == NULL) {
-    printf("Unable to save the blocks!\n");
-    exit(2);
+  if ((fp = fopen("retro.blocks", "wb")) != NULL) {
+    CELL slot;
+    for(int i = ED_BUFFER; i < IMAGE_SIZE; i++) {
+      slot = memory[i];
+      fwrite(&slot, sizeof(CELL), 1, fp);
+    }
+    fclose(fp);
   }
-  CELL slot[4];
-  for(int i = 327680; i < IMAGE_SIZE; i++) {
-    slot[0] = memory[i];
-    fwrite(&slot, sizeof(CELL), 1, fp);
-  }
-  fclose(fp);
 }
+````
 
+**read_blocks()** copies the block data into the Retro block buffer.
+
+````
 void read_blocks() {
   FILE *fp;
   if ((fp = fopen("retro.blocks", "rb")) != NULL) {
-    CELL slot[4];
-    for (int i = 327680; i < IMAGE_SIZE; i++) {
+    CELL slot;
+    for (int i = ED_BUFFER; i < IMAGE_SIZE; i++) {
       fread(&slot, sizeof(CELL), 1, fp);
-      memory[i] = slot[0];
+      memory[i] = slot;
     }
     fclose(fp);
   }
 }
 
-int main() {
-  term_setup();
+
+void initialize_rx() {
   ngaPrepare();
   ngaLoadImage("ngaImage");
   read_blocks();
   update_state();
+}
+
+int main() {
+  initialize_rx();
+  term_setup();
   int ch;
   char c[] = "ed:c_?";
   char i[] = "ed:i_?";
@@ -197,7 +227,7 @@ int main() {
       term_move_cursor(1, 15);
       term_cleanup();
       save();
-      write_blocks();
+      write_BUFFER();
       exit(0);
     }
   }
