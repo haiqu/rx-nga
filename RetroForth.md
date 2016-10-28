@@ -76,7 +76,10 @@ Example:
     (n-)
 
 ````
-:prefix:( drop ; &class:macro &Dictionary fetch d:class store
+:prefix:( drop ;
+  &class:macro
+  &Dictionary fetch d:class
+  store
 ````
 
 ## Changing Word Classes
@@ -484,6 +487,13 @@ Convert a decimal (base 10) number to a string.
   [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;
 ````
 
+## I/O
+
+````
+:putc (c-) `1000 ;
+:getc (-c) `1001 ;
+````
+
 # Retro Block Editor
 
 This is one part of the Retro Block Editor. See *Editor.md* for the other portion.
@@ -673,6 +683,42 @@ This is intentionally kept to a minimal list as I don't want to restrict what ca
 :ed:i_\ ed:command-mode ;
 ````
 
+
+````
+(------------------------------)
+:nl chr:LF putc ;
+:puts     (a-) [ repeat fetch-next 0; putc again ] call drop ;
+:puts:n  (an-) [ fetch-next putc ] times drop ;
+:putn     (n-) n:to-string puts #32 putc ;
+
+:Count `0 ;
+:line# &Count fetch dup #10 lt? [ #32 putc ] if putn &Count v:inc ;
+(------------------------------)
+:row (a-a)
+ #32 [ fetch-next putc ] times ;
+:[block]
+ #0 &Count store
+ &ed:Current fetch #512 * BLOCKS +
+ #16 [ $| putc row nl ] times drop ;
+:v nl --- [block] --- ;
+
+(------------------------------)
+:ed:line (n-a)
+  #32 *
+  &ed:Current fetch #512 *
+  BLOCKS + + ;
+
+:ia (slc-) swap ed:line + [ dup str:length ] dip swap copy v ;
+:i  (sl-)  #0 ia ;
+:ed:BLANK '                                ' ;
+:el (l-)   ed:BLANK swap ed:line #32 copy v ;
+:eb #0 #16 [ [ el ] sip n:inc ] times drop v ;
+:ed:CB '                                ' ;
+:cl (n-) ed:line ed:CB #32 copy v ;
+:pl (n-) ed:CB swap ed:line #32 copy v ;
+````
+
+
 ## The End
 
 
@@ -710,3 +756,4 @@ PERFORMANCE OF THIS SOFTWARE.
     Copyright (c) 2011,        Remy Moueza
     Copyright (c) 2012,        John M Harrison
     Copyright (c) 2012,        Todd Thomas
+
