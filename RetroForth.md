@@ -1,8 +1,4 @@
-    ____   ____ ______ ____    ___
-    || \\ ||    | || | || \\  // \\
-    ||_// ||==    ||   ||_// ((   ))
-    || \\ ||___   ||   || \\  \\_//
-    a personal, minimalistic forth
+# RETRO 12
 
 ## Background
 
@@ -19,7 +15,6 @@ Various past releases have had different methods of dealing with the dictionary.
 | chr        | characters         |
 | compile    | compiler functions |
 | d          | dictionary headers |
-| ed         | block editor       |
 | err        | error handlers     |
 | n          | numbers            |
 | str        | strings            |
