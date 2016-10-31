@@ -1,7 +1,7 @@
 CC = clang-3.5
 CFLAGS = -Wall
 
-c: t i s o l
+c: ax t i s o l ex
 
 i:
 	./bin/unu Rx.md >rx.naje
@@ -26,12 +26,13 @@ l:
 	$(CC) nga.o editor.o -o editor
 
 x:
-	rm -f rx.naje ngaImage ngaImage.map rx.log
 	rm -f bin/*
 	rm -f c-rx.c c-rx *.log
 	rm -f *.c
 	rm -f *.o
-	rm -f *.forth
+
+ax: x
+	rm -f rx.naje ngaImage ngaImage.map rx.log retro.forth
 
 t:
 	cd nga && $(CC) $(CFLAGS) unu.c -o ../bin/unu
