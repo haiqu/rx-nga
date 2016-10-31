@@ -23,6 +23,35 @@ Just a quick copyright notice.
 
 ````
 #include "c-rx.c"
+#define ED_BUFFER 327680
+#define ED_BLOCKS 384
+````
+
+##
+
+````
+#include <termios.h>
+#include <sys/ioctl.h>
+struct termios new_termios, old_termios;
+void term_setup() {
+  tcgetattr(0, &old_termios);
+  new_termios = old_termios;
+  new_termios.c_iflag &= ~(BRKINT+ISTRIP+IXON+IXOFF);
+  new_termios.c_iflag |= (IGNBRK+IGNPAR);
+  new_termios.c_lflag &= ~(ICANON+ISIG+IEXTEN);
+  new_termios.c_cc[VMIN] = 1;
+  new_termios.c_cc[VTIME] = 0;
+  tcsetattr(0, TCSANOW, &new_termios);
+}
+void term_cleanup() {
+  tcsetattr(0, TCSANOW, &old_termios);
+}
+void term_clear() {
+  printf("\033[2J\033[1;1H");
+}
+void term_move_cursor(int x, int y) {
+  printf("\033[%d;%dH", y, x);
+}
 ````
 
 ##
@@ -45,6 +74,18 @@ void include_file(char *fname) {
 ````
 
 ````
+void read_blocks() {
+  FILE *fp;
+  if ((fp = fopen("retro.blocks", "rb")) != NULL) {
+    CELL slot;
+    for (int i = ED_BUFFER; i < IMAGE_SIZE; i++) {
+      fread(&slot, sizeof(CELL), 1, fp);
+      memory[i] = slot;
+    }
+    fclose(fp);
+  }
+}
+
 void dump_stack() {
   printf("Stack: ");
   for (CELL i = 1; i <= sp; i++) {
@@ -58,7 +99,7 @@ void dump_stack() {
 
 void prompt() {
   if (memory[Compiler] == 0)
-    printf(" ok  ");
+    printf("\nok  ");
 }
 
 int main(int argc, char **argv) {
@@ -67,14 +108,18 @@ int main(int argc, char **argv) {
   ngaLoadImage("ngaImage");
   update_rx();
   char input[1024];
-  include_file("retro.forth");
+//  include_file("retro.forth");
+  read_blocks();
+  term_setup();
   printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, TIB, Heap);
   while(1) {
     prompt();
     Dictionary = memory[2];
     read_token(stdin, input);
-    if (strcmp(input, "bye") == 0)
+    if (strcmp(input, "bye") == 0) {
+      term_cleanup();
       exit(0);
+    }
     else if (strcmp(input, "words") == 0) {
       CELL i = Dictionary;
       while (i != 0) {
@@ -93,6 +138,7 @@ int main(int argc, char **argv) {
     else
       evaluate(input);
   }
+  term_cleanup();
   exit(0);
 }
 ````

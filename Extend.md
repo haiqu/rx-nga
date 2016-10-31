@@ -18,7 +18,7 @@ void include_file(char *fname) {
   while (!feof(fp))
   {
     read_token(fp, source);
-    printf("compiling ___ %s ___\n", source);
+//    printf("compiling ___ %s ___\n", source);
     evaluate(source);
   }
   fclose(fp);
@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
     printf("Unable to save the ngaImage!\n");
     exit(2);
   }
-  fwrite(&memory, sizeof(CELL), IMAGE_SIZE, fp);
+  fwrite(&memory, sizeof(CELL), memory[3] + 1, fp);
   fclose(fp);
 
   return 0;
