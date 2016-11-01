@@ -401,16 +401,9 @@ Trimming removes leading (**str:trim-left**) or trailing (**str:trim-right**) sp
 **str:prepend** and **str:append** for concatenating strings together.
 
 ````
-{{
-  :Buffer `0 ;
-  :@Buffer &Buffer fetch ;
----reveal---
-  :str:prepend (ss-s)
-    str:empty &Buffer store
-    dup str:length @Buffer swap &copy sip
-    [ dup str:length ] dip @Buffer + swap copy @Buffer str:temp ;
-  :str:append (ss-s) swap str:prepend ;
-}}
+:str:prepend (ss-s)
+  str:temp [ dup str:length + [ dup str:length n:inc ] dip swap copy ] sip ;
+:str:append (ss-s) swap str:prepend ;
 ````
 
 ````
