@@ -97,16 +97,9 @@
 :str:trim-left (s-s) str:temp [ fetch-next [ #32 eq? ] [ #0 -eq? ] bi and ] while n:dec ;
 :str:trim-right (s-s) str:temp str:reverse str:trim-left str:reverse ;
 :str:trim (s-s) str:trim-right str:trim-left ;
-{{
-  :Buffer `0 ;
-  :@Buffer &Buffer fetch ;
----reveal---
-  :str:prepend (ss-s)
-    str:empty &Buffer store
-    dup str:length @Buffer swap &copy sip
-    [ dup str:length ] dip @Buffer + swap copy @Buffer str:temp ;
-  :str:append (ss-s) swap str:prepend ;
-}}
+:str:prepend (ss-s)
+  str:temp [ dup str:length + [ dup str:length n:inc ] dip swap copy ] sip ;
+:str:append (ss-s) swap str:prepend ;
 {{
   :Needle `0 ; data
   :Haystack `0 ; data
@@ -137,7 +130,7 @@
 :chr:to-upper     (c-c) chr:SPACE - ;
 :chr:to-lower     (c-c) chr:SPACE + ;
 :chr:toggle-case  (c-c) dup chr:lowercase? [ chr:to-upper ] [ chr:to-lower ] choose ;
-:chr:to-string    (c-s) '.' dup store str:temp ;
+:chr:to-string    (c-s) '. str:temp [ store ] sip ;
 :chr:visible?     (c-f) #31 #126 n:between? ;
 :n:to-string  (n-s)
   &Heap fetch buffer:set

@@ -447,7 +447,7 @@ Hash (using DJB2)
 :chr:to-upper     (c-c) chr:SPACE - ;
 :chr:to-lower     (c-c) chr:SPACE + ;
 :chr:toggle-case  (c-c) dup chr:lowercase? [ chr:to-upper ] [ chr:to-lower ] choose ;
-:chr:to-string    (c-s) '.' dup store str:temp ;
+:chr:to-string    (c-s) '. str:temp [ store ] sip ;
 :chr:visible?     (c-f) #31 #126 n:between? ;
 ````
 
