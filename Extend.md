@@ -1,7 +1,7 @@
-# C-Rx Image Extender
+# Retro Image Extender
 
 ````
-/* c-rx.c, copyright (c) 2016 charles childers */
+/* RETRO, copyright (c) 2016 charles childers */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,31 +9,49 @@
 #include <string.h>
 #include "c-rx.c"
 
-void include_file(char *fname) {
+int include_file(char *fname) {
+  int tokens = 0;
   char source[64000];
   FILE *fp;
   fp = fopen(fname, "r");
   if (fp == NULL)
-    return;
+    return 0;
   while (!feof(fp))
   {
     read_token(fp, source);
-//    printf("compiling ___ %s ___\n", source);
+#ifdef VERBOSE
+    printf("compiling ___ %s ___\n", source);
+#endif
     evaluate(source);
+    tokens++;
   }
   fclose(fp);
+  return tokens;
+}
+
+void stats() {
+  update_rx();
+  printf("  Heap @ %d\n", Heap);
 }
 
 int main(int argc, char **argv) {
-  printf("rx-2016.10 [C-Rx Listener]\n");
-  ngaPrepare();
-  ngaLoadImage("ngaImage");
-  update_rx();
-  printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, TIB, Heap);
-  include_file("retro.forth");
-  update_rx();
-  printf("%d MAX, TIB @ %d, Heap @ %d\n\n", IMAGE_SIZE, TIB, Heap);
+  printf("RETRO12\n");
 
+  printf("+ initialize\n");
+  ngaPrepare();
+
+  printf("+ load image\n");
+  ngaLoadImage("ngaImage");
+
+  stats();
+
+  printf("+ load retro.forth\n");
+  int tokens = include_file("retro.forth");
+  printf("  processed %d tokens\n", tokens);
+
+  stats();
+
+  printf("+ save new image\n");
   FILE *fp;
   if ((fp = fopen("ngaImage", "wb")) == NULL) {
     printf("Unable to save the ngaImage!\n");
