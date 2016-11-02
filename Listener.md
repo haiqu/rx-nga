@@ -103,10 +103,10 @@ void prompt() {
 }
 
 int main(int argc, char **argv) {
-  printf("RETRO 12 (rx-2016.10)\n");
   ngaPrepare();
   ngaLoadImage("ngaImage");
   update_rx();
+  printf("RETRO 12 (rx-%d.%d)\n", memory[4] / 100, memory[4] % 100);
   char input[1024];
 //  include_file("retro.forth");
   read_blocks();
