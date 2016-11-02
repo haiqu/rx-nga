@@ -197,9 +197,13 @@ void execute(int cell) {
     } else if (opcode >= 0 && opcode < 27) {
       ngaProcessOpcode(opcode);
     } else {
-      printf("Invalid instruction!\n");
-      printf("At %d, opcode %d\n", ip, opcode);
-      exit(1);
+      switch (opcode) {
+        case 1000: printf("%c", data[sp]); sp--; break;
+        case 1001: stack_push(getc(stdin)); break;
+        default:   printf("Invalid instruction!\n");
+                   printf("At %d, opcode %d\n", ip, opcode);
+                   exit(1);
+      }
     }
     ip++;
     if (rp == 0)
@@ -241,20 +245,10 @@ Read a token from an input source into a specified buffer. The token ends with a
 void read_token(FILE *file, char *token_buffer) {
   char ch = getc(file);
   int count = 0;
-  if (ch == '\'') {
+  while ((ch != '\n') && (ch != ' ') && (ch != EOF))
+  {
     token_buffer[count++] = ch;
     ch = getc(file);
-    while ((ch != '\'') && (ch != EOF))
-    {
-      token_buffer[count++] = ch;
-      ch = getc(file);
-    }
-  } else {
-    while ((ch != '\n') && (ch != ' ') && (ch != EOF))
-    {
-      token_buffer[count++] = ch;
-      ch = getc(file);
-    }
   }
   token_buffer[count] = '\0';
 }
