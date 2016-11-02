@@ -143,6 +143,16 @@
   [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;
 :depth (-n) #-1 fetch ;
 :reset (...-) depth [ drop ] times ;
+{{
+  :SystemState `0 `0 `0 ;
+---reveal---
+  :mark
+    &Heap       fetch &SystemState #0 + store
+    &Dictionary fetch &SystemState #1 + store ;
+  :sweep
+    &SystemState #0 + fetch &Heap store
+    &SystemState #1 + fetch &Dictionary store ;
+}}
 :putc (c-) `1000 ;
 :puts (s-) [ repeat fetch-next 0; putc again ] call drop ;
 :putn (n-) n:to-string puts chr:SPACE putc ;

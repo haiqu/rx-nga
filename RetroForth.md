@@ -475,6 +475,19 @@ Convert a decimal (base 10) number to a string.
 :reset (...-) depth [ drop ] times ;
 ````
 
+````
+{{
+  :SystemState `0 `0 `0 ;
+---reveal---
+  :mark
+    &Heap       fetch &SystemState #0 + store
+    &Dictionary fetch &SystemState #1 + store ;
+  :sweep
+    &SystemState #0 + fetch &Heap store
+    &SystemState #1 + fetch &Dictionary store ;
+}}
+````
+
 ## I/O
 
 ````
