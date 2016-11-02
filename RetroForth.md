@@ -458,10 +458,15 @@ Hash (using DJB2)
 Convert a decimal (base 10) number to a string.
 
 ````
-:n:to-string  (n-s)
-  &Heap fetch buffer:set
-  [ #10 /mod swap $0 + buffer:add dup n:-zero? ] while drop
-  buffer:start str:reverse str:temp ;
+{{
+  :Value `0 ;
+---reveal---
+  :n:to-string  (n-s)
+    &Heap fetch buffer:set dup &Value store n:abs
+    [ #10 /mod swap $0 + buffer:add dup n:-zero? ] while drop
+    &Value fetch n:negative? [ $- buffer:add ] if
+    buffer:start str:reverse str:temp ;
+}}
 ````
 
 ## Unsorted

@@ -136,10 +136,15 @@
 :chr:toggle-case  (c-c) dup chr:lowercase? [ chr:to-upper ] [ chr:to-lower ] choose ;
 :chr:to-string    (c-s) '. str:temp [ store ] sip ;
 :chr:visible?     (c-f) #31 #126 n:between? ;
-:n:to-string  (n-s)
-  &Heap fetch buffer:set
-  [ #10 /mod swap $0 + buffer:add dup n:-zero? ] while drop
-  buffer:start str:reverse str:temp ;
+{{
+  :Value `0 ;
+---reveal---
+  :n:to-string  (n-s)
+    &Heap fetch buffer:set dup &Value store n:abs
+    [ #10 /mod swap $0 + buffer:add dup n:-zero? ] while drop
+    &Value fetch n:negative? [ $- buffer:add ] if
+    buffer:start str:reverse str:temp ;
+}}
 :cons (nn-p) &Heap fetch [ swap , , ] dip ;
 :curry (vp-p) &Heap fetch [ swap compile:lit compile:call compile:ret ] dip ;
 :case
