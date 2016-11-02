@@ -30,6 +30,8 @@
 :until  (q-)  [ repeat dup dip swap #-1 xor 0; drop again ] call drop ;
 :times  (q-)  swap [ repeat 0; #1 - push &call sip pop again ] call drop ;
 :compiling?  (-f)  &Compiler fetch ;
+:depth (-n) #-1 fetch ;
+:reset (...-) depth [ drop ] times ;
 :tuck      (xy-yxy)   dup push swap pop ;
 :over      (xy-xyx)   push dup pop swap ;
 :dup-pair  (xy-xyxy)  over over ;
@@ -112,6 +114,8 @@
      &Needle fetch eq? [ #-1 #0 ] [ #-1 ] choose 0; drop
   again ;
 }}
+:str:SPACE (-s)   #32 '_ [ store ] sip ;
+:str:build (q-s)  depth [ call ] dip depth swap - n:dec [ str:SPACE str:prepend str:append ] times ;
 {{
   :<str:hash> repeat push #33 * pop fetch-next 0; swap push + pop again ;
 ---reveal---
@@ -141,8 +145,6 @@
 :case
   [ over eq? ] dip swap
   [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;
-:depth (-n) #-1 fetch ;
-:reset (...-) depth [ drop ] times ;
 {{
   :SystemState `0 `0 `0 ;
 ---reveal---

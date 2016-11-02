@@ -206,6 +206,13 @@ The **times** combinator runs a quote (n) times.
 :compiling?  (-f)  &Compiler fetch ;
 ````
 
+## Stack Queries &amp; Cleaning
+
+````
+:depth (-n) #-1 fetch ;
+:reset (...-) depth [ drop ] times ;
+````
+
 ## Stack Shufflers
 
 The core Rx language provides a few basic stack shuffling words: **push**, **pop**, **drop**, **swap**, and **dup**. There are quite a few more that are useful. These are provided here.
@@ -411,6 +418,11 @@ Trimming removes leading (**str:trim-left**) or trailing (**str:trim-right**) sp
 }}
 ````
 
+````
+:str:SPACE (-s)   #32 '_ [ store ] sip ;
+:str:build (q-s)  depth [ call ] dip depth swap - n:dec [ str:SPACE str:prepend str:append ] times ;
+````
+
 Hash (using DJB2)
 
 ````
@@ -460,9 +472,6 @@ Convert a decimal (base 10) number to a string.
 :case
   [ over eq? ] dip swap
   [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;
-
-:depth (-n) #-1 fetch ;
-:reset (...-) depth [ drop ] times ;
 ````
 
 ````
