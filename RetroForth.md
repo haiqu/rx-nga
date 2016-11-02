@@ -470,6 +470,9 @@ Convert a decimal (base 10) number to a string.
 :case
   [ over eq? ] dip swap
   [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;
+
+:depth (-n) #-1 fetch ;
+:reset (...-) depth [ drop ] times ;
 ````
 
 ## I/O

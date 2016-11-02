@@ -141,6 +141,8 @@
 :case
   [ over eq? ] dip swap
   [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;
+:depth (-n) #-1 fetch ;
+:reset (...-) depth [ drop ] times ;
 :putc (c-) `1000 ;
 :puts (s-) [ repeat fetch-next 0; putc again ] call drop ;
 :putn (n-) n:to-string puts chr:SPACE putc ;
