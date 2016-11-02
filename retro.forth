@@ -26,6 +26,9 @@
 :tri  (xqqq-)  [ &sip dip sip ] dip call ;
 :tri*  (xyzqqq-)  [ [ swap &dip dip ] dip dip ] dip call ;
 :tri@ dup dup tri* ;
+:while  (q-)  [ repeat dup dip swap 0; drop again ] call drop ;
+:until  (q-)  [ repeat dup dip swap #-1 xor 0; drop again ] call drop ;
+:times  (q-)  swap [ repeat 0; #1 - push &call sip pop again ] call drop ;
 :compiling?  (-f)  &Compiler fetch ;
 :tuck      (xy-yxy)   dup push swap pop ;
 :over      (xy-xyx)   push dup pop swap ;
@@ -39,6 +42,7 @@
 :mod       (nq-r)  /mod drop ;
 :*/        (nnn-n) push * pop / ;
 :not       (n-n)   #-1 xor ;
+:n:pow     (bp-n)  #1 swap [ over * ] times nip ;
 :n:negate  (n-n)   #-1 * ;
 :n:square  (n-n)   dup * ;
 :n:sqrt    (n-n) #1 [ repeat dup-pair / over - #2 / 0; + again ] call nip ;
@@ -59,10 +63,6 @@
 :{{ &Dictionary fetch dup &ScopeList store-next store ;
 :---reveal--- &Dictionary fetch &ScopeList n:inc store ;
 :}} &ScopeList fetch-next swap fetch eq? [ &ScopeList fetch &Dictionary store ] [ &ScopeList fetch [ &Dictionary repeat fetch dup fetch &ScopeList n:inc fetch -eq? 0; drop again ] call store ] choose ;
-:while  (q-)  [ repeat dup dip swap 0; drop again ] call drop ;
-:until  (q-)  [ repeat dup dip swap not 0; drop again ] call drop ;
-:times  (q-)  swap [ repeat 0; n:dec push &call sip pop again ] call drop ;
-:n:pow  (bp-n)  #1 swap [ over * ] times nip ;
 {{
   :Buffer `0 ; data
   :Ptr    `0 ; data
@@ -153,6 +153,12 @@
     &SystemState #0 + fetch &Heap store
     &SystemState #1 + fetch &Dictionary store ;
 }}
+:d:add-name (s-)
+  (s-) &class:data #0 d:add-header
+  &Heap fetch &Dictionary fetch d:xt store ;
+:var    (s-)  d:add-name #0 , ;
+:var<n> (ns-) d:add-name , ;
+:const  (ns-) d:add-name &Dictionary fetch d:xt store ;
 :putc (c-) `1000 ;
 :puts (s-) [ repeat fetch-next 0; putc again ] call drop ;
 :putn (n-) n:to-string puts chr:SPACE putc ;

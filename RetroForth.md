@@ -31,6 +31,9 @@ Prefixes are an integral part of Retro. These are single characters added to the
 | (      | stack comments         |
 | `      | inlining bytecodes     |
 | '      | strings                |
+| #      | numbers                |
+| &amp;  | pointers               |
+| $      | characters             |
 
 ### Naming &amp; Style Conventions
 
@@ -177,13 +180,25 @@ Apply q to x, y, and z
 :tri@ dup dup tri* ;
 ````
 
-Now we can do useful things like:
+## Flow
 
-    :Red   `0 ; data
-    :Green `1 ; data
-    :Blue  `2 ; data
+Execute quote until quote returns a flag of 0.
 
-    :inline-100 &Compiler fetch [ #100 compile:lit ] [ #100 ] choose ; immediate
+````
+:while  (q-)  [ repeat dup dip swap 0; drop again ] call drop ;
+````
+
+Execute quote until quote returns a flag of -1.
+
+````
+:until  (q-)  [ repeat dup dip swap #-1 xor 0; drop again ] call drop ;
+````
+
+The **times** combinator runs a quote (n) times.
+
+````
+:times  (q-)  swap [ repeat 0; #1 - push &call sip pop again ] call drop ;
+````
 
 ## ...
 
@@ -220,6 +235,7 @@ The core Rx language provides addition, subtraction, multiplication, and a combi
 :mod       (nq-r)  /mod drop ;
 :*/        (nnn-n) push * pop / ;
 :not       (n-n)   #-1 xor ;
+:n:pow     (bp-n)  #1 swap [ over * ] times nip ;
 :n:negate  (n-n)   #-1 * ;
 :n:square  (n-n)   dup * ;
 :n:sqrt    (n-n) #1 [ repeat dup-pair / over - #2 / 0; + again ] call nip ;
@@ -263,32 +279,6 @@ Only the **next-number** function will remain visible once **}}** is executed.
 :{{ &Dictionary fetch dup &ScopeList store-next store ;
 :---reveal--- &Dictionary fetch &ScopeList n:inc store ;
 :}} &ScopeList fetch-next swap fetch eq? [ &ScopeList fetch &Dictionary store ] [ &ScopeList fetch [ &Dictionary repeat fetch dup fetch &ScopeList n:inc fetch -eq? 0; drop again ] call store ] choose ;
-````
-
-## Flow
-
-Execute quote until quote returns a flag of 0.
-
-````
-:while  (q-)  [ repeat dup dip swap 0; drop again ] call drop ;
-````
-
-Execute quote until quote returns a flag of -1.
-
-````
-:until  (q-)  [ repeat dup dip swap not 0; drop again ] call drop ;
-````
-
-The **times** combinator runs a quote (n) times.
-
-````
-:times  (q-)  swap [ repeat 0; n:dec push &call sip pop again ] call drop ;
-````
-
-## Numbers
-
-````
-:n:pow  (bp-n)  #1 swap [ over * ] times nip ;
 ````
 
 ## Buffer
@@ -488,16 +478,31 @@ Convert a decimal (base 10) number to a string.
 }}
 ````
 
+````
+:d:add-name (s-)
+  (s-) &class:data #0 d:add-header
+  &Heap fetch &Dictionary fetch d:xt store ;
+:var    (s-)  d:add-name #0 , ;
+:var<n> (ns-) d:add-name , ;
+:const  (ns-) d:add-name &Dictionary fetch d:xt store ;
+````
+
 ## I/O
+
+Retro really only provides one I/O function in the standard interface: pushing a character to the output log.
 
 ````
 :putc (c-) `1000 ;
+````
+
+This can be used to implement words that push other item to the log.
+
+````
 :puts (s-) [ repeat fetch-next 0; putc again ] call drop ;
 :putn (n-) n:to-string puts chr:SPACE putc ;
 ````
 
 ## The End
-
 
 ## Legalities
 
