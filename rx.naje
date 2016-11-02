@@ -2,6 +2,8 @@
   .ref 9999
 :Heap
   .data 1536
+:Version
+  .data 201611
 :_nop
   .data 0
   ret
@@ -903,8 +905,13 @@
   .ref class:primitive
   .ref class:word
   .string class:primitive
-:9999
+:0055
   .ref 0054
+  .ref Version
+  .ref class:data
+  .string Version
+:9999
+  .ref 0055
   .ref err:notfound
   .ref class:word
   .string err:notfound
