@@ -106,6 +106,25 @@ This is used to change the class from **class:word** to **class:macro**. Doing t
 :prefix:` (s-) &Compiler fetch [ str:to-number , ] [ drop ] choose ; &class:macro &Dictionary fetch d:class store
 ````
 
+## Support for Variables, Constants
+
+These aren't really useful until the **str:** namespace is compiled later on. With strings and the **'** prefix:
+
+| To create a                  | Use a form like    |
+| ---------------------------- | ------------------ |
+| Variable                     | 'Base var`         |
+| Variable, with initial value | `#10 'Base var<n>` |
+| Constant                     | `#-1 'TRUE const`  |
+
+````
+:d:add-name (s-)
+  (s-) &class:data #0 d:add-header
+  &Heap fetch &Dictionary fetch d:xt store ;
+:var    (s-)  d:add-name #0 , ;
+:var<n> (ns-) d:add-name , ;
+:const  (ns-) d:add-name &Dictionary fetch d:xt store ;
+````
+
 ## Constants
 
 ````
@@ -418,11 +437,6 @@ Trimming removes leading (**str:trim-left**) or trailing (**str:trim-right**) sp
 }}
 ````
 
-````
-:str:SPACE (-s)   #32 '_ [ store ] sip ;
-:str:build (q-s)  depth [ call ] dip depth swap - n:dec [ str:SPACE str:prepend str:append ] times ;
-````
-
 Hash (using DJB2)
 
 ````
@@ -490,15 +504,6 @@ Convert a decimal (base 10) number to a string.
     &SystemState #0 + fetch &Heap store
     &SystemState #1 + fetch &Dictionary store ;
 }}
-````
-
-````
-:d:add-name (s-)
-  (s-) &class:data #0 d:add-header
-  &Heap fetch &Dictionary fetch d:xt store ;
-:var    (s-)  d:add-name #0 , ;
-:var<n> (ns-) d:add-name , ;
-:const  (ns-) d:add-name &Dictionary fetch d:xt store ;
 ````
 
 ## I/O

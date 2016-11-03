@@ -12,6 +12,12 @@
 :compile:call (a-) compile:lit #8 , ;
 :compile:ret  (-)  #10 , ;
 :prefix:` (s-) &Compiler fetch [ str:to-number , ] [ drop ] choose ; &class:macro &Dictionary fetch d:class store
+:d:add-name (s-)
+  (s-) &class:data #0 d:add-header
+  &Heap fetch &Dictionary fetch d:xt store ;
+:var    (s-)  d:add-name #0 , ;
+:var<n> (ns-) d:add-name , ;
+:const  (ns-) d:add-name &Dictionary fetch d:xt store ;
 :TRUE  (-n) #-1 ;
 :FALSE (-n)  #0 ;
 :n:zero?     (n-f)  #0 eq? ;
@@ -114,8 +120,6 @@
      &Needle fetch eq? [ #-1 #0 ] [ #-1 ] choose 0; drop
   again ;
 }}
-:str:SPACE (-s)   #32 '_ [ store ] sip ;
-:str:build (q-s)  depth [ call ] dip depth swap - n:dec [ str:SPACE str:prepend str:append ] times ;
 {{
   :<str:hash> repeat push #33 * pop fetch-next 0; swap push + pop again ;
 ---reveal---
@@ -160,12 +164,6 @@
     &SystemState #0 + fetch &Heap store
     &SystemState #1 + fetch &Dictionary store ;
 }}
-:d:add-name (s-)
-  (s-) &class:data #0 d:add-header
-  &Heap fetch &Dictionary fetch d:xt store ;
-:var    (s-)  d:add-name #0 , ;
-:var<n> (ns-) d:add-name , ;
-:const  (ns-) d:add-name &Dictionary fetch d:xt store ;
 :putc (c-) `1000 ;
 :puts (s-) [ repeat fetch-next 0; putc again ] call drop ;
 :putn (n-) n:to-string puts chr:SPACE putc ;
