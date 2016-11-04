@@ -14,7 +14,6 @@ tools:
 
 sources:
 	./bin/unu Bridge.c.md > source/bridge.c
-	./bin/unu Editor.md >source/editor.c
 	./bin/unu Extend.md >source/extend.c
 	./bin/unu Listener.md >source/listener.c
 	./bin/unu RetroForth.md > retro.forth
@@ -23,14 +22,12 @@ compile:
 	cd source && $(CC) $(CFLAGS) -c nga.c -o nga.o
 	cd source && $(CC) $(CFLAGS) -c listener.c -o listener.o
 	cd source && $(CC) $(CFLAGS) -c extend.c -o extend.o
-	cd source && $(CC) $(CFLAGS) -c editor.c -o editor.o
 	cd source && $(CC) $(CFLAGS) -c embedimage.c -o embedimage.o
 	mv source/*.o bin
 
 link:
 	cd bin && $(CC) nga.o listener.o -o listener
 	cd bin && $(CC) nga.o extend.o -o extend
-	cd bin && $(CC) nga.o editor.o -o editor
 	cd bin && $(CC) embedimage.o -o embedimage
 
 core:
