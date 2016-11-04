@@ -1,20 +1,25 @@
 CC = clang-3.5
 CFLAGS = -Wall
 
-c: x t i s o l ex
+all: clean tools sources compile link core image
 
-i:
-	./bin/unu Rx.md >rx.naje
-	./bin/naje rx.naje >rx.log
+clean:
+	rm -f bin/*.o
 
-s:
+tools:
+	cd source && $(CC) $(CFLAGS) unu.c -o ../bin/unu
+	cd source && $(CC) $(CFLAGS) nga.c -DSTANDALONE -o ../bin/nga
+	cd source && $(CC) $(CFLAGS) -DVERBOSE ngita.c -o ../bin/ngita
+	cd source && $(CC) $(CFLAGS) naje.c -DALLOW_FORWARD_REFS -DENABLE_MAP -o ../bin/naje
+
+sources:
 	./bin/unu Bridge.c.md > source/bridge.c
 	./bin/unu Editor.md >source/editor.c
 	./bin/unu Extend.md >source/extend.c
 	./bin/unu Listener.md >source/listener.c
 	./bin/unu RetroForth.md > retro.forth
 
-o:
+compile:
 	cd source && $(CC) $(CFLAGS) -c nga.c -o nga.o
 	cd source && $(CC) $(CFLAGS) -c listener.c -o listener.o
 	cd source && $(CC) $(CFLAGS) -c extend.c -o extend.o
@@ -22,21 +27,16 @@ o:
 	cd source && $(CC) $(CFLAGS) -c embedimage.c -o embedimage.o
 	mv source/*.o bin
 
-l:
+link:
 	cd bin && $(CC) nga.o listener.o -o listener
 	cd bin && $(CC) nga.o extend.o -o extend
 	cd bin && $(CC) nga.o editor.o -o editor
 	cd bin && $(CC) embedimage.o -o embedimage
 
-x:
-	rm -f bin/*.o
+core:
+	./bin/unu Rx.md >rx.naje
+	./bin/naje rx.naje >rx.log
 
-t:
-	cd source && $(CC) $(CFLAGS) unu.c -o ../bin/unu
-	cd source && $(CC) $(CFLAGS) nga.c -DSTANDALONE -o ../bin/nga
-	cd source && $(CC) $(CFLAGS) -DVERBOSE ngita.c -o ../bin/ngita
-	cd source && $(CC) $(CFLAGS) naje.c -DALLOW_FORWARD_REFS -DENABLE_MAP -o ../bin/naje
-
-ex:
+image:
 	./bin/extend
 
