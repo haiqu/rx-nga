@@ -1,35 +1,11 @@
-# Listener
-
-This is a fairly simple Retro style interactive interface for Rx.
-
-## Legalities
-
-Just a quick copyright notice.
-
-````
 /* listener, copyright (c) 2016 charles childers */
-````
-
-## Headers
-
-````
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-````
-
-## Include C-Rx API
-
-````
 #include "bridge.c"
 #define ED_BUFFER 327680
 #define ED_BLOCKS 384
-````
-
-##
-
-````
 #include <termios.h>
 #include <sys/ioctl.h>
 struct termios new_termios, old_termios;
@@ -52,11 +28,6 @@ void term_clear() {
 void term_move_cursor(int x, int y) {
   printf("\033[%d;%dH", y, x);
 }
-````
-
-##
-
-````
 void include_file(char *fname) {
   char source[64000];
   FILE *fp;
@@ -71,9 +42,6 @@ void include_file(char *fname) {
   }
   fclose(fp);
 }
-````
-
-````
 void read_blocks() {
   FILE *fp;
   if ((fp = fopen("retro.blocks", "rb")) != NULL) {
@@ -85,7 +53,6 @@ void read_blocks() {
     fclose(fp);
   }
 }
-
 void dump_stack() {
   printf("Stack: ");
   for (CELL i = 1; i <= sp; i++) {
@@ -96,12 +63,10 @@ void dump_stack() {
   }
   printf("\n");
 }
-
 void prompt() {
   if (memory[Compiler] == 0)
     printf("\nok  ");
 }
-
 int main(int argc, char **argv) {
   ngaPrepare();
   ngaLoadImage("ngaImage");
@@ -141,4 +106,3 @@ int main(int argc, char **argv) {
   term_cleanup();
   exit(0);
 }
-````

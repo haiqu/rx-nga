@@ -1,38 +1,35 @@
 CC = clang-3.5
 CFLAGS = -Wall
 
-c: ax t i s o l ex
+c: x t i s o l ex
 
 i:
 	./bin/unu Rx.md >rx.naje
 	./bin/naje rx.naje >rx.log
 
 s:
-	./bin/unu interfaces/C-Rx.md > c-rx.c
-	./bin/unu Editor.md >editor.c
-	./bin/unu Extend.md >extend.c
-	./bin/unu Listener.md >listener.c
+	./bin/unu Bridge.c.md > source/bridge.c
+	./bin/unu Editor.md >source/editor.c
+	./bin/unu Extend.md >source/extend.c
+	./bin/unu Listener.md >source/listener.c
 	./bin/unu RetroForth.md > retro.forth
 
 o:
-	$(CC) $(CFLAGS) -c source/nga.c -o nga.o
-	$(CC) $(CFLAGS) -c listener.c -o listener.o
-	$(CC) $(CFLAGS) -c extend.c -o extend.o
-	$(CC) $(CFLAGS) -c editor.c -o editor.o
+	cd source && $(CC) $(CFLAGS) -c nga.c -o nga.o
+	cd source && $(CC) $(CFLAGS) -c listener.c -o listener.o
+	cd source && $(CC) $(CFLAGS) -c extend.c -o extend.o
+	cd source && $(CC) $(CFLAGS) -c editor.c -o editor.o
+	cd source && $(CC) $(CFLAGS) -c embedimage.c -o embedimage.o
+	mv source/*.o bin
 
 l:
-	$(CC) nga.o listener.o -o listener
-	$(CC) nga.o extend.o -o extend
-	$(CC) nga.o editor.o -o editor
+	cd bin && $(CC) nga.o listener.o -o listener
+	cd bin && $(CC) nga.o extend.o -o extend
+	cd bin && $(CC) nga.o editor.o -o editor
+	cd bin && $(CC) embedimage.o -o embedimage
 
 x:
-	rm -f bin/*
-	rm -f c-rx.c c-rx *.log
-	rm -f *.c
-	rm -f *.o
-
-ax: x
-	rm -f rx.naje ngaImage ngaImage.map rx.log retro.forth
+	rm -f bin/*.o
 
 t:
 	cd source && $(CC) $(CFLAGS) unu.c -o ../bin/unu
@@ -41,5 +38,5 @@ t:
 	cd source && $(CC) $(CFLAGS) naje.c -DALLOW_FORWARD_REFS -DENABLE_MAP -o ../bin/naje
 
 ex:
-	./extend
+	./bin/extend
 

@@ -1,60 +1,11 @@
-    ____   ____ ______ ____    ___
-    || \\ ||    | || | || \\  // \\
-    ||_// ||==    ||   ||_// ((   ))
-    || \\ ||___   ||   || \\  \\_//
-    a personal, minimalistic forth
-
-# Block Editor
-
-This is one part of the Retro Block Editor. See the **ed:** namespace in *RetroForth.md* for the other portion.
-
-The implementation is split into two parts: an *interface layer*, written in C, and the editor logic, which is written in Retro. The code here contains the interface layer.
-
-## Implementation Overview
-
-Blocks are 512 cells in length. They are displayed as 8 rows with 64 cells per row.
-
-## Standard Headers
-
-````
 #include <stdio.h>
 #include <stdlib.h>
-````
-
-## Rx &amp; Nga
-
-````
 #include "bridge.c"
-````
-
-## Configuration
-
-These values need to match the ones in *RetroForth.md*.
-
-````
 #define ED_BUFFER 327680
 #define ED_BLOCKS 384
-````
-
-## Terminal
-
-This interface assumes a VT100-style terminal emulation. The interface is wrapped into a few simple functions. The default is to use *termios* and *ioctl*, though this limits portability. It'd be better to use *curses* instead, but that's a little more complex. Maybe at a later time...
-
-````
 #include <termios.h>
 #include <sys/ioctl.h>
-
 struct termios new_termios, old_termios;
-````
-
-Setup and restoration of the terminal environment. To work properly we need:
-
-* non-buffered input
-* no keyboard echo
-
-The **term_setup()** turns these on while **term_cleanup()** resets to the prior state.
-
-````
 void term_setup() {
   tcgetattr(0, &old_termios);
   new_termios = old_termios;
@@ -65,32 +16,19 @@ void term_setup() {
   new_termios.c_cc[VTIME] = 0;
   tcsetattr(0, TCSANOW, &new_termios);
 }
-
 void term_cleanup() {
   tcsetattr(0, TCSANOW, &old_termios);
 }
-````
-
-````
 void term_clear() {
   printf("\033[2J\033[1;1H");
 }
-
 void term_move_cursor(int x, int y) {
   printf("\033[%d;%dH", y, x);
 }
-````
-
-## Editor State
-
-The editor state is handled by the Retro portion of the code. The interface layer does need to be aware of it though so this defines a few global variables and a function for keeping them in sync with the underlying code.
-
-````
 CELL Current;
 CELL Column;
 CELL Row;
 CELL Mode;
-
 void update_state() {
   update_rx();
   Current = memory[d_xt_for("ed:Current", Dictionary)];
@@ -98,55 +36,36 @@ void update_state() {
   Row = memory[d_xt_for("ed:Row", Dictionary)];
   Mode = memory[d_xt_for("ed:Mode", Dictionary)];
 }
-````
-
-## Display a Block
-
-These functions are used to display a block.
-
-````
 void sep() {
   for (int i = 0; i < 8; i++)
     printf("--------");
   printf("\n");
 }
-
 void row(int block, int n) {
   int start = (block * 512) + (n * 64);
   for (int i = 0; i < 64; i++)
     printf("%c", (char) (memory[ED_BUFFER + start + i] & 0xFF));
   printf("\n");
 }
-
 void stats() {
   printf("Free: %d | Heap: %d | ", 326140 - Heap, Heap);
   printf("%d : %d : %d | %c\n", Current, Row, Column, (Mode ? 'I' : 'C'));
 }
-
 void block_display(int n) {
   for (int line = 0; line < 8; line++)
     row(n, line);
   sep();
   stats();
 }
-````
-
-## Unsorted
-
-````
 void red_enter(int ch) {
   stack_push(ch);
   evaluate("ed:insert-char");
 }
-
 void display_stack() {
   for (CELL i = 1; i <= sp; i++)
     (i == sp) ? printf("< %d >", data[i]) : printf("%d ", data[i]);
   printf("\n");
 }
-````
-
-````
 void save() {
   FILE *fp;
   memory[d_xt_for("ed:Mode", Dictionary)] = 0;
@@ -157,13 +76,6 @@ void save() {
   fwrite(&memory, sizeof(CELL), IMAGE_SIZE, fp);
   fclose(fp);
 }
-````
-
-## Block Storage
-
-The editor keeps copies of the blocks in the block buffer. It also saves/reads them from mass storage (a file named *retro.blocks* in this implementation) for long term persistance and easier updating when switching to a new image.
-
-````
 void write_BUFFER() {
   FILE *fp;
   if ((fp = fopen("retro.blocks", "wb")) != NULL) {
@@ -175,11 +87,6 @@ void write_BUFFER() {
     fclose(fp);
   }
 }
-````
-
-**read_blocks()** copies the block data into the Retro block buffer.
-
-````
 void read_blocks() {
   FILE *fp;
   if ((fp = fopen("retro.blocks", "rb")) != NULL) {
@@ -191,15 +98,12 @@ void read_blocks() {
     fclose(fp);
   }
 }
-
-
 void initialize_rx() {
   ngaPrepare();
   ngaLoadImage("ngaImage");
   read_blocks();
   update_state();
 }
-
 int main() {
   initialize_rx();
   term_setup();
@@ -233,4 +137,3 @@ int main() {
   }
   return 0;
 }
-````
