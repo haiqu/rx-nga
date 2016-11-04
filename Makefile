@@ -15,7 +15,7 @@ s:
 	./bin/unu RetroForth.md > retro.forth
 
 o:
-	$(CC) $(CFLAGS) -c nga/nga.c -o nga.o
+	$(CC) $(CFLAGS) -c source/nga.c -o nga.o
 	$(CC) $(CFLAGS) -c listener.c -o listener.o
 	$(CC) $(CFLAGS) -c extend.c -o extend.o
 	$(CC) $(CFLAGS) -c editor.c -o editor.o
@@ -35,10 +35,10 @@ ax: x
 	rm -f rx.naje ngaImage ngaImage.map rx.log retro.forth
 
 t:
-	cd nga && $(CC) $(CFLAGS) unu.c -o ../bin/unu
-	cd nga && $(CC) $(CFLAGS) nga.c -DSTANDALONE -o ../bin/nga
-	cd nga && $(CC) $(CFLAGS) -DVERBOSE ngita.c -o ../bin/ngita
-	cd nga && $(CC) $(CFLAGS) naje.c -DALLOW_FORWARD_REFS -DENABLE_MAP -o ../bin/naje
+	cd source && $(CC) $(CFLAGS) unu.c -o ../bin/unu
+	cd source && $(CC) $(CFLAGS) nga.c -DSTANDALONE -o ../bin/nga
+	cd source && $(CC) $(CFLAGS) -DVERBOSE ngita.c -o ../bin/ngita
+	cd source && $(CC) $(CFLAGS) naje.c -DALLOW_FORWARD_REFS -DENABLE_MAP -o ../bin/naje
 
 ex:
 	./extend
