@@ -425,9 +425,8 @@ Trimming removes leading (**str:trim-left**) or trailing (**str:trim-right**) sp
 ````
 {{
   :Needle `0 ; data
-  :Haystack `0 ; data
 ---reveal---
-  :str:find-char
+  :str:has-char?  (sc-f)
    &Needle store
    repeat
      fetch-next

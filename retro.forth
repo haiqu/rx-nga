@@ -110,9 +110,8 @@
 :str:append (ss-s) swap str:prepend ;
 {{
   :Needle `0 ; data
-  :Haystack `0 ; data
 ---reveal---
-  :str:find-char
+  :str:has-char?  (sc-f)
    &Needle store
    repeat
      fetch-next
