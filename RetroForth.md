@@ -505,6 +505,16 @@ Convert a decimal (base 10) number to a string.
 }}
 ````
 
+````
+{{
+  'Values var #8 allot
+  :from str:length dup [ [ &Values + store ] sip n:dec ] times drop ;
+  :to dup str:length [ fetch-next $a -  n:inc &Values + fetch swap ] times drop ;
+---reveal---
+  :reorder (...ss-?) [ from ] dip to ;
+}}
+````
+
 ## I/O
 
 Retro really only provides one I/O function in the standard interface: pushing a character to the output log.

@@ -163,6 +163,13 @@
     &SystemState #0 + fetch &Heap store
     &SystemState #1 + fetch &Dictionary store ;
 }}
+{{
+  'Values var #8 allot
+  :from str:length dup [ [ &Values + store ] sip n:dec ] times drop ;
+  :to dup str:length [ fetch-next $a -  n:inc &Values + fetch swap ] times drop ;
+---reveal---
+  :reorder (...ss-?) [ from ] dip to ;
+}}
 :putc (c-) `1000 ;
 :puts (s-) [ repeat fetch-next 0; putc again ] call drop ;
 :putn (n-) n:to-string puts chr:SPACE putc ;
