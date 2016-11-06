@@ -32,7 +32,7 @@ Blocks are 512 cells in length. They are displayed as 8 rows with 64 cells per r
 These values need to match the ones in *RetroForth.md*.
 
 ````
-#define ED_BUFFER 327680
+#define ED_BUFFER 326144
 #define ED_BLOCKS 384
 ````
 

@@ -18,6 +18,8 @@ Replace the *?* with the ASCII symbol for the key you are handling.
 There are a few global variables. These will hold the few pieces of state that we need.
 
 ````
+#326144 'BLOCKS const
+#383 'LASTBLOCK const
 :ed:Current `0 ;
 :ed:Row `0 ;
 :ed:Col `0 ;

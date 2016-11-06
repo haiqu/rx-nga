@@ -40,14 +40,14 @@ image:
 editor: editorbin editorimage editorclean
 
 editorbin:
-	./bin/unu future/EditorForth >editor.forth
+	./bin/unu future/EditorForth.md >editor.forth
 	./bin/unu future/Editor.md >editor.c
 	$(CC) editor.c -o editor.o -c
 	$(CC) editor.o bin/nga.o -o bin/editor
 
 editorimage:
 	cp ngaImage _1
-	./bin/extend future/editor.forth
+	./bin/extend editor.forth
 	cp ngaImage ngaImage+editor
 	mv _1 ngaImage
 
