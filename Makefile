@@ -1,4 +1,4 @@
-CC = clang-3.5
+CC = clang
 CFLAGS = -Wall
 
 all: clean tools sources compile link core image
