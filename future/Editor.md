@@ -24,7 +24,7 @@ Blocks are 512 cells in length. They are displayed as 8 rows with 64 cells per r
 ## Rx &amp; Nga
 
 ````
-#include "bridge.c"
+#include "source/bridge.c"
 ````
 
 ## Configuration
@@ -150,7 +150,7 @@ void display_stack() {
 void save() {
   FILE *fp;
   memory[d_xt_for("ed:Mode", Dictionary)] = 0;
-  if ((fp = fopen("ngaImage", "wb")) == NULL) {
+  if ((fp = fopen("ngaImage+editor", "wb")) == NULL) {
     printf("Unable to save the ngaImage!\n");
     exit(2);
   }
@@ -195,7 +195,7 @@ void read_blocks() {
 
 void initialize_rx() {
   ngaPrepare();
-  ngaLoadImage("ngaImage");
+  ngaLoadImage("ngaImage+editor");
   read_blocks();
   update_state();
 }
