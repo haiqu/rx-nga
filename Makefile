@@ -35,5 +35,5 @@ core:
 	./bin/naje rx.naje >rx.log
 
 image:
-	./bin/extend
+	./bin/extend retro.forth
 

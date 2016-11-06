@@ -34,8 +34,8 @@ int main(int argc, char **argv) {
   printf("+ load image\n");
   ngaLoadImage("ngaImage");
   stats();
-  printf("+ load retro.forth\n");
-  int tokens = include_file("retro.forth");
+  printf("+ load %s\n", argv[1]);
+  int tokens = include_file(argv[1]);
   printf("  processed %d tokens\n", tokens);
   stats();
   printf("+ save new image\n");
