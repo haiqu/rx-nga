@@ -153,6 +153,14 @@
 :case
   [ over eq? ] dip swap
   [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;
+:str:for-each (sq-)
+  [ repeat
+      over fetch 0; drop
+      dup-pair
+      [ [ [ fetch ] dip call ] dip ] dip
+      [ n:inc ] dip
+    again
+  ] call drop-pair ;
 {{
   :SystemState `0 `0 `0 ;
 ---reveal---

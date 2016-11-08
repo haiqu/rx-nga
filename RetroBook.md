@@ -173,6 +173,7 @@ With a provided value:
 | str:chop        | s-s       | Remove last character from string                 |
 | str:compare     | ss-f      | Compare two strings for equality                  |
 | str:empty       | -s        | Return an empty string                            |
+| str:for-each    | sq-       | Run quote against each item in string             |
 | str:has-chr?    | sc-f      | True if char is in string, false otherwise        |
 | str:hash        | s-n       | Return the hash of a string                       |
 | str:keep        | s-s       | Compile a string into the heap                    |
