@@ -179,5 +179,5 @@
   :reorder (...ss-?) [ from ] dip to ;
 }}
 :putc (c-) `1000 ;
-:puts (s-) [ repeat fetch-next 0; putc again ] call drop ;
+:puts (s-) [ putc ] str:for-each ;
 :putn (n-) n:to-string puts chr:SPACE putc ;
