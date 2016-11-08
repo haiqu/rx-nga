@@ -123,7 +123,7 @@ void evaluate(char *s) {
   execute(interpret);
 }
 void read_token(FILE *file, char *token_buffer) {
-  char ch = getc(file);
+  int ch = getc(file);
   int count = 0;
   while ((ch != '\n') && (ch != ' ') && (ch != EOF))
   {
