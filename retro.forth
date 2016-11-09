@@ -70,6 +70,7 @@
 :v:dec     (n-n)   #1 swap v:dec-by ;
 :v:limit   (alu-)  push push dup fetch pop pop n:limit swap store ;
 :allot     (n-)    &Heap v:inc-by ;
+:v:update-using (aq-) swap [ fetch swap call ] sip store ;
 :ScopeList `0 `0 ;
 :{{ d:last dup &ScopeList store-next store ;
 :---reveal--- d:last &ScopeList n:inc store ;

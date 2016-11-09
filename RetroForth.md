@@ -293,6 +293,27 @@ The core Rx language provides addition, subtraction, multiplication, and a combi
 :allot     (n-)    &Heap v:inc-by ;
 ````
 
+If you need to update a stored variable there are two typical forms:
+
+    #1 'Next var<n>
+    &Next fetch #10 * &Next store
+
+Or:
+
+    #1 'Next var<n>
+    &Next [ fetch #10 * ] sip store
+
+The **v:update-using** replaces this with:
+
+    #1 'Next var<n>
+    &Next [ #10 * ] v:update-using
+
+It takes care of preserving the variable address, fetching the stored value, and updating with the resulting value.
+
+````
+:v:update-using (aq-) swap [ fetch swap call ] sip store ;
+````
+
 ## Lexical Scope
 
 The dictionary is a simple linked list. Retro allows for some control over what is visible using the **{{**, **---reveal---**, and **}}** words.
