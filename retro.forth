@@ -2,22 +2,25 @@
 :STRINGS   EOM #12 #128 * - ;
 :prefix:( drop ;
   &class:macro
-  &Dictionary fetch d:class
-  store
-:reclass    (a-) &Dictionary fetch d:class store ;
+  &Dictionary fetch d:class store
+:d:last (-d) &Dictionary fetch ;
+:d:last<xt> (-a) d:last d:xt fetch ;
+:d:last<class> (-a) d:last d:class fetch ;
+:d:last<name> (-s) d:last d:name ;
+:reclass    (a-) d:last d:class store ;
 :immediate  (-)  &class:macro reclass ;
 :data       (-)  &class:data reclass ;
 :compile:lit  (a-) #1 , , ;
 :compile:jump (a-) compile:lit #7 , ;
 :compile:call (a-) compile:lit #8 , ;
 :compile:ret  (-)  #10 , ;
-:prefix:` (s-) &Compiler fetch [ str:to-number , ] [ drop ] choose ; &class:macro &Dictionary fetch d:class store
-:d:add-name (s-)
+:prefix:` (s-) &Compiler fetch [ str:to-number , ] [ drop ] choose ; immediate
+:d:create (s-)
   (s-) &class:data #0 d:add-header
-  &Heap fetch &Dictionary fetch d:xt store ;
-:var    (s-)  d:add-name #0 , ;
-:var<n> (ns-) d:add-name , ;
-:const  (ns-) d:add-name &Dictionary fetch d:xt store ;
+  &Heap fetch d:last d:xt store ;
+:var    (s-)  d:create #0 , ;
+:var<n> (ns-) d:create , ;
+:const  (ns-) d:create d:last d:xt store ;
 :TRUE  (-n) #-1 ;
 :FALSE (-n)  #0 ;
 :n:zero?     (n-f)  #0 eq? ;
@@ -68,8 +71,8 @@
 :v:limit   (alu-)  push push dup fetch pop pop n:limit swap store ;
 :allot     (n-)    &Heap v:inc-by ;
 :ScopeList `0 `0 ;
-:{{ &Dictionary fetch dup &ScopeList store-next store ;
-:---reveal--- &Dictionary fetch &ScopeList n:inc store ;
+:{{ d:last dup &ScopeList store-next store ;
+:---reveal--- d:last &ScopeList n:inc store ;
 :}} &ScopeList fetch-next swap fetch eq? [ &ScopeList fetch &Dictionary store ] [ &ScopeList fetch [ &Dictionary repeat fetch dup fetch &ScopeList n:inc fetch -eq? 0; drop again ] call store ] choose ;
 {{
   :Buffer `0 ; data
@@ -165,8 +168,8 @@
   :SystemState `0 `0 `0 ;
 ---reveal---
   :mark
-    &Heap       fetch &SystemState #0 + store
-    &Dictionary fetch &SystemState #1 + store ;
+    &Heap  fetch &SystemState #0 + store
+    d:last &SystemState #1 + store ;
   :sweep
     &SystemState #0 + fetch &Heap store
     &SystemState #1 + fetch &Dictionary store ;
