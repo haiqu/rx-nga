@@ -222,7 +222,6 @@ Call a function (via pointer)
 
 case
 
-
 ----
 
 choose
@@ -398,7 +397,6 @@ vp-p
 
 ----
 
-
 d:add-header
 saa-
 Add an item to the dictionary
@@ -557,26 +555,25 @@ Change most recent word to class:macro
 interpret
 s-?
 Evaluate a token
-----
 
+----
 
 later
 -
 Defer execution of remainder until later
 ----
 
-
 lt?
 nn-f
 Compare two values for less than
-----
 
+----
 
 mark
 -
 Save information on the current Dictionary, Heap
-----
 
+----
 
 mod
 nq-r
@@ -587,8 +584,8 @@ Divide two numbers, return remainder
 n:-zero?
 n-f
 True if number is not zero or false otherwise
-----
 
+----
 
 n:abs
 n-n
@@ -1043,14 +1040,14 @@ Create a variable with a provided initial value
 while
 q-
 Execute quote until quote returns a flag of 0
-----
 
+----
 
 xor
 nn-n
 Perform bitwise XOR operation
-----
 
+----
 
 {{
 -
