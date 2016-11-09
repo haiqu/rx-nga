@@ -103,8 +103,12 @@ With a provided value:
 | copy            | aan-      | Copy (n) cells from source (a1) to dest (a2)      |
 | curry           | vp-p      |                                                   |
 | d:add-header    | saa-      | Add an item to the dictionary                     |
-| d:add-name      | s-        | Add a new name pointing to the next free address  |
+| d:create        | s-        | Add a new name pointing to the next free address  |
 | d:class         | p-p       | Given a DT, return the address of the class field |
+| d:last          | -d        | Return the dictionary header of the most recent word |
+| d:last&lt;class&gt; | -a    | Return the class handler of the most recent word  |
+| d:last&lt;name&gt;  | -s    | Return the name of the most recent word           |
+| d:last&lt;xt&gt; | -a       | Return address of most recent word                |
 | d:link          | p-p       | Given a DT, return the address of the link field  |
 | d:lookup        | s-p       | Given a string, return the DT (or 0 if undefined) |
 | d:name          | p-p       | Given a DT, return the address of the name field  |
@@ -112,6 +116,7 @@ With a provided value:
 | data            | -         | Change most recent word to **clas:data**          |
 | depth           | -n        | Return number of items on the stack               |
 | dip             | nq-n      | Equivilent to `push call pop`                     |
+| does            | q-        | Analog to does&gt; in Forth                       |
 | drop            | nx-n      | Discard the top item on the stack                 |
 | drop-pair       | nn-       | Drop top two items on stack                       |
 | dup             | n-nn      | Duplicate the top item on the stack               |
@@ -145,6 +150,7 @@ With a provided value:
 | n:to-string     | n-s       | Return a string representation of a number        |
 | n:zero?         | n-f       | True if number is zero or false otherwise         |
 | nip             | xy-y      | Remove NOS from stack                             |
+| nl              | -         | Display chr:CR                                    |
 | not             | n-n       | Same as -1 xor; invert TOS and subtract 1         |
 | or              | nn-n      | Perform bitwise OR operation                      |
 | over            | xy-xyx    | Put a copy of NOS on top of stack                 |
@@ -200,6 +206,7 @@ With a provided value:
 | v:inc           | n-n       | Increment a variable                              |
 | v:inc-by        | na-       | Increment a variable by a specified amount        |
 | v:limit         | alu-      | Like **n:limit** for stored values                |
+| v:update-using  | aq-       | Execute quote against contents of variable, then update |
 | var             | s-        | Create a variable with a value of 0               |
 | var&lt;n&gt;    | ns-       | Create a variable with a provided initial value   |
 | while           | q-        | Execute quote until quote returns a flag of 0     |
