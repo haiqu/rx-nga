@@ -506,6 +506,8 @@ Convert a decimal (base 10) number to a string.
       [ n:inc ] dip
     again
   ] call drop-pair ;
+:does (q-)
+  d:last<xt> swap curry d:last d:xt store &class:word reclass ;
 ````
 
 ````
