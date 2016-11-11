@@ -6,105 +6,14 @@
 
 ## Background
 
-Retro is a dialect of Forth. It builds on the barebones Rx core, providing a much more flexible and useful language.
+RETRO is a Forth dialect drawing influences from many sources. It uses some, but not all of Chuck Moore's newer ideas. It's clean, elegant, and tiny. It may not have many features, and it may not be particularly useful by itself, but it's easy to grasp and easily adapted to various uses.
 
-Retro has a history going back many years. It began as a 16-bit assembly implementation for x86 hardware, evolved into a 32-bit system with cmForth and ColorForth influences, and eventually started supporting mainstream OSes. Later it was rewritten for a small, portable virtual machine. Over the years the language implementation has varied substantially. This is the twelfth generation of Retro. It now targets a new virtual machine (called Nga), and is built over a barebones Forth kernel (called Rx).
+This is the twelfth generation of the language and related programming environment. It is a fresh start and is not compatible with the previous generation.
 
-## Using Retro
+## Quick Start
 
-The primary interface is a block editor. There are 384 blocks displayed as 8 rows of 64 characters. Editing is modal, using a VI style approach.
-
-| Key | Usage                           | Mode             |
-| --- | ------------------------------- | ---------------- |
-| [   | switch to prior block           | Command          |
-| ]   | switch to next block            | Command          |
-| h   | move cursor left                | Command          |
-| j   | move cusor down                 | Command          |
-| k   | move cursor up                  | Command          |
-| l   | move cursor right               | Command          |
-| H   | move cursor to leftmost column  | Command          |
-| J   | move cursor to last row         | Command          |
-| K   | move cursor to top row          | Command          |
-| L   | move cursor to rightmost column | Command          |
-| q   | exit the editor                 | Command          |
-| e   | evaluate the block              | Command          |
-| #   | insert number                   | Command          |
-| $   | insert ASCII character          | Command          |
-| '   | insert string                   | Command          |
-| \   | switch modes                    | Command / Insert |
-
-## Interface Elements
-
-An empty screen looks like:
-
-    
-    
-    
-    
-    
-    
-    
-    
-    ----------------------------------------------------------------
-    Free: 320892 | Heap: 5248 | 11 : 0 : 0 | C
-
-The first eight lines display the block. Below this is a separator line, then a status line showing the current free memory, heap value, block number, row, column, and mode indicator (C for command, I for insert). Any values on the stack will be displayed below this.
-
-## Example
-
-Starting with an empty block:
-
-    
-    
-    
-    
-    
-    
-    
-    
-    ----------------------------------------------------------------
-    Free: 320892 | Heap: 5248 | 11 : 0 : 0 | C
-
-
-Press **\** to enter insert mode and enter something:
-
-    #12 n:square
-    
-    
-    
-    
-    
-    
-    
-    ----------------------------------------------------------------
-    Free: 320892 | Heap: 5248 | 11 : 0 : 0 | I
-
-Press **\** to return to command mode, then **e** to run the code in the block.
-
-    #12 n:square
-    
-    
-    
-    
-    
-    
-    
-    ----------------------------------------------------------------
-    Free: 320892 | Heap: 5248 | 11 : 0 : 0 | I
-    < 144 >
-
-You can then position the cursor and hit **#** to insert the value into the block:
-
-    #12 n:square
-    #144
-    
-    
-    
-    
-    
-    
-    ----------------------------------------------------------------
-    Free: 320892 | Heap: 5248 | 11 : 0 : 0 | I
+    make
+    ./bin/listener
 
 ## Legalities
 
