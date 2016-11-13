@@ -102,6 +102,7 @@ This is used to change the class from **class:word** to **class:macro**. Doing t
 ## Compiler
 
 ````
+:here  (-a) &Heap fetch ;
 :compile:lit  (a-) #1 , , ;
 :compile:jump (a-) compile:lit #7 , ;
 :compile:call (a-) compile:lit #8 , ;
@@ -127,7 +128,7 @@ These aren't really useful until the **str:** namespace is compiled later on. Wi
 ````
 :d:create (s-)
   (s-) &class:data #0 d:add-header
-  &Heap fetch d:last d:xt store ;
+  here d:last d:xt store ;
 :var    (s-)  d:create #0 , ;
 :var<n> (ns-) d:create , ;
 :const  (ns-) d:create d:last d:xt store ;
@@ -412,7 +413,7 @@ The **str:skip** adjusts the Nga instruction pointer to skip to the code followi
 
 ````
 :str:skip (-) pop [ fetch-next #0 -eq? ] while n:dec push ;
-:str:keep (s-s) compiling? [ &str:skip class:word ] if &Heap fetch [ s, ] dip class:data ;
+:str:keep (s-s) compiling? [ &str:skip class:word ] if here [ s, ] dip class:data ;
 ````
 
 ````
@@ -504,7 +505,7 @@ Convert a decimal (base 10) number to a string.
   :Value `0 ;
 ---reveal---
   :n:to-string  (n-s)
-    &Heap fetch buffer:set dup &Value store n:abs
+    here buffer:set dup &Value store n:abs
     [ #10 /mod swap $0 + buffer:add dup n:-zero? ] while drop
     &Value fetch n:negative? [ $- buffer:add ] if
     buffer:start str:reverse str:temp ;
@@ -514,8 +515,8 @@ Convert a decimal (base 10) number to a string.
 ## Unsorted
 
 ````
-:cons (nn-p) &Heap fetch [ swap , , ] dip ;
-:curry (vp-p) &Heap fetch [ swap compile:lit compile:call compile:ret ] dip ;
+:cons (nn-p) here [ swap , , ] dip ;
+:curry (vp-p) here [ swap compile:lit compile:call compile:ret ] dip ;
 :case
   [ over eq? ] dip swap
   [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;

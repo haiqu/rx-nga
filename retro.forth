@@ -10,6 +10,7 @@
 :reclass    (a-) d:last d:class store ;
 :immediate  (-)  &class:macro reclass ;
 :data       (-)  &class:data reclass ;
+:here  (-a) &Heap fetch ;
 :compile:lit  (a-) #1 , , ;
 :compile:jump (a-) compile:lit #7 , ;
 :compile:call (a-) compile:lit #8 , ;
@@ -17,7 +18,7 @@
 :prefix:` (s-) &Compiler fetch [ str:to-number , ] [ drop ] choose ; immediate
 :d:create (s-)
   (s-) &class:data #0 d:add-header
-  &Heap fetch d:last d:xt store ;
+  here d:last d:xt store ;
 :var    (s-)  d:create #0 , ;
 :var<n> (ns-) d:create , ;
 :const  (ns-) d:create d:last d:xt store ;
@@ -100,7 +101,7 @@
   :str:empty (-s) str:pointer str:next ;
 }}
 :str:skip (-) pop [ fetch-next #0 -eq? ] while n:dec push ;
-:str:keep (s-s) compiling? [ &str:skip class:word ] if &Heap fetch [ s, ] dip class:data ;
+:str:keep (s-s) compiling? [ &str:skip class:word ] if here [ s, ] dip class:data ;
 :prefix:' compiling? [ str:keep ] [ str:temp ] choose ; immediate
 :str:chop (s-s) str:temp dup str:length over + n:dec #0 swap store ;
 :str:reverse (s-s)
@@ -147,13 +148,13 @@
   :Value `0 ;
 ---reveal---
   :n:to-string  (n-s)
-    &Heap fetch buffer:set dup &Value store n:abs
+    here buffer:set dup &Value store n:abs
     [ #10 /mod swap $0 + buffer:add dup n:-zero? ] while drop
     &Value fetch n:negative? [ $- buffer:add ] if
     buffer:start str:reverse str:temp ;
 }}
-:cons (nn-p) &Heap fetch [ swap , , ] dip ;
-:curry (vp-p) &Heap fetch [ swap compile:lit compile:call compile:ret ] dip ;
+:cons (nn-p) here [ swap , , ] dip ;
+:curry (vp-p) here [ swap compile:lit compile:call compile:ret ] dip ;
 :case
   [ over eq? ] dip swap
   [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;

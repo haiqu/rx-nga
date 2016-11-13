@@ -540,6 +540,12 @@ Compare two values for greater than
 
 ----
 
+here
+-a
+Return the address stored in Heap
+
+----
+
 if
 fp-?
 Execute *p* if flag *f* is true (-1)
