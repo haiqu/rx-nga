@@ -21,5 +21,8 @@
 - (void)update;
 - (NSString *)evaluateToken:(NSString *)s;
 - (NSArray *)stackValues;
+- (NSString *)documentsDirectory;
+- (void)closeAll;
+
 @end
 

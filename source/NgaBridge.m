@@ -11,24 +11,34 @@
 @implementation NgaBridge
 #define TIB 1471
 
+FILE *Files[128];
 CELL Dictionary, Heap, Compiler;
 CELL notfound;
+
+#pragma mark - Dictionary Interface
+
 #define D_OFFSET_LINK  0
 #define D_OFFSET_XT    1
 #define D_OFFSET_CLASS 2
 #define D_OFFSET_NAME  3
+
 int d_link(CELL dt) {
     return dt + D_OFFSET_LINK;
 }
+
 int d_xt(CELL dt) {
     return dt + D_OFFSET_XT;
 }
+
 int d_class(CELL dt) {
     return dt + D_OFFSET_CLASS;
 }
+
 int d_name(CELL dt) {
     return dt + D_OFFSET_NAME;
 }
+
+#pragma mark - Stack Interface
 
 - (CELL)pop {
     sp--;
@@ -84,11 +94,18 @@ int d_name(CELL dt) {
     return memory[d_class([self getHeaderFor:name in:dict])];
 }
 
+- (NSString *)documentsDirectory {
+    return [[[[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject] absoluteString] substringFromIndex:7];
+}
+
 - (NSString *)executeFunctionAt:(int)cell {
     NSMutableString *Output = [[NSMutableString alloc] initWithString:@""];
-    CELL opcode;
+    NSString *filename = @"";
+    CELL opcode, subop;
     rp = 1;
     ip = cell;
+    int nfp, done;
+    int chr = 0;
     while (ip < IMAGE_SIZE) {
         if (ip == notfound) {
             [Output appendFormat:@"\nerr:notfound - %@\n", [self extractStringAt:TIB]];
@@ -99,12 +116,92 @@ int d_name(CELL dt) {
         } else if (opcode >= 0 && opcode < 27) {
             ngaProcessOpcode(opcode);
         } else {
-            if (opcode == 1000) {
-                [Output appendFormat:@"%c", data[sp]];
-                sp--;
-            } else {
-                [Output appendFormat:@"\n\nFATAL ERROR\nInvalid instruction %d at %d\n\n", opcode, ip];
-                ip = IMAGE_SIZE;
+            switch (opcode) {
+                case 1000:
+                    [Output appendFormat:@"%c", data[sp]];
+                    sp--;
+                    break;
+                case 1100:
+                    subop = data[sp]; sp--;
+                    switch (subop) {
+                        case 1: // file:open
+                            nfp = 0;
+                            done = 0;
+                            while (nfp < 128 && done == 0) {
+                                if (Files[nfp] != 0)
+                                    nfp++;
+                                else
+                                    done = 1;
+                            }
+                            printf("NFP=%d", nfp);
+                            switch (data[sp]) {
+                                case 'R':
+                                    sp--;
+                                    filename = [NSString stringWithFormat:@"%@%@", [self documentsDirectory], [self extractStringAt:data[sp]]];
+                                    NSLog(@"\nAttempt to open %@\n", filename);
+                                    Files[nfp] = fopen([filename cStringUsingEncoding:NSUTF8StringEncoding], "r");
+                                    data[sp] = nfp;
+                                    break;
+                                case 'W':
+                                    sp--;
+                                    filename = [NSString stringWithFormat:@"%@%@", [self documentsDirectory], [self extractStringAt:data[sp]]];
+                                    NSLog(@"\nAttempt to open %@\n", filename);
+                                    Files[nfp] = fopen([filename cStringUsingEncoding:NSUTF8StringEncoding], "w");
+                                    data[sp] = nfp;
+                                    break;
+                                case 'A':
+                                    sp--;
+                                    filename = [NSString stringWithFormat:@"%@%@", [self documentsDirectory], [self extractStringAt:data[sp]]];
+                                    NSLog(@"\nAttempt to open %@\n", filename);
+                                    Files[nfp] = fopen([filename cStringUsingEncoding:NSUTF8StringEncoding], "a");
+                                    data[sp] = nfp;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        case 2: // close
+                            fclose(Files[data[sp]]);
+                            Files[data[sp]] = 0;
+                            sp--;
+                            break;
+                        case 3: // read
+                            data[sp] = fgetc(Files[data[sp]]);
+                            break;
+                        case 4: // write
+                            nfp = data[sp]; sp--;
+                            chr = data[sp]; sp--;
+                            fputc(chr, Files[nfp]);
+                            break;
+                        case 5: // position
+                            [self push:[self getFilePosition]];
+                            break;
+                        case 6: // seek
+                            [self setFilePosition];
+                            break;
+                        case 8: // delete
+                            [self deleteFile];
+                            break;
+                        case 7: // length
+                            [self push:[self getFileLength]];
+                            break;
+                        case 9: // count files
+                            [self countFiles];
+                            break;
+                        case 10: // name for index
+                            [self injectString:[self fileForIndex] into:TIB];
+                            [self push:TIB];
+                            break;
+                        default:
+                            [Output appendFormat:@"\n\nFATAL ERROR\nInvalid FILE operation at %d\n\n", ip];
+                            ip = IMAGE_SIZE;
+                            break;
+                    }
+                    break;
+                default:
+                    [Output appendFormat:@"\n\nFATAL ERROR\nInvalid instruction %d at %d\n\n", opcode, ip];
+                    ip = IMAGE_SIZE;
+                    break;
             }
         }
         ip++;
@@ -138,5 +235,99 @@ int d_name(CELL dt) {
     return values;
 }
 
+#pragma mark - File Access
+
+- (CELL)getFilePosition {
+    CELL slot = [self pop];
+    return (CELL) ftell(Files[slot]);
+}
+
+- (CELL)setFilePosition {
+    CELL slot, pos, r;
+    slot = [self pop];
+    pos = [self pop];
+    r = fseek(Files[slot], pos, SEEK_SET);
+    return r;
+}
+
+- (CELL)getFileLength {
+    CELL slot, current, r, size;
+    slot = [self pop];
+    current = (CELL)ftell(Files[slot]);
+    r = fseek(Files[slot], 0, SEEK_END);
+    size = (CELL)ftell(Files[slot]);
+    fseek(Files[slot], current, SEEK_SET);
+    return (r == 0) ? size : 0;
+}
+
+- (void)reset {
+    for (int i = 0; i < 128; i++)
+        Files[i] = 0;
+}
+
+- (void)closeAll {
+    for (int i = 0; i < 128; i++) {
+        if (Files[i] != 0)
+            fclose(Files[i]);
+    }
+    [self reset];
+}
+
+- (void)deleteFile {
+    NSString *filename = [NSString stringWithFormat:@"%@%@",
+                          [self documentsDirectory],
+                          [self extractStringAt:[self pop]]];
+    unlink([filename cStringUsingEncoding:NSUTF8StringEncoding]);
+}
+
+- (void)countFiles {
+    CELL files = 0;
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    if ([paths count] > 0)
+    {
+        NSError *error = nil;
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        
+        // Print out the path to verify we are in the right place
+        NSString *directory = [paths objectAtIndex:0];
+        NSLog(@"Directory: %@", directory);
+        
+        // For each file in the directory, create full path and delete the file
+        for (NSString *file in [fileManager contentsOfDirectoryAtPath:directory error:&error])
+        {
+            NSString *filePath = [directory stringByAppendingPathComponent:file];
+            NSLog(@"File : %@", filePath);
+            files++;
+        }
+    }
+    [self push:files];
+}
+
+- (NSString *)fileForIndex {
+    CELL files = 0;
+    CELL desired = [self pop];
+    NSString *name = @"";
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    if ([paths count] > 0)
+    {
+        NSError *error = nil;
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        
+        // Print out the path to verify we are in the right place
+        NSString *directory = [paths objectAtIndex:0];
+        NSLog(@"Directory: %@", directory);
+        
+        // For each file in the directory, create full path and delete the file
+        for (NSString *file in [fileManager contentsOfDirectoryAtPath:directory error:&error])
+        {
+            NSString *filePath = [directory stringByAppendingPathComponent:file];
+            NSLog(@"File : %@", filePath);
+            files++;
+            if (files == desired)
+                name = file;
+        }
+    }
+    return name;
+}
 @end
 
