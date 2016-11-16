@@ -1291,7 +1291,7 @@ The dictionary is a linked list. This sets up the initial dictionary. Maintenanc
 | pop             | -n        | Move value from address stack to data stack       |
 | 0;              | n-n OR n- | Exit word (and **drop**) if TOS is zero           |
 | str:to-number   | s-n       | Convert a string to a number                      |
-| str:compare     | ss-f      | Compare two strings for equality                  |
+| str:eq?         | ss-f      | Compare two strings for equality                  |
 | str:length      | s-n       | Return length of string                           |
 | choose          | fpp-?     | Execute *p1* if *f* is -1, or *p2* if *f* is 0    |
 | if              | fp-?      | Execute *p* if flag *f* is true (-1)              |

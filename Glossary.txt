@@ -851,7 +851,7 @@ Remove last character from string
 
 ----
 
-str:compare
+str:eq?
 ss-f
 Compare two strings for equality
 
