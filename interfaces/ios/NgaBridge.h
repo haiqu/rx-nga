@@ -25,4 +25,3 @@
 - (void)closeAll;
 
 @end
-

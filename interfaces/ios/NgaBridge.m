@@ -38,38 +38,6 @@ int d_name(CELL dt) {
     return dt + D_OFFSET_NAME;
 }
 
-#pragma mark - Stack Interface
-
-- (CELL)pop {
-    sp--;
-    return data[sp + 1];
-}
-
-- (void)push:(CELL)value {
-    sp++;
-    data[sp] = value;
-    
-}
-
-- (void)injectString:(NSString *)str into:(int)buffer {
-    int m = (int)[str length];
-    int i = 0;
-    while (m > 0) {
-        memory[buffer + i] = (CELL)[str characterAtIndex:i];
-        memory[buffer + i + 1] = 0;
-        m--; i++;
-    }
-}
-
-- (NSString *)extractStringAt:(int)at {
-    NSMutableString *Output = [[NSMutableString alloc] initWithString:@""];
-    CELL starting = at;
-    while(memory[starting])
-        [Output appendFormat:@"%c", (char)memory[starting++]];
-    return Output;
-}
-
-
 - (int)getHeaderFor:(NSString *)name in:(CELL)dict {
     CELL dt = 0;
     CELL i = dict;
@@ -94,17 +62,47 @@ int d_name(CELL dt) {
     return memory[d_class([self getHeaderFor:name in:dict])];
 }
 
-- (NSString *)documentsDirectory {
-    return [[[[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject] absoluteString] substringFromIndex:7];
+#pragma mark - Stack Interface
+
+- (CELL)pop {
+    sp--;
+    return data[sp + 1];
 }
+
+- (void)push:(CELL)value {
+    sp++;
+    data[sp] = value;
+    
+}
+
+#pragma mark - Inject / Extract Strings
+
+- (void)injectString:(NSString *)str into:(int)buffer {
+    int m = (int)[str length];
+    int i = 0;
+    while (m > 0) {
+        memory[buffer + i] = (CELL)[str characterAtIndex:i];
+        memory[buffer + i + 1] = 0;
+        m--; i++;
+    }
+}
+
+- (NSString *)extractStringAt:(int)at {
+    NSMutableString *Output = [[NSMutableString alloc] initWithString:@""];
+    CELL starting = at;
+    while(memory[starting])
+        [Output appendFormat:@"%c", (char)memory[starting++]];
+    return Output;
+}
+
+#pragma mark - Interpreter
 
 - (NSString *)executeFunctionAt:(int)cell {
     NSMutableString *Output = [[NSMutableString alloc] initWithString:@""];
-    NSString *filename = @"";
     CELL opcode, subop;
     rp = 1;
     ip = cell;
-    int nfp, done;
+    int nfp;
     int chr = 0;
     while (ip < IMAGE_SIZE) {
         if (ip == notfound) {
@@ -124,41 +122,7 @@ int d_name(CELL dt) {
                 case 1100:
                     subop = data[sp]; sp--;
                     switch (subop) {
-                        case 1: // file:open
-                            nfp = 0;
-                            done = 0;
-                            while (nfp < 128 && done == 0) {
-                                if (Files[nfp] != 0)
-                                    nfp++;
-                                else
-                                    done = 1;
-                            }
-                            printf("NFP=%d", nfp);
-                            switch (data[sp]) {
-                                case 'R':
-                                    sp--;
-                                    filename = [NSString stringWithFormat:@"%@%@", [self documentsDirectory], [self extractStringAt:data[sp]]];
-                                    NSLog(@"\nAttempt to open %@\n", filename);
-                                    Files[nfp] = fopen([filename cStringUsingEncoding:NSUTF8StringEncoding], "r");
-                                    data[sp] = nfp;
-                                    break;
-                                case 'W':
-                                    sp--;
-                                    filename = [NSString stringWithFormat:@"%@%@", [self documentsDirectory], [self extractStringAt:data[sp]]];
-                                    NSLog(@"\nAttempt to open %@\n", filename);
-                                    Files[nfp] = fopen([filename cStringUsingEncoding:NSUTF8StringEncoding], "w");
-                                    data[sp] = nfp;
-                                    break;
-                                case 'A':
-                                    sp--;
-                                    filename = [NSString stringWithFormat:@"%@%@", [self documentsDirectory], [self extractStringAt:data[sp]]];
-                                    NSLog(@"\nAttempt to open %@\n", filename);
-                                    Files[nfp] = fopen([filename cStringUsingEncoding:NSUTF8StringEncoding], "a");
-                                    data[sp] = nfp;
-                                    break;
-                                default:
-                                    break;
-                            }
+                        case 1: [self openFile];
                             break;
                         case 2: // close
                             fclose(Files[data[sp]]);
@@ -237,6 +201,48 @@ int d_name(CELL dt) {
 
 #pragma mark - File Access
 
+- (NSString *)documentsDirectory {
+    return [[[[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject] absoluteString] substringFromIndex:7];
+}
+
+- (void)openFile {
+    CELL nfp, done;
+    NSString *filename;
+    nfp = 0;
+    done = 0;
+    while (nfp < 128 && done == 0) {
+        if (Files[nfp] != 0)
+            nfp++;
+        else
+            done = 1;
+    }
+    printf("NFP=%d", nfp);
+    switch (data[sp]) {
+        case 'R':
+            sp--;
+            filename = [NSString stringWithFormat:@"%@%@", [self documentsDirectory], [self extractStringAt:data[sp]]];
+            NSLog(@"\nAttempt to open %@\n", filename);
+            Files[nfp] = fopen([filename cStringUsingEncoding:NSUTF8StringEncoding], "r");
+            data[sp] = nfp;
+            break;
+        case 'W':
+            sp--;
+            filename = [NSString stringWithFormat:@"%@%@", [self documentsDirectory], [self extractStringAt:data[sp]]];
+            NSLog(@"\nAttempt to open %@\n", filename);
+            Files[nfp] = fopen([filename cStringUsingEncoding:NSUTF8StringEncoding], "w");
+            data[sp] = nfp;
+            break;
+        case 'A':
+            sp--;
+            filename = [NSString stringWithFormat:@"%@%@", [self documentsDirectory], [self extractStringAt:data[sp]]];
+            NSLog(@"\nAttempt to open %@\n", filename);
+            Files[nfp] = fopen([filename cStringUsingEncoding:NSUTF8StringEncoding], "a");
+            data[sp] = nfp;
+            break;
+        default:
+            break;
+    }
+}
 - (CELL)getFilePosition {
     CELL slot = [self pop];
     return (CELL) ftell(Files[slot]);
@@ -330,4 +336,3 @@ int d_name(CELL dt) {
     return name;
 }
 @end
-
