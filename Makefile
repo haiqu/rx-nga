@@ -35,8 +35,8 @@ link:
 	cd bin && $(CC) embedimage.o -o embedimage$(EXT)
 
 core:
-	./bin/unu Rx.md >rx.naje
-	./bin/naje rx.naje >rx.log
+	./bin/unu Rx.md > rx.naje
+	./bin/naje rx.naje > rx.log
 
 image:
 	./bin/extend retro.forth
