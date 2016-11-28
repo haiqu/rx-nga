@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "nga.c"
+#ifdef _WIN32
+#include "strtok_r.c"
+#endif
 CELL latest;
 CELL packed[4];
 CELL pindex;

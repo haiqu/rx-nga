@@ -1,0 +1,6 @@
+/bin
+rx.log
+_1
+*.map
+/future/bridge.c
+/future/*.h

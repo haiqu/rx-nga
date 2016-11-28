@@ -34,7 +34,11 @@ void nguraGetString(int starting)
   request[i] = 0;
 }
 #if defined(NGURA_TTY) || defined(NGURA_KBD)
+#ifdef _WIN32
+#include "termios.h"
+#else
 #include <termios.h>
+#endif
 struct termios nguraConsoleOriginalTermios;
 struct termios nguraConsoleTermios;
 void nguraConsoleInit() {
