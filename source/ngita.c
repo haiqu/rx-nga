@@ -3,7 +3,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#ifdef _WIN32
+#include "termios.h"
+int	tcgetattr(int _fildes, struct termios *_termios_p) {return 0;};
+int	tcsetattr(int _fildes, int _optional_actions, const struct termios *_termios_p) {return 0;};
+#else
 #include <termios.h>
+#endif
 #include "nga.c"
 #define NGURA_TTY
 #define NGURA_KBD

@@ -19,6 +19,7 @@ Blocks are 512 cells in length. They are displayed as 8 rows with 64 cells per r
 ````
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 ````
 
 ## Rx &amp; Nga
@@ -41,8 +42,15 @@ These values need to match the ones in *RetroForth.md*.
 This interface assumes a VT100-style terminal emulation. The interface is wrapped into a few simple functions. The default is to use *termios* and *ioctl*, though this limits portability. It'd be better to use *curses* instead, but that's a little more complex. Maybe at a later time...
 
 ````
+#ifdef _WIN32
+#include "termios.h"
+int	tcgetattr(int _fildes, struct termios *_termios_p) {return 0;};
+int	tcsetattr(int _fildes, int _optional_actions, const struct termios *_termios_p) {return 0;};
+#include "ioctl.h"
+#else
 #include <termios.h>
 #include <sys/ioctl.h>
+#endif
 
 struct termios new_termios, old_termios;
 ````

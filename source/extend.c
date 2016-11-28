@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdint.h>
 #include "bridge.c"
 int include_file(char *fname) {
   int tokens = 0;
