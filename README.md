@@ -12,8 +12,16 @@ This is the twelfth generation of the language and related programming environme
 
 ## Quick Start
 
+For Linux and macOS:
+
     make
+
+    cd interfaces/posix
+    make
+
     ./bin/listener
+
+For other systems, look for instructions in the appropriate subdirectories in interfaces.
 
 ## Legalities
 
