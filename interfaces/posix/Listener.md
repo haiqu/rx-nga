@@ -17,6 +17,7 @@ Just a quick copyright notice.
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdint.h>
 ````
 
 ## Include C-Rx API
