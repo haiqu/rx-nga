@@ -1,8 +1,6 @@
 The current package is Unix-centric but some effort has been made to ensure that the programs at least compile under Windows for those who might choose to take a further step towards full functionality on that platform.
 
-Specifically functions called in termios have been included as stubs in a couple of programs, and headers for termios, ioctl and cdefs provided. The libc function strtok_r used extensively in most programs has been fully included and tested with a MinGW 5.3.0 build.
-
-At this stage not all functionality has been fully tested but it is at least known that unu.exe fails to emit code to the target file. 
+Specifically functions called in termios have been included as stubs in a couple of programs, and headers for termios, ioctl and cdefs provided. The libc function strtok_r used extensively in some programs has been included and tested with a MinGW 5.3.0 build. At this stage not all functionality has been fully tested. 
 
 Note that some massaging of the makefile may still be required, especially and most obviously for the .exe file extension and default compiler.
 
