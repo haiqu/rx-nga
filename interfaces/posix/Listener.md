@@ -31,8 +31,15 @@ Just a quick copyright notice.
 ##
 
 ````
+#ifdef _WIN32
+#include "termios.h"
+int	tcgetattr(int _fildes, struct termios *_termios_p) {return 0;};
+int	tcsetattr(int _fildes, int _optional_actions, const struct termios *_termios_p) {return 0;};
+#include "ioctl.h"
+#else
 #include <termios.h>
 #include <sys/ioctl.h>
+#endif
 struct termios new_termios, old_termios;
 void term_setup() {
   tcgetattr(0, &old_termios);

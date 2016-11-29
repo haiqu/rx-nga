@@ -6,4 +6,4 @@ _1
 /future/*.h
 nga*
 *.forth
-/interfaces/win32/console/*.[o|exe]
+*[.exe|.o]
