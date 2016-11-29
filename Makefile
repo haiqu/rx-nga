@@ -14,7 +14,7 @@ tools:
 	cd source && $(CC) $(CFLAGS) unu.c -o ../bin/unu$(EXT)
 	cd source && $(CC) $(CFLAGS) nga.c -DSTANDALONE -o ../bin/nga$(EXT)
 #	cd source && $(CC) $(CFLAGS) -DVERBOSE ngita.c -o ../bin/ngita$(EXT)
-	cd source && $(CC) $(CFLAGS) naje.c -DALLOW_FORWARD_REFS -DENABLE_MAP -o ../bin/naje$(EXT)
+	cd source && $(CC) $(CFLAGS) naje.c -DDEBUG -DALLOW_FORWARD_REFS -DENABLE_MAP -o ../bin/naje$(EXT)
 
 sources:
 #	./bin/unu Bridge.c.md > source/bridge.c

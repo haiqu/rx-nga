@@ -6,3 +6,4 @@ _1
 /future/*.h
 nga*
 *.forth
+*[.exe|.o]
