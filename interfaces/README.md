@@ -4,12 +4,7 @@ Retro has two basic parts: an image file providing the basic language and an int
 
 See the individual subdirectories for notes on building them.
 
-## POSIX (Linux / macOS / Windows)
-
-The posix/ directory contains:
-
-- interactive listener
-- block editor
+## Listener (Linux / macOS / Windows)
 
 The listener is tested on and works with:
 
@@ -17,7 +12,13 @@ The listener is tested on and works with:
 - Linux (ARM, x86, x86-64)
 - macOS
 
+## Block Editor
+
 The block editor is still considered experimental and shouldn't be relied on for long term use at this point.
+
+## Ngita-Listener
+
+This is still considered experimental. It's probably the closest thing to RETRO 11 in design (an implementation of the listener that runs on the ngita (nga+ngura-io) implementation).
 
 ## iOS
 
