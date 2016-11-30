@@ -224,7 +224,6 @@ var
   ch : Char;
 begin
   f := fil;
-  read(f, ch);
   repeat
   begin
     token_buffer[count] := ch;
