@@ -2,6 +2,6 @@ rx.log
 _1
 *.[map|c|h]
 /future
-nga*
+/nga*
 *.forth
 *[.exe|.o]
