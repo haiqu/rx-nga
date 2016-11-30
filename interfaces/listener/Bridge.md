@@ -244,11 +244,13 @@ Read a token from an input source into a specified buffer. The token ends with a
 ````
 void read_token(FILE *file, char *token_buffer) {
   int ch = getc(file);
+  putchar(ch);
   int count = 0;
   while ((ch != '\n') && (ch != ' ') && (ch != EOF))
   {
     token_buffer[count++] = ch;
     ch = getc(file);
+    putchar(ch);
   }
   token_buffer[count] = '\0';
 }

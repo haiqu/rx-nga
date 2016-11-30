@@ -8,10 +8,8 @@ CFLAGS = -Wall
 all: s o l c
 
 s:
-
-	cp ../../source/cdefs.h .
-	cp ../../source/ioctl.h .
-	cp ../../source/termios.h .
+	$(UNU) TerminalIO.md > TerminalIO.c
+	$(UNU) TerminalIO-Headers.md > TerminalIO.h
 	$(UNU) Listener.md > listener.c
 	$(UNU) Editor.md > editor.c
 	$(UNU) Extend.md > extend.c
@@ -21,10 +19,11 @@ s:
 
 o:
 	$(CC) $(CFLAGS) -c nga.c -o nga.o
+	$(CC) $(CFLAGS) -c TerminalIO.c -o TerminalIO.o -DTERMIOS
 	$(CC) $(CFLAGS) -c listener.c -o listener.o
 
 l:
-	$(CC) $(CFLAGS) nga.o listener.o -o listener$(EXT)
+	$(CC) $(CFLAGS) nga.o TerminalIO.o listener.o -o listener$(EXT)
 
 c:
 	rm *.c *.h *.o

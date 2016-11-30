@@ -31,35 +31,7 @@ Just a quick copyright notice.
 ##
 
 ````
-#ifdef _WIN32
-#include "termios.h"
-int	tcgetattr(int _fildes, struct termios *_termios_p) {return 0;};
-int	tcsetattr(int _fildes, int _optional_actions, const struct termios *_termios_p) {return 0;};
-#include "ioctl.h"
-#else
-#include <termios.h>
-#include <sys/ioctl.h>
-#endif
-struct termios new_termios, old_termios;
-void term_setup() {
-  tcgetattr(0, &old_termios);
-  new_termios = old_termios;
-  new_termios.c_iflag &= ~(BRKINT+ISTRIP+IXON+IXOFF);
-  new_termios.c_iflag |= (IGNBRK+IGNPAR);
-  new_termios.c_lflag &= ~(ICANON+ISIG+IEXTEN);
-  new_termios.c_cc[VMIN] = 1;
-  new_termios.c_cc[VTIME] = 0;
-  tcsetattr(0, TCSANOW, &new_termios);
-}
-void term_cleanup() {
-  tcsetattr(0, TCSANOW, &old_termios);
-}
-void term_clear() {
-  printf("\033[2J\033[1;1H");
-}
-void term_move_cursor(int x, int y) {
-  printf("\033[%d;%dH", y, x);
-}
+#include "TerminalIO.h"
 ````
 
 ##
