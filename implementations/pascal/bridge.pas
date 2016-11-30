@@ -226,9 +226,9 @@ begin
   f := fil;
   repeat
   begin
+    read(f, ch);
     token_buffer[count] := ch;
     inc(count);
-    read(f, ch);
   end;
   until (ch = #13) or (ch = #10) or (ch = ' ') or eof(f);
   token_buffer[count - 1] := #0;
