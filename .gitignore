@@ -1,9 +1,7 @@
-/bin
 rx.log
 _1
 *.[map|c|h]
-/future/bridge.c
-/future/*.h
+/future
 nga*
 *.forth
 *[.exe|.o]
