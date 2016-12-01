@@ -34,9 +34,7 @@
       <Unit0>
         <Filename Value="extend.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="22"/>
-        <CursorPos Y="33"/>
+        <CursorPos X="3" Y="12"/>
         <UsageCount Value="22"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -44,8 +42,7 @@
         <Filename Value="bridge.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="225"/>
-        <CursorPos Y="227"/>
+        <CursorPos Y="230"/>
         <UsageCount Value="22"/>
         <Loaded Value="True"/>
       </Unit1>
@@ -53,7 +50,7 @@
         <Filename Value="nga.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="43"/>
+        <TopLine Value="11"/>
         <CursorPos X="15" Y="8"/>
         <UsageCount Value="22"/>
         <Loaded Value="True"/>
@@ -61,7 +58,9 @@
       <Unit3>
         <Filename Value="nga.inc"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
+        <CursorPos Y="18"/>
         <UsageCount Value="22"/>
         <Loaded Value="True"/>
       </Unit3>
@@ -73,47 +72,47 @@
       </Position1>
       <Position2>
         <Filename Value="extend.lpr"/>
-        <Caret Line="17" Column="10" TopLine="37"/>
+        <Caret Line="15" Column="3" TopLine="2"/>
       </Position2>
       <Position3>
         <Filename Value="extend.lpr"/>
-        <Caret Line="15" Column="3" TopLine="2"/>
+        <Caret Line="19" Column="20" TopLine="6"/>
       </Position3>
       <Position4>
         <Filename Value="extend.lpr"/>
-        <Caret Line="19" Column="20" TopLine="6"/>
+        <Caret Line="26" Column="23" TopLine="10"/>
       </Position4>
       <Position5>
         <Filename Value="extend.lpr"/>
-        <Caret Line="26" Column="23" TopLine="10"/>
+        <Caret Line="33" Column="17" TopLine="18"/>
       </Position5>
       <Position6>
         <Filename Value="extend.lpr"/>
-        <Caret Line="33" Column="17" TopLine="18"/>
+        <Caret Line="27" Column="52" TopLine="15"/>
       </Position6>
       <Position7>
         <Filename Value="extend.lpr"/>
-        <Caret Line="27" Column="52" TopLine="15"/>
+        <Caret Line="64" Column="44" TopLine="47"/>
       </Position7>
       <Position8>
         <Filename Value="extend.lpr"/>
-        <Caret Line="64" Column="44" TopLine="47"/>
+        <Caret Line="12" Column="21"/>
       </Position8>
       <Position9>
         <Filename Value="extend.lpr"/>
-        <Caret Line="12" Column="21"/>
+        <Caret Line="15" Column="27"/>
       </Position9>
       <Position10>
         <Filename Value="extend.lpr"/>
-        <Caret Line="15" Column="27"/>
+        <Caret Line="13" Column="53"/>
       </Position10>
       <Position11>
         <Filename Value="extend.lpr"/>
-        <Caret Line="13" Column="53"/>
+        <Caret Line="45" Column="18" TopLine="23"/>
       </Position11>
       <Position12>
-        <Filename Value="extend.lpr"/>
-        <Caret Line="45" Column="18" TopLine="23"/>
+        <Filename Value="bridge.pas"/>
+        <Caret Line="227" TopLine="225"/>
       </Position12>
     </JumpHistory>
   </ProjectOptions>

@@ -215,14 +215,14 @@ begin
     if Mode = 0 then
     begin
       c[5] := Char(ch);
-      dt := bridge.d_lookup(Dictionary, c);
+      dt := d_lookup(Dictionary, c);
       if dt <> 0 then
         execute(memory[d_xt(dt)]);
     end
     else if Mode = 1 then
     begin
       i[5] := Char(ch);
-      dt := bridge.d_lookup(Dictionary, i);
+      dt := d_lookup(Dictionary, i);
       if dt <> 0 then
         execute(memory[d_xt(dt)])
       else
@@ -239,3 +239,4 @@ begin
     end;
   end;
 end.
+
