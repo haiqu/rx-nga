@@ -37,7 +37,7 @@ void term_move_cursor(int x, int y) {
 ````
 
 ````
-#ifdef _WIN
+#ifdef _WIN32
 HANDLE hStdIn;
 DWORD fdwMode, fdwOldMode;
 

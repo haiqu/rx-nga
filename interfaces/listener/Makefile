@@ -1,9 +1,10 @@
 UNU = ../../bin/unu
 CC = clang
 #CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -DTERMIOS
 
 #EXT = .exe
+#CFLAGS = -Wall -WINDOWS
 
 all: s o l c
 
@@ -19,7 +20,7 @@ s:
 
 o:
 	$(CC) $(CFLAGS) -c nga.c -o nga.o
-	$(CC) $(CFLAGS) -c TerminalIO.c -o TerminalIO.o -DTERMIOS
+	$(CC) $(CFLAGS) -c TerminalIO.c -o TerminalIO.o
 	$(CC) $(CFLAGS) -c listener.c -o listener.o
 
 l:
