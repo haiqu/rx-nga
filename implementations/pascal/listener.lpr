@@ -12,12 +12,11 @@ program listener;
 uses
   SysUtils, bridge in 'bridge.pas', nga in 'nga.pas', vt100 in 'vt100.pas';
 
+{$include 'nga.inc'}
+
 {$define ED_BUFFER:=327680}
 {$define ED_BLOCKS:=384}
 {$define TIB := 1471}
-{$include 'termios.inc'}
-{$include 'nga.inc'}
-
 
 //implementation
 
@@ -55,7 +54,7 @@ end;
 procedure prompt();
 begin
   if memory[Compiler] = 0 then
-    write(LineEnding, 'ok  ');
+    write(LineEnding,'ok  ');
 end;
 
 
@@ -68,6 +67,7 @@ var
 begin
   nga.ngaPrepare();
   n := nga.ngaLoadImage('ngaImage');
+  if n = 0 then
     exit();
   update_rx();
   writeln(format('RETRO 12 (rx-%d.%d)', [memory[4] div 100, memory[4] mod 100]));

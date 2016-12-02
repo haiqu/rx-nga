@@ -46,7 +46,6 @@ implementation
 uses
   SysUtils, nga in 'nga.pas';
 
-
 function stack_pop() : Cell;
 begin
   dec(sp);
@@ -77,6 +76,7 @@ end;
 function string_extract(at : Cell) : PChar;
 var
   i : Cell = 0;
+  t : ShortString;
   starting : Cell;
 begin
   starting := at;
@@ -87,7 +87,7 @@ begin
     inc(starting);
    end;
   string_data[i] := #0;
-  result := PChar(string_data);
+  result := string_data;
 end;
 
 function d_link(dt : Cell) : Integer;
