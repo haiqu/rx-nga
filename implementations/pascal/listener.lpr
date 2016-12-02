@@ -68,11 +68,7 @@ var
 begin
   nga.ngaPrepare();
   n := nga.ngaLoadImage('ngaImage');
-  if n = 0 then
-  begin
-    writeln('Unable to find the ngaImage!');
     exit();
-  end;
   update_rx();
   writeln(format('RETRO 12 (rx-%d.%d)', [memory[4] div 100, memory[4] mod 100]));
   //read_blocks();
