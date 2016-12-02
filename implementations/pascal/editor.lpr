@@ -58,7 +58,7 @@ begin
   else
     M := 'C';
   write(format('Free: %d | Heap: %d | ', [326140 - Heap, Heap]));
-  writeln(format('%d : %d : %d | %c', [Current, Row, Column, M]));
+  writeln(format('Cur %d : Row %d : Col %d | Mode %s', [Current, Row, Column, M]));
 end;
 
 procedure block_display(n : Integer);
