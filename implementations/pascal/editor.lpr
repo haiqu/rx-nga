@@ -10,57 +10,16 @@ program editor;
 {$macro on}
 
 uses
-  SysUtils, bridge in 'bridge.pas', nga in 'nga.pas';
+  SysUtils, bridge in 'bridge.pas', nga in 'nga.pas', vt100 in 'vt100.pas';
 
-{$define IMAGE_SIZE:=524288}
 {$define ED_BUFFER:=327680}
 {$define ED_BLOCKS:=384}
-{$include 'termios.inc'}
-{$include 'ioctl.inc'}
 {$include 'nga.inc'}
 
 var
   Current, Column, Row, Mode : Cell;
-  new_termios,old_termios : termios;
 
 //implementation
-
-function tcgetattr(_fildes : Integer; _termios_p : Ptermios) : Integer;
-begin
-  result := 0;
-end;
-
-function tcsetattr(_fildes, _optional_actions : Integer; const _termios_p : Ptermios) : Integer;
-begin
-  result := 0;
-end;
-
-procedure term_setup();
-begin
-  tcgetattr(0, @old_termios);
-  new_termios := old_termios;
-  new_termios.c_iflag := new_termios.c_iflag and not(BRKINT+ISTRIP+IXON+IXOFF);
-  new_termios.c_iflag := new_termios.c_iflag or (IGNBRK+IGNPAR);
-  new_termios.c_lflag := new_termios.c_lflag and not(ICANON+ISIG+IEXTEN+ECHO);
-  new_termios.c_cc[VMIN] := 1;
-  new_termios.c_cc[VTIME] := 0;
-  tcsetattr(0, TCSANOW, @new_termios);
-end;
-
-procedure term_cleanup();
-begin
-  tcsetattr(0, TCSANOW, @old_termios);
-end;
-
-procedure term_clear();
-begin
-  write('\033[2J\033[1;1H');
-end;
-
-procedure term_move_cursor(x, y : Integer);
-begin
-  write(format('\033[%d;%dH', [y, x]));
-end;
 
 procedure update_state();
 begin
@@ -99,7 +58,7 @@ begin
   else
     M := 'C';
   write(format('Free: %d | Heap: %d | ', [326140 - Heap, Heap]));
-  writeln(format('%d : %d : %d | %c', [Current, Row, Column, M]));
+  writeln(format('Cur %d : Row %d : Col %d | Mode %s', [Current, Row, Column, M]));
 end;
 
 procedure block_display(n : Integer);
@@ -215,14 +174,14 @@ begin
     if Mode = 0 then
     begin
       c[5] := Char(ch);
-      dt := bridge.d_lookup(Dictionary, c);
+      dt := d_lookup(Dictionary, c);
       if dt <> 0 then
         execute(memory[d_xt(dt)]);
     end
     else if Mode = 1 then
     begin
       i[5] := Char(ch);
-      dt := bridge.d_lookup(Dictionary, i);
+      dt := d_lookup(Dictionary, i);
       if dt <> 0 then
         execute(memory[d_xt(dt)])
       else
@@ -239,3 +198,4 @@ begin
     end;
   end;
 end.
+

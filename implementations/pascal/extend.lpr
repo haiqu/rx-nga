@@ -9,6 +9,8 @@ program extend;
 {$mode objfpc}{$H+}
 {$macro on}
 
+//{$define VERBOSE}
+
 uses
   SysUtils, bridge in 'bridge.pas', nga in 'nga.pas';
 
@@ -79,6 +81,6 @@ begin
     writeln('Unable to save the ngaImage!');
     exit();
   end;
-  FileWrite(handle, memory, sizeof(CELL) * (memory[3] + 1));
+  FileWrite(handle, memory, sizeof(Cell) * (memory[3] + 1));
   FileClose(handle);
 end.

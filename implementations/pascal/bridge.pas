@@ -174,7 +174,7 @@ begin
       case opcode of
         1000:
         begin
-          writeln(format('%c', [data[sp]]));
+          writeln(format('%0:1s', [data[sp]]));
           dec(sp);
         end;
         1001:
