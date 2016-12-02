@@ -242,11 +242,17 @@ void evaluate(char *s) {
 Read a token from an input source into a specified buffer. The token ends with a space or newline. If the first character is a single quote (') then the token ends with a second ' instead. (The string parsing using quotes needs the stdlib to be useful, as the base Rx system doesn't provide for the ' prefix.)
 
 ````
+int not_eol(int ch) {
+  return (ch != (char)10) && (ch != (char)13) && (ch != (char)32) && (ch != EOF);
+}
+````
+
+````
 void read_token(FILE *file, char *token_buffer) {
   int ch = getc(file);
   putchar(ch);
   int count = 0;
-  while ((ch != '\n') && (ch != ' ') && (ch != EOF))
+  while (not_eol(ch))
   {
     token_buffer[count++] = ch;
     ch = getc(file);
