@@ -1,6 +1,5 @@
 // ********************************************************
 //  Copyright (c) 2016 Rob Judd <judd@ob-wan.com>
-//  Based on C version by Charles Childers et al
 //  ISC License - see included file LICENSE
 // ********************************************************
 
@@ -12,16 +11,17 @@ unit vt100;
 interface
 
 {$include 'termios.inc'}
-
-var
-  new_termios, old_termios : termios;
+{$include 'ioctl.inc'}
 
 function tcgetattr(_fildes : Integer; _termios_p : Ptermios) : Integer;
-function	tcsetattr(_fildes, _optional_actions : Integer; const _termios_p : Ptermios) : Integer;
+function	tcsetattr(_fildes, _optional_actions : Integer; _termios_p : Ptermios) : Integer;
 procedure term_setup();
 procedure term_cleanup();
 procedure term_clear();
 procedure term_move_cursor(x, y : Integer);
+
+var
+  new_termios, old_termios : termios;
 
 implementation
 
@@ -31,11 +31,31 @@ uses
 function tcgetattr(_fildes : Integer; _termios_p : Ptermios) : Integer;
 begin
   result := 0;
+
+  //  	result := ioctl(_fildes, TIOCGETA, _termios_p);
 end;
 
-function	tcsetattr(_fildes, _optional_actions : Integer; const _termios_p : Ptermios) : Integer;
+function	tcsetattr(_fildes, _optional_actions : Integer; _termios_p : Ptermios) : Integer;
+var
+  localterm : termios;
 begin
   result := 0;
+
+{  if _optional_actions and TCSASOFT then
+  begin
+		localterm := _termios_p^;
+		localterm.c_cflag := localterm.c_cflag or CIGNORE;
+		_termios_p := @localterm;
+	end;
+	case _optional_actions and not TCSASOFT of
+	  TCSANOW: result := ioctl(_fildes, TIOCSETA, _termios_p);
+	  TCSADRAIN: result := ioctl(_fildes, TIOCSETAW, _termios_p);
+	  TCSAFLUSH: result := ioctl(_fildes, TIOCSETAF, _termios_p);
+	else
+  begin
+		errno := EINVAL;
+		result := -1;
+  end;}
 end;
 
 procedure term_setup();

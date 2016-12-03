@@ -54,7 +54,7 @@ end;
 procedure prompt();
 begin
   if memory[Compiler] = 0 then
-    write(LineEnding,'ok  ');
+    write(LineEnding, 'ok  ');
 end;
 
 

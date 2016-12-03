@@ -76,7 +76,6 @@ end;
 function string_extract(at : Cell) : PChar;
 var
   i : Cell = 0;
-  t : ShortString;
   starting : Cell;
 begin
   starting := at;
