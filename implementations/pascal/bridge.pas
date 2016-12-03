@@ -46,7 +46,6 @@ implementation
 uses
   SysUtils, nga in 'nga.pas';
 
-
 function stack_pop() : Cell;
 begin
   dec(sp);
@@ -87,7 +86,7 @@ begin
     inc(starting);
    end;
   string_data[i] := #0;
-  result := PChar(string_data);
+  result := string_data;
 end;
 
 function d_link(dt : Cell) : Integer;

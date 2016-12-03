@@ -34,7 +34,9 @@
       <Unit0>
         <Filename Value="extend.lpr"/>
         <IsPartOfProject Value="True"/>
-        <CursorPos X="3" Y="12"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="2"/>
+        <CursorPos X="49" Y="15"/>
         <UsageCount Value="22"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -42,7 +44,7 @@
         <Filename Value="bridge.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="1"/>
-        <CursorPos Y="230"/>
+        <CursorPos X="16" Y="14"/>
         <UsageCount Value="22"/>
         <Loaded Value="True"/>
       </Unit1>
@@ -50,22 +52,20 @@
         <Filename Value="nga.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="11"/>
-        <CursorPos X="15" Y="8"/>
+        <CursorPos Y="15"/>
         <UsageCount Value="22"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="nga.inc"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
-        <CursorPos Y="18"/>
+        <CursorPos Y="25"/>
         <UsageCount Value="22"/>
         <Loaded Value="True"/>
       </Unit3>
     </Units>
-    <JumpHistory Count="12" HistoryIndex="11">
+    <JumpHistory Count="23" HistoryIndex="22">
       <Position1>
         <Filename Value="extend.lpr"/>
         <Caret Line="14"/>
@@ -114,6 +114,50 @@
         <Filename Value="bridge.pas"/>
         <Caret Line="227" TopLine="225"/>
       </Position12>
+      <Position13>
+        <Filename Value="bridge.pas"/>
+        <Caret Line="7" Column="21"/>
+      </Position13>
+      <Position14>
+        <Filename Value="bridge.pas"/>
+        <Caret Line="14" Column="16"/>
+      </Position14>
+      <Position15>
+        <Filename Value="bridge.pas"/>
+        <Caret Line="47" Column="25" TopLine="25"/>
+      </Position15>
+      <Position16>
+        <Filename Value="bridge.pas"/>
+        <Caret Line="169" Column="8" TopLine="147"/>
+      </Position16>
+      <Position17>
+        <Filename Value="bridge.pas"/>
+        <Caret Line="170" Column="7" TopLine="148"/>
+      </Position17>
+      <Position18>
+        <Filename Value="bridge.pas"/>
+        <Caret Line="172" Column="7" TopLine="150"/>
+      </Position18>
+      <Position19>
+        <Filename Value="extend.lpr"/>
+        <Caret Line="7" Column="26"/>
+      </Position19>
+      <Position20>
+        <Filename Value="extend.lpr"/>
+        <Caret Line="15" Column="49"/>
+      </Position20>
+      <Position21>
+        <Filename Value="extend.lpr"/>
+        <Caret Line="17" Column="16"/>
+      </Position21>
+      <Position22>
+        <Filename Value="extend.lpr"/>
+        <Caret Line="68" Column="3" TopLine="46"/>
+      </Position22>
+      <Position23>
+        <Filename Value="extend.lpr"/>
+        <Caret Line="70" Column="3" TopLine="48"/>
+      </Position23>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>

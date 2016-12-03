@@ -65,9 +65,9 @@ var
 begin
   writeln('RETRO12');
   writeln('+ initialize');
-  nga.ngaPrepare();
+  ngaPrepare();
   writeln('+ load image');
-  nga.ngaLoadImage('ngaImage');
+  ngaLoadImage('ngaImage');
   stats();
   writeln(format('+ load %s', [paramStr(1)]));
   tokens := include_file(PChar(paramStr(1)));
