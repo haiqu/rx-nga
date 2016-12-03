@@ -144,8 +144,8 @@ end;
 
 procedure initialize_rx();
 begin
-  nga.ngaPrepare();
-  nga.ngaLoadImage('ngaImage');
+  ngaPrepare();
+  ngaLoadImage('ngaImage');
   read_blocks();
   update_state();
 end;

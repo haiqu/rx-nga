@@ -1,5 +1,6 @@
 // ********************************************************
 //  Copyright (c) 2016 Rob Judd <judd@ob-wan.com>
+//  Based on C version by Charles Childers et al
 //  ISC License - see included file LICENSE
 // ********************************************************
 
@@ -14,9 +15,11 @@ type
 {$define NOS          := data[sp-1]}
 {$define TOA          := address[ap]}
 
+{
 function ngaLoadImage(imageFile : PChar) : Cell; external;
 procedure ngaPrepare(); external;
 procedure ngaProcessOpcode(opcode : Cell); external;
 procedure ngaProcessPackedOpcodes(opcode : Integer); external;
 function ngaValidatePackedOpcodes(opcode : Cell) : Integer; external;
+}
 

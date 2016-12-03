@@ -65,8 +65,8 @@ var
   input : array[0..1023] of Char;
   i, n : Cell;
 begin
-  nga.ngaPrepare();
-  n := nga.ngaLoadImage('ngaImage');
+  ngaPrepare();
+  n := ngaLoadImage('ngaImage');
   if n = 0 then
     exit();
   update_rx();
