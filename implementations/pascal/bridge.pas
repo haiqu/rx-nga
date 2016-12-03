@@ -13,11 +13,12 @@ interface
 
 {$include 'nga.inc'}
 
-{$define D_OFFSET_LINK  := 0}
-{$define D_OFFSET_XT    := 1}
-{$define D_OFFSET_CLASS := 2}
-{$define D_OFFSET_NAME  := 3}
-{$define TIB := 1471}
+const
+  D_OFFSET_LINK  = 0;
+  D_OFFSET_XT    = 1;
+  D_OFFSET_CLASS = 2;
+  D_OFFSET_NAME  = 3;
+  TIB            = 1471;
 
 var
   Dictionary, Heap, Compiler, notfound : Cell;

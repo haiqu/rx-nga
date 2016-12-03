@@ -12,8 +12,10 @@ program editor;
 uses
   SysUtils, bridge in 'bridge.pas', nga in 'nga.pas', vt100 in 'vt100.pas';
 
-{$define ED_BUFFER:=327680}
-{$define ED_BLOCKS:=384}
+const
+  ED_BUFFER = 327680;
+  ED_BLOCKS = 384;
+
 {$include 'nga.inc'}
 
 var

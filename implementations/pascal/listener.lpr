@@ -14,11 +14,34 @@ uses
 
 {$include 'nga.inc'}
 
-{$define ED_BUFFER:=327680}
-{$define ED_BLOCKS:=384}
-{$define TIB := 1471}
+const
+  ED_BUFFER = 327680;
+  ED_BLOCKS = 384;
+  TIB       = 1471;
 
 //implementation
+
+procedure include_file(fname : PChar);
+var
+  source : array[0..63999] of Char;
+  fp : File of Char;
+  f : THandle;
+begin
+  f := FileOpen(fname, fmOpenRead);
+  if f <> THandle(-1) then
+  begin
+    writeln('+ load ', fname);
+    Assign(fp, fname);
+    Reset(fp);
+    while not eof(fp) do
+    begin
+      read_token(fp, source);
+      evaluate(source);
+    end;
+    Close(fp);
+  end;
+  FileClose(f);
+end;
 
 procedure read_blocks();
 var
@@ -71,7 +94,8 @@ begin
     exit();
   update_rx();
   writeln(format('RETRO 12 (rx-%d.%d)', [memory[4] div 100, memory[4] mod 100]));
-  //read_blocks();
+  //include_file('retro.forth');
+  read_blocks();
   term_setup();
   writeln(format('%d MAX, TIB @ %d, Heap @ %d', [IMAGE_SIZE, TIB, Heap]));
   writeln();
