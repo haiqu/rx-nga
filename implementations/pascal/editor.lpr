@@ -115,7 +115,7 @@ var
   slot : Cell;
   i : Integer;
 begin
-  handle := FileCreate('retro_blocks', fmOpenWrite);
+  handle := FileCreate('retro.blocks', fmOpenWrite);
   if handle <> THandle(-1) then
   begin
     for i := ED_BUFFER to IMAGE_SIZE - 1 do
