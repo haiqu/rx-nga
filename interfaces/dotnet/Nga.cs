@@ -312,8 +312,8 @@ public void executeFunction(int cell) {
       ngaProcessPackedOpcodes(opcode);
     } else {
       if (opcode == 1000) {
-        sp--;
-        Console.Write("PUTC");
+        char c = (char)data[sp--];
+        Console.Write(c);
       } else {
         ngaProcessOpcode(opcode);
       }
@@ -348,6 +348,7 @@ public void executeFunction(int cell) {
       while (true) {
         string input = Console.ReadLine();
         foreach (string word in input.Split(' ')) {
+          if (word.Equals("bye")) Environment.Exit(0);
           vm.ngaInjectString(word, 1471);
           vm.pushData(1471);
           vm.executeFunction(vm.memory[vm.d_lookup("interpret") + 1]);
