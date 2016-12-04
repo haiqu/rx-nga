@@ -166,10 +166,10 @@ begin
     if ip = notfound then
       writeln(format('%s ?', [string_extract(TIB)]));
     opcode := memory[ip];
-    if nga.ngaValidatePackedOpcodes(opcode) <> 0 then
-      nga.ngaProcessPackedOpcodes(opcode)
+    if ngaValidatePackedOpcodes(opcode) <> 0 then
+      ngaProcessPackedOpcodes(opcode)
     else if (opcode >= 0) and (opcode < 27) then
-      nga.ngaProcessOpcode(opcode)
+      ngaProcessOpcode(opcode)
     else
       case opcode of
         1000:
@@ -243,8 +243,13 @@ begin
   repeat
   begin
     read(ch);
-    token_buffer[count] := ch;
-    inc(count);
+    if (ch = #8) and (count <> 0) then
+      dec(count)
+    else
+    begin
+      token_buffer[count] := ch;
+      inc(count);
+    end;
   end;
   until (ch = #13) or (ch = #10) or (ch = ' ') or eof;
   token_buffer[count - 1] := #0;
