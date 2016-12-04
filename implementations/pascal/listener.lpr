@@ -23,7 +23,7 @@ const
 
 procedure include_file(fname : PChar);
 var
-  source : array[0..63999] of Char;
+  source : array[0..65535] of Char;
   fp : File of Char;
   f : THandle;
 begin
@@ -46,8 +46,7 @@ end;
 procedure read_blocks();
 var
   f : THandle;
-  slot : Cell;
-  i : Integer;
+  i, slot : Cell;
 begin
   f := FileOpen('retro.blocks', fmOpenRead);
   if f <> THandle(-1) then
