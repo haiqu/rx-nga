@@ -305,7 +305,7 @@ public void executeFunction(int cell) {
   int notfound = memory[d_lookup("err:notfound") + 1];
   while (ip < 1000000) {
     if (ip == notfound) {
-      Console.Write("%s ?\n", rxGetString(1471));
+      Console.Write("\n" + rxGetString(1471) + " ?\n");
     }
     opcode = memory[ip];
     if (ngaValidatePackedOpcodes(opcode) != 0) {
