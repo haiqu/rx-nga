@@ -12,8 +12,10 @@ program editor;
 uses
   SysUtils, bridge in 'bridge.pas', nga in 'nga.pas', vt100 in 'vt100.pas';
 
-{$define ED_BUFFER:=327680}
-{$define ED_BLOCKS:=384}
+const
+  ED_BUFFER = 327680;
+  ED_BLOCKS = 384;
+
 {$include 'nga.inc'}
 
 var
@@ -45,7 +47,7 @@ var
 begin
   start := (block * 512) + (n * 64);
   for i := 0 to 63 do
-    write(format('%0:1s', [Char(memory[ED_BUFFER + start + i] and $FF)]));
+    write(Char(memory[ED_BUFFER + start + i] and $FF));
   writeln();
 end;
 
@@ -68,6 +70,7 @@ begin
   for line := 0 to 7 do
     rho(n, line);
   sep();
+  update_rx();
   stats();
 end;
 
@@ -96,7 +99,7 @@ var
   handle : THandle;
 begin
   memory[d_xt_for('ed:Mode', Dictionary)] := 0;
-  handle := FileCreate('ngaImage', fmOpenWrite);
+  handle := FileCreate('ngaImage+editor', fmOpenWrite);
   if handle = THandle(-1) then
   begin
     writeln('Unable to save the ngaImage!');
@@ -112,7 +115,7 @@ var
   slot : Cell;
   i : Integer;
 begin
-  handle := FileCreate('retro_blocks', fmOpenWrite);
+  handle := FileCreate('retro.blocks', fmOpenWrite);
   if handle <> THandle(-1) then
   begin
     for i := ED_BUFFER to IMAGE_SIZE - 1 do
@@ -145,7 +148,7 @@ end;
 procedure initialize_rx();
 begin
   ngaPrepare();
-  ngaLoadImage('ngaImage');
+  ngaLoadImage('ngaImage+editor');
   read_blocks();
   update_state();
 end;

@@ -13,11 +13,12 @@ interface
 
 {$include 'nga.inc'}
 
-{$define D_OFFSET_LINK  := 0}
-{$define D_OFFSET_XT    := 1}
-{$define D_OFFSET_CLASS := 2}
-{$define D_OFFSET_NAME  := 3}
-{$define TIB := 1471}
+const
+  D_OFFSET_LINK  = 0;
+  D_OFFSET_XT    = 1;
+  D_OFFSET_CLASS = 2;
+  D_OFFSET_NAME  = 3;
+  TIB            = 1471;
 
 var
   Dictionary, Heap, Compiler, notfound : Cell;
@@ -165,15 +166,15 @@ begin
     if ip = notfound then
       writeln(format('%s ?', [string_extract(TIB)]));
     opcode := memory[ip];
-    if nga.ngaValidatePackedOpcodes(opcode) <> 0 then
-      nga.ngaProcessPackedOpcodes(opcode)
+    if ngaValidatePackedOpcodes(opcode) <> 0 then
+      ngaProcessPackedOpcodes(opcode)
     else if (opcode >= 0) and (opcode < 27) then
-      nga.ngaProcessOpcode(opcode)
+      ngaProcessOpcode(opcode)
     else
       case opcode of
         1000:
         begin
-          writeln(format('%0:1s', [data[sp]]));
+          write(Char(data[sp]));
           dec(sp);
         end;
         1001:
@@ -242,8 +243,13 @@ begin
   repeat
   begin
     read(ch);
-    token_buffer[count] := ch;
-    inc(count);
+    if (ch = #8) and (count <> 0) then
+      dec(count)
+    else
+    begin
+      token_buffer[count] := ch;
+      inc(count);
+    end;
   end;
   until (ch = #13) or (ch = #10) or (ch = ' ') or eof;
   token_buffer[count - 1] := #0;
