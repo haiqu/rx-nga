@@ -99,7 +99,7 @@ var
   handle : THandle;
 begin
   memory[d_xt_for('ed:Mode', Dictionary)] := 0;
-  handle := FileCreate('ngaImage', fmOpenWrite);
+  handle := FileCreate('ngaImage+editor', fmOpenWrite);
   if handle = THandle(-1) then
   begin
     writeln('Unable to save the ngaImage!');
