@@ -47,7 +47,7 @@ var
 begin
   start := (block * 512) + (n * 64);
   for i := 0 to 63 do
-    write(format('%0:1s', [Char(memory[ED_BUFFER + start + i] and $FF)]));
+    write(Char(memory[ED_BUFFER + start + i] and $FF));
   writeln();
 end;
 
@@ -70,6 +70,7 @@ begin
   for line := 0 to 7 do
     rho(n, line);
   sep();
+  update_rx();
   stats();
 end;
 
