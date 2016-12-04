@@ -1,0 +1,3 @@
+default:
+	gmcs Nga.cs
+
