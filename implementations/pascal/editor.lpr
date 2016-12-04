@@ -148,7 +148,7 @@ end;
 procedure initialize_rx();
 begin
   ngaPrepare();
-  ngaLoadImage('ngaImage');
+  ngaLoadImage('ngaImage+editor');
   read_blocks();
   update_state();
 end;
