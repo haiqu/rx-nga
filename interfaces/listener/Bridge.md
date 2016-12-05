@@ -254,7 +254,14 @@ void read_token(FILE *file, char *token_buffer) {
   int count = 0;
   while (not_eol(ch))
   {
-    token_buffer[count++] = ch;
+    if ((ch == 8 || ch == 127) && count > 0) {
+      count--;
+      putchar(8);
+      putchar(32);
+      putchar(8);
+    } else {
+      token_buffer[count++] = ch;
+    }
     ch = getc(file);
     putchar(ch);
   }
