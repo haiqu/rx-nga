@@ -248,22 +248,26 @@ int not_eol(int ch) {
 ````
 
 ````
-void read_token(FILE *file, char *token_buffer) {
+void read_token(FILE *file, char *token_buffer, int echo) {
   int ch = getc(file);
-  putchar(ch);
+  if (echo != 0)
+    putchar(ch);
   int count = 0;
   while (not_eol(ch))
   {
     if ((ch == 8 || ch == 127) && count > 0) {
       count--;
-      putchar(8);
-      putchar(32);
-      putchar(8);
+      if (echo != 0) {
+        putchar(8);
+        putchar(32);
+        putchar(8);
+      }
     } else {
       token_buffer[count++] = ch;
     }
     ch = getc(file);
-    putchar(ch);
+    if (echo != 0)
+      putchar(ch);
   }
   token_buffer[count] = '\0';
 }

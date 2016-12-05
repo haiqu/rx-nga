@@ -46,7 +46,7 @@ void include_file(char *fname) {
   printf("+ load %s\n", fname);
   while (!feof(fp))
   {
-    read_token(fp, source);
+    read_token(fp, source, 0);
     evaluate(source);
   }
   fclose(fp);
@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
   while(1) {
     prompt();
     Dictionary = memory[2];
-    read_token(stdin, input);
+    read_token(stdin, input, 1);
     if (strcmp(input, "bye") == 0) {
       term_cleanup();
       exit(0);
