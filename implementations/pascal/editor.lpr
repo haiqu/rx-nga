@@ -70,7 +70,6 @@ begin
   for line := 0 to 7 do
     rho(n, line);
   sep();
-  update_rx();
   stats();
 end;
 
