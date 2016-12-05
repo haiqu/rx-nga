@@ -243,7 +243,7 @@ begin
   repeat
   begin
     read(ch);
-    if (ch = #8) and (count <> 0) then
+    if (ch = #8) and (count > 0) then
       dec(count)
     else
     begin
