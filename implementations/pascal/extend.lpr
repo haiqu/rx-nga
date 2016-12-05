@@ -9,7 +9,7 @@ program extend;
 {$mode objfpc}{$H+}
 {$macro on}
 
-//{$define VERBOSE}
+{$define VERBOSE}
 
 uses
   SysUtils, bridge in 'bridge.pas', nga in 'nga.pas';
@@ -21,7 +21,7 @@ uses
 function include_file(fname : PChar) : Integer;
 var
   tokens : Integer = 0;
-  source : array[0..63999] of Char;
+  source : array[0..65535] of Char;
   handle : THandle;
   f : File of Char;
  begin
@@ -84,3 +84,4 @@ begin
   FileWrite(handle, memory, sizeof(Cell) * (memory[3] + 1));
   FileClose(handle);
 end.
+
