@@ -4,7 +4,7 @@ CC = clang
 CFLAGS = -Wall -DTERMIOS
 
 #EXT = .exe
-#CFLAGS = -Wall -WINDOWS
+#CFLAGS = -Wall -DWINDOWS
 
 all: s o l c
 
