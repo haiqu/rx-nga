@@ -186,6 +186,6 @@
   :reorder (...ss-?) [ from ] dip to ;
 }}
 :putc (c-) `1000 ;
-:nl   (-)  chr:CR putc ;
+:nl   (-)  chr:LF putc ;
 :puts (s-) [ putc ] str:for-each ;
 :putn (n-) n:to-string puts chr:SPACE putc ;

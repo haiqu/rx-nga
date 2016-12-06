@@ -566,7 +566,7 @@ Retro really only provides one I/O function in the standard interface: pushing a
 This can be used to implement words that push other item to the log.
 
 ````
-:nl   (-)  chr:CR putc ;
+:nl   (-)  chr:LF putc ;
 :puts (s-) [ putc ] str:for-each ;
 :putn (n-) n:to-string puts chr:SPACE putc ;
 ````
